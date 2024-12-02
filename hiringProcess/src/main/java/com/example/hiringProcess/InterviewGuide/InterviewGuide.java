@@ -1,67 +1,66 @@
-//package com.example.hiringProcess.InterviewGuide;
-//
+package com.example.hiringProcess.InterviewGuide;
+
 //import com.example.hiringProcess.JobAd.JobAd;
-//import com.example.hiringProcess.Skill;
 //import jakarta.persistence.*;
-//import java.util.ArrayList;
-//import java.util.List;
-//
-//@Entity
-//public class InterviewGuide {
-//
-//    @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    private int id;
-//
-//    @OneToOne
-//    @JoinColumn(name = "job_ad_id")
-//    private JobAd jobAd;
-//
-//    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<Skill> skills = new ArrayList<>();
-//
-//    // Constructor
-//    public InterviewGuide() {}
-//
-//    public InterviewGuide(JobAd jobAd) {
-//        this.jobAd = jobAd;
-//    }
-//
-//    // Methods
-//    public void addSkill(Skill skill) {
-//        skills.add(skill);
-//    }
-//
-//    public void removeSkill(Skill skill) {
-//        skills.remove(skill);
-//    }
-//
-//    public void reorderSkill(int oldIndex, int newIndex) {
-//        if (oldIndex >= 0 && oldIndex < skills.size() && newIndex >= 0 && newIndex < skills.size()) {
-//            Skill skill = skills.remove(oldIndex);
-//            skills.add(newIndex, skill);
-//        }
-//    }
-//
-//    // Getters and Setters
-//    public int getId() {
-//        return id;
-//    }
-//
-//    public JobAd getJobAd() {
-//        return jobAd;
-//    }
-//
-//    public void setJobAd(JobAd jobAd) {
-//        this.jobAd = jobAd;
-//    }
-//
-//    public List<Skill> getSkills() {
-//        return skills;
-//    }
-//
-//    public void setSkills(List<Skill> skills) {
-//        this.skills = skills;
-//    }
-//}
-//
+import jakarta.persistence.*;
+//import org.springframework.data.annotation.Id;
+
+import java.util.ArrayList;
+import java.util.List;
+
+
+@Entity
+@Table
+public class InterviewGuide {
+    @Id
+    @SequenceGenerator(
+            name = "interviewGuide_sequence",
+            sequenceName = "interviewGuide_sequence",
+            allocationSize = 1
+
+    )
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "interviewGuide_sequence"
+    )
+
+    private int id;
+    private String name;
+
+    //  private List<String> uploadedFiles;
+    public InterviewGuide(int id, String name) {
+        this.name = name;
+        this.id = id;
+        // this.uploadedFiles = getUploadedFiles();
+    }
+
+    public InterviewGuide(String name) {
+        this.name = name;
+        // this.uploadedFiles = getUploadedFiles();
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return "Candidate{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                '}';
+    }
+}
+

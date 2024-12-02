@@ -1,45 +1,64 @@
-//package com.example.hiringProcess.Evaluation;
-//
-//import jakarta.persistence.*;
-//import java.util.HashMap;
-//import java.util.Map;
-//
-//@Entity
-//public class Evaluation {
-//    @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    private int id;
-//
-//    private int candidateId;
-//
-//    private Map<Integer, Double> skillScores = new HashMap<>();
-//
-//    // Constructor
-//    public Evaluation() {}
-//
-//    public Evaluation(int candidateId) {
-//        this.candidateId = candidateId;
-//    }
-//
-//    // Methods
-//    public void assignSkillScore(int skillId, double score) {
-//        skillScores.put(skillId, score);
-//    }
-//
-//
-//    // Methods
-//    public void assignSkillScore(int skillId, double score) {
-//        skillScores.put(skillId, score);
-//    }
-//
-//    public Double getSkillScore(int skillId) {
-//        return skillScores.get(skillId);
-//    }
-//
-//    // Getters and Setters
-//    public int getId() { return id; }
-//    public int getCandidateId() { return candidateId; }
-//    public int getJobAdId() { return jobAdId; }
-//    public Map<Integer, Double> getSkillScores() { return skillScores; }
-//}
-//
+package com.example.hiringProcess.Evaluation;
+
+import jakarta.persistence.*;
+//import org.springframework.data.annotation.Id;
+
+import java.util.ArrayList;
+import java.util.List;
+
+
+@Entity
+@Table
+public class Evaluation {
+    @Id
+    @SequenceGenerator(
+            name = "candidate_sequence",
+            sequenceName = "candidate_sequence",
+            allocationSize = 1
+
+    )
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "candidate_sequence"
+    )
+
+    private int id;
+    private String name;
+
+    //  private List<String> uploadedFiles;
+    public Evaluation(int id, String name) {
+        this.name = name;
+        this.id = id;
+        // this.uploadedFiles = getUploadedFiles();
+    }
+
+    public Evaluation(String name) {
+        this.name = name;
+        // this.uploadedFiles = getUploadedFiles();
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return "Candidate{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                '}';
+    }
+}
+

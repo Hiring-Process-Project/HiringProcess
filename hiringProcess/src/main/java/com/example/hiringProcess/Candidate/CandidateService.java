@@ -11,8 +11,6 @@ import java.util.Optional;
 
 @Service
 public class CandidateService {
-
-
     private final CandidateRepository candidateRepository;
 
     @Autowired
