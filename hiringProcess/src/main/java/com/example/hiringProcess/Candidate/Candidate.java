@@ -13,12 +13,15 @@ import java.util.List;
 @Table
 public class Candidate {
     @Id
+    //Μηχανισμός που δημιουργεί αριθμητικές τιμές σε ακολουθία (sequence).
+    //Αυτές οι τιμές χρησιμοποιούνται για τη γέμιση του πρωτεύοντος κλειδιού (id).
     @SequenceGenerator(
             name = "candidate_sequence",
             sequenceName = "candidate_sequence",
             allocationSize = 1
 
     )
+    //Δηλώνει ότι το πεδίο id θα παίρνει αυτόματα την τιμή του από έναν generator.
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
             generator = "candidate_sequence"
@@ -53,6 +56,7 @@ public class Candidate {
         this.name = name;
     }
 
+    //Για εκτύπωση αντικειμένων σε φιλική μορφή
     @Override
     public String toString() {
         return "Candidate{" +

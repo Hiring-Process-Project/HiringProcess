@@ -10,14 +10,16 @@ import java.util.List;
 public class CandidateConfig {
     @Bean
     CommandLineRunner commandLineRunner(CandidateRepository repository){
+        System.out.println("HIIIIIIIIIIIIIIII");
         return args -> {
+            System.out.println("Saving candidates...");
            Candidate johny = new Candidate(
                    "Johny");
 
             Candidate jamal = new Candidate(
                     "Jamal");
             repository.saveAll(List.of(johny, jamal));
-
+            System.out.println("Candidates saved.");
         };
     }
 }
