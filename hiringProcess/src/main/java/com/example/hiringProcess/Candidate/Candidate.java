@@ -30,11 +30,17 @@ public class Candidate {
     private int id;
     private String name;
   //  private List<String> uploadedFiles;
+
     public Candidate(int id ,String name) {
         this.name = name;
         this.id = id;
        // this.uploadedFiles = getUploadedFiles();
    }
+
+    public Candidate() {
+
+    }
+
     public Candidate(String name) {
         this.name = name;
         // this.uploadedFiles = getUploadedFiles();

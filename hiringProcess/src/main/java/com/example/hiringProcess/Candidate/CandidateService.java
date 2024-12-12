@@ -18,7 +18,7 @@ public class CandidateService {
         this.candidateRepository = candidateRepository;
     }
 
-    @GetMapping
+   @GetMapping//χρειαζεται??
     public List<Candidate> getCandidates(){
         return candidateRepository.findAll();
     }
@@ -45,7 +45,7 @@ public class CandidateService {
         Candidate candidate = candidateRepository.findById(candidateId).orElseThrow(() -> new IllegalStateException(
                 "candidate with id" + candidateId + "does not exists"));
 
-        if(name != null && name.length()>0 && !Objects.equals(candidate.getName(),name)){
+        if(name != null && !name.isEmpty() && !Objects.equals(candidate.getName(),name)){
             candidate.setName(name);
         }
     }
