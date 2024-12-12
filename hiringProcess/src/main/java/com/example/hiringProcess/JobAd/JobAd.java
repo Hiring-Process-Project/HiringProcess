@@ -1,5 +1,6 @@
 package com.example.hiringProcess.JobAd;
 
+import com.example.hiringProcess.Interview.Interview;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -79,6 +80,7 @@ import java.time.LocalDate;
             this.status = status;
         }
 
+
         //Για εκτύπωση αντικειμένων σε φιλική μορφή
         @Override
         public String toString() {
@@ -90,5 +92,7 @@ import java.time.LocalDate;
                     ", status='" + status + '\'' +
                     '}';
         }
+
+
 
     }
