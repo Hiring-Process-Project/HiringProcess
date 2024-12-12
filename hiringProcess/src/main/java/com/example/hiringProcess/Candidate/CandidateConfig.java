@@ -8,7 +8,7 @@ import java.util.List;
 
 @Configuration
 public class CandidateConfig {
-    @Bean
+    @Bean(name = "candidateCommandLineRunner")
     CommandLineRunner commandLineRunner(CandidateRepository repository){
         System.out.println("HIIIIIIIIIIIIIIII");
         return args -> {

@@ -1,4 +1,4 @@
-package JobAd;
+package com.example.hiringProcess.JobAd;
 
 import jakarta.persistence.*;
 
@@ -24,14 +24,14 @@ import java.time.LocalDate;
 
         private int id;
         private String title;
-        private String desc;
+        private String description;
         private LocalDate date;
         private String status;
 
-        public JobAd(int id ,String title, String desc, LocalDate date, String status) {
+        public JobAd(int id ,String title, String description, LocalDate date, String status) {
             this.title = title;
             this.id = id;
-            this.desc = desc;
+            this.description = description;
             this.date = date;
             this.status = status;
         }
@@ -40,9 +40,9 @@ import java.time.LocalDate;
 
         }
 
-        public JobAd(String title, String desc, LocalDate date, String status) {
+        public JobAd(String title, String description, LocalDate date, String status) {
             this.title = title;
-            this.desc = desc;
+            this.description = description;
             this.date = date;
             this.status = status;
         }
@@ -64,11 +64,11 @@ import java.time.LocalDate;
         }
 
         public String getDesc() {
-            return desc;
+            return description;
         }
 
-        public void setDesc(String desc) {
-            this.desc = desc;
+        public void setDesc(String description) {
+            this.description = description;
         }
 
         public String getStatus() {
@@ -85,7 +85,7 @@ import java.time.LocalDate;
             return "JobAd{" +
                     "id=" + id +
                     ", title='" + title + '\'' +
-                    ", desc='" + desc + '\'' +
+                    ", description='" + description + '\'' +
                     ", date=" + date +
                     ", status='" + status + '\'' +
                     '}';
