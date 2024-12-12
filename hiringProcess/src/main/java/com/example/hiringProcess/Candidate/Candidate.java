@@ -5,9 +5,6 @@ package com.example.hiringProcess.Candidate;
 import jakarta.persistence.*;
 //import org.springframework.data.annotation.Id;
 
-import java.util.ArrayList;
-import java.util.List;
-
 
 @Entity
 @Table
@@ -31,7 +28,7 @@ public class Candidate {
     private String name;
   //  private List<String> uploadedFiles;
 
-    public Candidate(int id ,String name) {
+    public Candidate(int id , String name) {
         this.name = name;
         this.id = id;
        // this.uploadedFiles = getUploadedFiles();
