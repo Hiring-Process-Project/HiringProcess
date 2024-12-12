@@ -18,9 +18,14 @@ public class CandidateService {
         this.candidateRepository = candidateRepository;
     }
 
-   @GetMapping//χρειαζεται??
+   @GetMapping(path="/candidates")//χρειαζεται??
     public List<Candidate> getCandidates(){
         return candidateRepository.findAll();
+    }
+
+    @GetMapping(path="/candidate")
+    public Optional<Candidate> getCandidate(Integer candidateId) {
+        return candidateRepository.findById(candidateId);
     }
 
     public void addNewCandidate(Candidate candidate) {
@@ -49,4 +54,6 @@ public class CandidateService {
             candidate.setName(name);
         }
     }
+
+
 }

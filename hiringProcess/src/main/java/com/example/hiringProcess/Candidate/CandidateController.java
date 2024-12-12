@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 //@RequestMapping(path = "api/v1/Candidate")
@@ -21,17 +22,16 @@ public class CandidateController {
     public List<Candidate> getCandidates(){
         return candidateService.getCandidates();
     }
-//public List<Candidate> getCandidates(){
-//    List<Candidate> candidates = candidateService.getCandidates();
-//    System.out.println("ΟΟΟΟΟΟΟΟΟΟΟΟΟΟΟΟΟΟΟΟΟΟΟΟ");
-//    System.out.println(candidates);  // Εκτύπωση της λίστας για έλεγχο
-//    return candidates;
-//}
 
-//@GetMapping
-//public String home() {
-//    return "Welcome to the Hiring Process!";
-//}
+    @GetMapping (path="/candidate")
+    public Optional<Candidate> getCandidate(Integer candidateId){
+        return candidateService.getCandidate(candidateId);
+    }
+
+    @PostMapping (path="/newcandidate")
+    public void addNewCandidate(Candidate candidate){
+         candidateService.addNewCandidate(candidate);
+    }
 
 
     @DeleteMapping(path = "{candidateId}")
