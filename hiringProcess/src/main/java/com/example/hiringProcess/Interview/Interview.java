@@ -1,34 +1,27 @@
 package com.example.hiringProcess.Interview;
 
+import com.example.hiringProcess.JobAd.JobAd;
 import jakarta.persistence.*;
 
 @Entity
 @Table
 public class Interview {
-        @Id
-        //Μηχανισμός που δημιουργεί αριθμητικές τιμές σε ακολουθία (sequence).
-        //Αυτές οι τιμές χρησιμοποιούνται για τη γέμιση του πρωτεύοντος κλειδιού (id).
-        @SequenceGenerator(
-                name = "interview_sequence",
-                sequenceName = "interview_sequence",
-                allocationSize = 1
+    @Id
+    @SequenceGenerator(
+            name = "interview_sequence",
+            sequenceName = "interview_sequence",
+            allocationSize = 1
+    )
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "interview_sequence"
+    )
+    private int id;
 
-        )
-        //Δηλώνει ότι το πεδίο id θα παίρνει αυτόματα την τιμή του από έναν generator.
-        @GeneratedValue(
-                strategy = GenerationType.SEQUENCE,
-                generator = "interview_sequence"
-        )
+    @OneToOne(mappedBy = "interview") // Inverse πλευρά της σχέσης
+    private JobAd jobAd;
 
-        private int id;
-    public Interview(int id ) {
-        this.id = id;
-        // this.uploadedFiles = getUploadedFiles();
-    }
-
-    public Interview() {
-
-    }
+    public Interview() {}
 
     public int getId() {
         return id;
@@ -38,10 +31,20 @@ public class Interview {
         this.id = id;
     }
 
+    public JobAd getJobAd() {
+        return jobAd;
+    }
+
+    public void setJobAd(JobAd jobAd) {
+        this.jobAd = jobAd;
+    }
+
     @Override
     public String toString() {
         return "Interview{" +
                 "id=" + id +
+                ", jobAd=" + (jobAd != null ? jobAd.getId() : "null") +
                 '}';
     }
 }
+
