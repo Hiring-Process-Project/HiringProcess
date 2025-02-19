@@ -1,6 +1,7 @@
 package com.example.hiringProcess.Interview;
 
 import com.example.hiringProcess.JobAd.JobAd;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -19,6 +20,7 @@ public class Interview {
     private int id;
 
     @OneToOne(mappedBy = "interview") // Inverse πλευρά της σχέσης
+    @JsonIgnore  // Δεν θα επιστρέφεται το JobAd όταν ζητάμε το Interview
     private JobAd jobAd;
 
     public Interview() {}

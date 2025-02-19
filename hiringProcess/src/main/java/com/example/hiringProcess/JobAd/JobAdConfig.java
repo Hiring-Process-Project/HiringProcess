@@ -1,5 +1,6 @@
 package com.example.hiringProcess.JobAd;
 
+import com.example.hiringProcess.Interview.Interview;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +16,7 @@ public class JobAdConfig {
 
             JobAd jobAd1= new JobAd("title1","description1" , LocalDate.of(2012, 12, 12) ,"waiting");
 
+            jobAd1.setInterview(new Interview());
             repository.save(jobAd1);
             System.out.println("JobAds saved.");
         };
