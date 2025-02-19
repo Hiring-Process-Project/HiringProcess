@@ -1,27 +1,27 @@
 package com.example.hiringProcess.Interview;
 
 import com.example.hiringProcess.JobAd.JobAd;
+import com.example.hiringProcess.Step.Step;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table
 public class Interview {
     @Id
-    @SequenceGenerator(
-            name = "interview_sequence",
-            sequenceName = "interview_sequence",
-            allocationSize = 1
-    )
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "interview_sequence"
-    )
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "interview_sequence")
+    @SequenceGenerator(name = "interview_sequence", sequenceName = "interview_sequence", allocationSize = 1)
     private int id;
 
     @OneToOne(mappedBy = "interview") // Inverse πλευρά της σχέσης
-    @JsonIgnore  // Δεν θα επιστρέφεται το JobAd όταν ζητάμε το Interview
+    @JsonIgnore
     private JobAd jobAd;
+
+    // Σχέση interview με step (OneToMany)
+    @OneToMany(mappedBy = "interview", cascade = CascadeType.ALL, orphanRemoval = true) // Σωστό mapping
+    private List<Step> steps = new ArrayList<>();
 
     public Interview() {}
 
@@ -41,12 +41,26 @@ public class Interview {
         this.jobAd = jobAd;
     }
 
+    public List<Step> getSteps() {
+        return steps;
+    }
+
+    public void setSteps(List<Step> steps) {
+        this.steps = steps;
+    }
+
+    // Προσθήκη step στη λίστα (βοηθητική μέθοδος)
+    public void addStep(Step step) {
+        steps.add(step);
+        step.setInterview(this);  // Σύνδεση του step με το interview
+    }
+
     @Override
     public String toString() {
         return "Interview{" +
                 "id=" + id +
                 ", jobAd=" + (jobAd != null ? jobAd.getId() : "null") +
+                ", steps=" + (steps != null ? steps.size() : "null") +
                 '}';
     }
 }
-
