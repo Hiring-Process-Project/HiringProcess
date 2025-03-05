@@ -1,8 +1,12 @@
 package com.example.hiringProcess.Step;
 
 import com.example.hiringProcess.Interview.Interview;
+import com.example.hiringProcess.Questions.Questions;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table
@@ -18,6 +22,10 @@ public class Step {
     @JoinColumn(name = "interview_id")  // Το step κρατάει το foreign key
     @JsonIgnore
     private Interview interview;
+
+    // Σχέση questions με step (OneToMany)
+    @OneToMany(mappedBy = "step", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Questions> questions = new ArrayList<>();
 
     public Step() {}
 
@@ -50,13 +58,41 @@ public class Step {
         this.interview = interview;
     }
 
+    public List<Questions> getQuestions() {
+        return questions;
+    }
+
+    public void setQuestions(List<Questions> questions) {
+        this.questions = questions;
+    }
+
+    // Προσθήκη ερώτησης στη λίστα (βοηθητική μέθοδος)
+    public void addQuestion(Questions question) {
+        if (questions != null) {
+            questions.add(question);
+            question.setStep(this);  // Σύνδεση της ερώτησης με το step
+        }
+    }
+
     @Override
     public String toString() {
         return "Step{" +
                 "id=" + id +
                 ", category='" + category + '\'' +
                 ", interview=" + (interview != null ? interview.getId() : "null") +
+                ", questions=" + questionsToString() +
                 '}';
+
+    }
+
+    // Βοηθητική μέθοδος για την αναπαράσταση των ερωτήσεων
+    private String questionsToString() {
+        if (questions == null || questions.isEmpty()) {
+            return "[]";
+        }
+        return questions.stream()
+                .map(q -> "{id=" + q.getId() + ", name=" + q.getName() + "}")
+                .toList()
+                .toString();
     }
 }
-
