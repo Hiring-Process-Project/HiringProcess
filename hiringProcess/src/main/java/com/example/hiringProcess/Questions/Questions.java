@@ -1,8 +1,12 @@
 package com.example.hiringProcess.Questions;
 
+import com.example.hiringProcess.Skill.Skill;
 import com.example.hiringProcess.Step.Step;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table
@@ -18,6 +22,11 @@ public class Questions {
     @JoinColumn(name = "step_id")  // Το question κρατάει το foreign key
     @JsonIgnore
     private Step step;
+
+    // Σχέση question με skill (OneToOne)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true) // Σωστή πλευρά του OneToOne
+    @JoinColumn(name = "skill_id", referencedColumnName = "skill_id") // Foreign key για τη σχέση με Step την οποία διαχειρίζεται το Questions
+    private Skill skill;
 
     public Questions() {}
 
@@ -51,6 +60,14 @@ public class Questions {
         this.step = step;
     }
 
+    public Skill getSkill() {
+        return skill;
+    }
+
+    public void setSkill(Skill skill) {
+        this.skill = skill;
+    }
+
     @Override
     public String toString() {
         return "Questions{" +
@@ -59,4 +76,11 @@ public class Questions {
                 ", step=" + (step != null ? step.getId() : "null") +
                 '}';
     }
+
+    // Μέθοδος που ρυθμίζει τη σχέση με το Skill
+    public void addSkill(Skill skill) {
+        this.skill = skill;  // Ορίζει το skill στο question
+        skill.setQuestion(this);  // Ορίζει το question στο skill (αντίστροφη σχέση)
+    }
+
 }
