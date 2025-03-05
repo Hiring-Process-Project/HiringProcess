@@ -51,16 +51,30 @@ public class Interview {
 
     // Προσθήκη step στη λίστα (βοηθητική μέθοδος)
     public void addStep(Step step) {
-        steps.add(step);
-        step.setInterview(this);  // Σύνδεση του step με το interview
+        if (step != null) {
+            steps.add(step);
+            step.setInterview(this);  // Σύνδεση του step με το interview
+        }
     }
+
 
     @Override
     public String toString() {
         return "Interview{" +
                 "id=" + id +
                 ", jobAd=" + (jobAd != null ? jobAd.getId() : "null") +
-                ", steps=" + (steps != null ? steps.size() : "null") +
+                ", steps=" + stepsToString() +
                 '}';
+    }
+
+    // Βοηθητική μέθοδος για την αναπαράσταση των steps
+    private String stepsToString() {
+        if (steps == null || steps.isEmpty()) {
+            return "[]";
+        }
+        return steps.stream()
+                .map(step -> "{id=" + step.getId() + ", category=" + step.getCategory() + "}")
+                .toList()
+                .toString();
     }
 }
