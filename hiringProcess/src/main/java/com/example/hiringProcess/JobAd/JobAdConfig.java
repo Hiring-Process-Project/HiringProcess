@@ -1,6 +1,7 @@
 package com.example.hiringProcess.JobAd;
 
 import com.example.hiringProcess.Cand_Score.Cand_Score;
+import com.example.hiringProcess.Candidate.Candidate;
 import com.example.hiringProcess.Interview.Interview;
 import com.example.hiringProcess.Questions.Questions;
 import com.example.hiringProcess.Step.Step;
@@ -10,6 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Configuration
 public class JobAdConfig {
@@ -43,6 +45,14 @@ public class JobAdConfig {
             Cand_Score score1 = new Cand_Score(20);
             Cand_Score score2 = new Cand_Score(30);
 
+            //Δημιουργια Candidate
+            Candidate johny = new Candidate(
+                    "Johny");
+
+            Candidate jamal = new Candidate(
+                    "Jamal");
+
+
 
 
             // Προσθήκη των ερωτήσεων στο Step
@@ -60,6 +70,10 @@ public class JobAdConfig {
             s2.addcand_score(score2);
 
             jobAd1.setInterview(interview);
+
+            jobAd1.addCandidate(johny);
+            jobAd1.addCandidate(jamal);
+
             repository.save(jobAd1);
             System.out.println("JobAds saved.");
         };

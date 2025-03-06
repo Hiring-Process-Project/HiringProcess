@@ -2,6 +2,9 @@ package com.example.hiringProcess.Candidate;
 
 //import com.example.hiringProcess.JobAd.JobAd;
 //import jakarta.persistence.*;
+import com.example.hiringProcess.Interview.Interview;
+import com.example.hiringProcess.JobAd.JobAd;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 //import org.springframework.data.annotation.Id;
 
@@ -10,37 +13,28 @@ import jakarta.persistence.*;
 @Table
 public class Candidate {
     @Id
-    //Μηχανισμός που δημιουργεί αριθμητικές τιμές σε ακολουθία (sequence).
-    //Αυτές οι τιμές χρησιμοποιούνται για τη γέμιση του πρωτεύοντος κλειδιού (id).
     @SequenceGenerator(
             name = "candidate_sequence",
             sequenceName = "candidate_sequence",
             allocationSize = 1
-
     )
-    //Δηλώνει ότι το πεδίο id θα παίρνει αυτόματα την τιμή του από έναν generator.
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
             generator = "candidate_sequence"
     )
+    private int id;  // ΤΟ ID ΠΡΕΠΕΙ ΝΑ ΔΗΛΩΘΕΙ ΠΡΩΤΟ!
 
-    private int id;
     private String name;
-  //  private List<String> uploadedFiles;
 
-    public Candidate(int id , String name) {
-        this.name = name;
-        this.id = id;
-       // this.uploadedFiles = getUploadedFiles();
-   }
+    @ManyToOne
+    @JoinColumn(name = "job_ad_id") // Αυτό πρέπει να ταιριάζει με το mappedBy της JobAd
+    @JsonIgnore
+    private JobAd jobAd;
 
-    public Candidate() {
-
-    }
+    public Candidate() {}
 
     public Candidate(String name) {
         this.name = name;
-        // this.uploadedFiles = getUploadedFiles();
     }
 
     public int getId() {
@@ -59,14 +53,26 @@ public class Candidate {
         this.name = name;
     }
 
-    //Για εκτύπωση αντικειμένων σε φιλική μορφή
+    public JobAd getJobAd() {
+        return jobAd;
+    }
+
+    public void setJobAd(JobAd jobAd) {
+        this.jobAd = jobAd;
+    }
+
     @Override
     public String toString() {
         return "Candidate{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
+                ", jobAdId=" + (jobAd != null ? jobAd.getId() : "null") +
                 '}';
     }
+}
+
+
+
 
 
 //    @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -113,6 +119,6 @@ public class Candidate {
        // public List<String> getUploadedFiles() { return uploadedFiles; }
        // public int getJobAdId() { return jobAdId; }
        // public void setJobAdId(int jobAdId) { this.jobAdId = jobAdId; }
-    }
+    //}
 
 

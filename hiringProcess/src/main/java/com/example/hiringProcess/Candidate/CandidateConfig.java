@@ -19,6 +19,8 @@ public class CandidateConfig {
             Candidate jamal = new Candidate(
                     "Jamal");
             repository.saveAll(List.of(johny, jamal));
+
+
             System.out.println("Candidates saved.");
         };
     }
