@@ -1,5 +1,6 @@
 package com.example.hiringProcess.Skill;
 
+import com.example.hiringProcess.Cand_Score.Cand_Score;
 import com.example.hiringProcess.Questions.Questions;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -10,7 +11,7 @@ public class Skill {
 
         @Id //δηλώνει πως το κύριο κλειδί για το Skill είναι το skill_id (δηλώνεται ακριβώς από κάτω)
         @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "skill_sequence") //Ορίζει ότι το ID θα αυξάνεται αυτόματα χρησιμοποιώντας sequence generator
-        @SequenceGenerator(name = "questions_sequence", sequenceName = "skill_sequence", allocationSize = 1) //Δημιουργεί έναν sequence generator
+        @SequenceGenerator(name = "skill_sequence", sequenceName = "skill_sequence", allocationSize = 1)
         private int skill_id;
 
         private String skill_name;
@@ -18,6 +19,11 @@ public class Skill {
         @OneToOne(mappedBy = "skill") // Inverse πλευρά της σχέσης Skill-Questions
         @JsonIgnore
         private Questions question;
+
+        // Σχέση skill με Cand_Score (OneToOne)
+        @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true) // Σωστή πλευρά του OneToOne
+        @JoinColumn(name = "Cand_Score_id", referencedColumnName = "Cand_Score_id") // Foreign key για τη σχέση με Step την οποία διαχειρίζεται το Questions
+        private Cand_Score cand_score;
 
         public Skill() {};
 
@@ -51,11 +57,26 @@ public class Skill {
             this.question = question;
         }
 
-        public String toString() {
+        public Cand_Score getCand_score() {
+            return cand_score;
+        }
+
+        public void setCand_score(Cand_Score cand_score) {
+            this.cand_score = cand_score;
+        }
+
+    public String toString() {
             return "Skill{" +
                     "skill_id=" + skill_id +
                     ", skill_name=" + skill_name +
                     ", question=" + (question != null ? question.getId() : "null") +
+                    ", cand_score=" + (cand_score != null ? cand_score.getId() : "null") +
                     '}';
         }
+
+    // Μέθοδος που ρυθμίζει τη σχέση με το Cand_Score
+    public void addcand_score(Cand_Score cand_score) {
+        this.cand_score = cand_score;  // Ορίζει το skill στο question
+        cand_score.setSkill(this);  // Ορίζει το question στο skill (αντίστροφη σχέση)
+    }
 }
