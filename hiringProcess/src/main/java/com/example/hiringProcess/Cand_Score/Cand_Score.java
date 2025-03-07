@@ -1,5 +1,6 @@
 package com.example.hiringProcess.Cand_Score;
 
+import com.example.hiringProcess.Candidate.Candidate;
 import com.example.hiringProcess.Skill.Skill;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -18,7 +19,11 @@ public class Cand_Score {
     @JsonIgnore
     private Skill skill;
 
-    public Cand_Score() {};
+    @OneToOne(mappedBy = "cand_score") // Inverse πλευρά της σχέσης
+    @JsonIgnore
+    private Candidate candidate;
+
+    public Cand_Score() {}
 
     public Cand_Score(Integer score){
         this.score=score;
@@ -47,6 +52,14 @@ public class Cand_Score {
 
     public void setSkill(Skill skill) {
         this.skill = skill;
+    }
+
+    public Candidate getCandidate() {
+        return candidate;
+    }
+
+    public void setCandidate(Candidate candidate) {
+        this.candidate = candidate;
     }
 
     public String toString() {

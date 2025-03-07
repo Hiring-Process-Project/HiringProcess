@@ -2,7 +2,6 @@ package com.example.hiringProcess.JobAd;
 
 import com.example.hiringProcess.Candidate.Candidate;
 import com.example.hiringProcess.Interview.Interview;
-import com.example.hiringProcess.Step.Step;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;

@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.time.LocalDate;
-import java.util.List;
+
 
 @Configuration
 public class JobAdConfig {
@@ -68,6 +68,10 @@ public class JobAdConfig {
             //Προσθήκη score στα skill
             s1.addcand_score(score1);
             s2.addcand_score(score2);
+
+            //Προσθηκη score στον Candidate
+            johny.addscore(score1);
+            jamal.addscore(score2);
 
             jobAd1.setInterview(interview);
 

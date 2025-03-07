@@ -2,7 +2,7 @@ package com.example.hiringProcess.Candidate;
 
 //import com.example.hiringProcess.JobAd.JobAd;
 //import jakarta.persistence.*;
-import com.example.hiringProcess.Interview.Interview;
+import com.example.hiringProcess.Cand_Score.Cand_Score;
 import com.example.hiringProcess.JobAd.JobAd;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -30,6 +30,12 @@ public class Candidate {
     @JoinColumn(name = "job_ad_id") // Αυτό πρέπει να ταιριάζει με το mappedBy της JobAd
     @JsonIgnore
     private JobAd jobAd;
+
+    // Σχέση candidate με cand_score (OneToOne)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true) // Σωστή πλευρά του OneToOne
+    @JoinColumn(name = "cand_score_id", referencedColumnName = "cand_score_id")
+    private Cand_Score cand_score;
+
 
     public Candidate() {}
 
@@ -61,14 +67,22 @@ public class Candidate {
         this.jobAd = jobAd;
     }
 
+    // Μέθοδος που ρυθμίζει τη σχέση με το cand score
+    public void addscore(Cand_Score cand_score) {
+        this.cand_score = cand_score;
+        cand_score.setCandidate(this);  // Ορίζει το score στο candidate (αντίστροφη σχέση)
+    }
+
     @Override
     public String toString() {
         return "Candidate{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", jobAdId=" + (jobAd != null ? jobAd.getId() : "null") +
+                ", cand_score=" + (cand_score != null ? cand_score.getScore() : "null") +
                 '}';
     }
+
 }
 
 
