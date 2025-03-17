@@ -73,6 +73,14 @@ public class JobAdConfig {
             johny.addscore(score1);
             jamal.addscore(score2);
 
+            //Προσθηκη skill στο jobad
+            jobAd1.addSkill(s1);
+            jobAd1.addSkill(s2);
+            jobAd1.addSkill(s3);
+
+
+
+
             jobAd1.setInterview(interview);
 
             jobAd1.addCandidate(johny);

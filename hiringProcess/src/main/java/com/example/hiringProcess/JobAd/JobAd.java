@@ -2,6 +2,8 @@ package com.example.hiringProcess.JobAd;
 
 import com.example.hiringProcess.Candidate.Candidate;
 import com.example.hiringProcess.Interview.Interview;
+import com.example.hiringProcess.Skill.Skill;
+import com.example.hiringProcess.Step.Step;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -36,6 +38,10 @@ public class JobAd {
     @OneToMany(mappedBy = "jobAd", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Candidate> candidates = new ArrayList<>();
 
+    // Σχέση JobAd με Skill (OneToMany)
+    @OneToMany(mappedBy = "jobAd", cascade = CascadeType.ALL, orphanRemoval = true) // Σωστό mapping
+    private List<Skill> skills = new ArrayList<>();
+
 
 
     public JobAd() {}
@@ -59,7 +65,15 @@ public class JobAd {
         return id;
     }
 
-        // ToString για debugging
+    public List<Skill> getSkills() {
+        return skills;
+    }
+
+    public void setSkills(List<Skill> skills) {
+        this.skills = skills;
+    }
+
+    // ToString για debugging
     @Override
     public String toString() {
         return "JobAd{" +
@@ -70,6 +84,7 @@ public class JobAd {
                 ", status='" + status + '\'' +
                 ", interview=" + (interview != null ? interview.getId() : "null") +
                 ", candidate="+candidatesToString()+
+                ", skill="+skillsToString()+
                 '}';
     }
 
@@ -82,7 +97,7 @@ public class JobAd {
     public void addCandidate(Candidate candidate) {
         if (candidate != null) {
             candidates.add(candidate);
-            candidate.setJobAd(this);  // Σύνδεση του step με το interview
+            candidate.setJobAd(this);
         }
     }
 
@@ -93,6 +108,25 @@ public class JobAd {
         }
         return candidates.stream()
                 .map(candidate -> "{id=" + candidate.getId() + ", name=" + candidate.getName() + "}")
+                .toList()
+                .toString();
+    }
+
+    // Προσθήκη skill στη λίστα (βοηθητική μέθοδος)
+    public void addSkill(Skill skill) {
+        if (skill != null) {
+            skills.add(skill);
+            skill.setJobAd(this);
+        }
+    }
+
+    // Βοηθητική μέθοδος για την αναπαράσταση των skills
+    private String skillsToString() {
+        if ( skills == null || skills.isEmpty()) {
+            return "[]";
+        }
+        return skills.stream()
+                .map(skill -> "{id=" + skill.getId() + ", name=" + skill.getName() + "}")
                 .toList()
                 .toString();
     }

@@ -1,6 +1,7 @@
 package com.example.hiringProcess.Skill;
 
 import com.example.hiringProcess.Cand_Score.Cand_Score;
+import com.example.hiringProcess.JobAd.JobAd;
 import com.example.hiringProcess.Questions.Questions;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -24,6 +25,13 @@ public class Skill {
         @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true) // Σωστή πλευρά του OneToOne
         @JoinColumn(name = "Cand_Score_id", referencedColumnName = "Cand_Score_id") // Foreign key για τη σχέση με Step την οποία διαχειρίζεται το Questions
         private Cand_Score cand_score;
+
+        //Σχεση skil με Job_ad one to many
+        @ManyToOne  // Σωστή σχέση (Many Steps -> One Jobad)
+        @JsonIgnore
+
+        @JoinColumn(name = "Job_ad_id")
+        private JobAd jobAd;
 
         public Skill() {};
 
@@ -65,12 +73,22 @@ public class Skill {
             this.cand_score = cand_score;
         }
 
+    public JobAd getJobAd() {
+        return jobAd;
+    }
+
+    public void setJobAd(JobAd jobAd) {
+        this.jobAd = jobAd;
+    }
+
     public String toString() {
             return "Skill{" +
                     "skill_id=" + skill_id +
                     ", skill_name=" + skill_name +
                     ", question=" + (question != null ? question.getId() : "null") +
                     ", cand_score=" + (cand_score != null ? cand_score.getId() : "null") +
+                    ", Job_ad=" + (jobAd != null ? jobAd.getId() : "null") +
+
                     '}';
         }
 
