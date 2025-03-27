@@ -41,6 +41,15 @@ public class JobAdConfig {
             Skill s2 = new Skill("Dependency injection");
             Skill s3 = new Skill("Difference between abstract classes and interfaces");
 
+            Skill s5 = new Skill("Polymorphism");
+            Skill s6 = new Skill("Dependency injection");
+            Skill s7 = new Skill("Difference between abstract classes and interfaces");
+
+            //Προσθηκη skill στο jobad
+            jobAd1.addSkill(s5);
+            jobAd1.addSkill(s6);
+            jobAd1.addSkill(s7);
+
             //Δημιοργία score για τα skills
             Cand_Score score1 = new Cand_Score(20);
             Cand_Score score2 = new Cand_Score(30);
@@ -73,10 +82,7 @@ public class JobAdConfig {
             johny.addscore(score1);
             jamal.addscore(score2);
 
-            //Προσθηκη skill στο jobad
-            jobAd1.addSkill(s1);
-            jobAd1.addSkill(s2);
-            jobAd1.addSkill(s3);
+
 
 
 

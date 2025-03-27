@@ -74,6 +74,7 @@ public class Questions {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", step=" + (step != null ? step.getId() : "null") +
+                " question skill" + (skill != null ? skill.getId()  : "null") +
                 '}';
     }
 

@@ -84,7 +84,7 @@ public class JobAd {
                 ", status='" + status + '\'' +
                 ", interview=" + (interview != null ? interview.getId() : "null") +
                 ", candidate="+candidatesToString()+
-                ", skill="+skillsToString()+
+                ", skill required="+skillsToString()+
                 '}';
     }
 
