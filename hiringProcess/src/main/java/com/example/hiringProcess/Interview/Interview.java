@@ -33,22 +33,6 @@ public class Interview {
         this.id = id;
     }
 
-    public JobAd getJobAd() {
-        return jobAd;
-    }
-
-    public void setJobAd(JobAd jobAd) {
-        this.jobAd = jobAd;
-    }
-
-    public List<Step> getSteps() {
-        return steps;
-    }
-
-    public void setSteps(List<Step> steps) {
-        this.steps = steps;
-    }
-
     // Προσθήκη step στη λίστα (βοηθητική μέθοδος)
     public void addStep(Step step) {
         if (step != null) {
@@ -56,7 +40,6 @@ public class Interview {
             step.setInterview(this);  // Σύνδεση του step με το interview
         }
     }
-
 
     @Override
     public String toString() {

@@ -20,9 +20,9 @@ public class JobAdConfig {
         return args -> {
             System.out.println("Saving jobAds...");
 
-            JobAd jobAd1= new JobAd("title1","description1" , LocalDate.of(2012, 12, 12) ,"waiting");
-
             Interview interview = new Interview();
+
+            JobAd jobAd1= new JobAd("title1","description1" , LocalDate.of(2012, 12, 12) ,"waiting", interview);
 
             Step step1 = new Step("Technical Interview");
             Step step2 = new Step("HR Interview");
@@ -45,10 +45,6 @@ public class JobAdConfig {
             Skill s6 = new Skill("Dependency injection");
             Skill s7 = new Skill("Difference between abstract classes and interfaces");
 
-            //Προσθηκη skill στο jobad
-            jobAd1.addSkill(s5);
-            jobAd1.addSkill(s6);
-            jobAd1.addSkill(s7);
 
             //Δημιοργία score για τα skills
             Cand_Score score1 = new Cand_Score(20);
@@ -60,8 +56,6 @@ public class JobAdConfig {
 
             Candidate jamal = new Candidate(
                     "Jamal");
-
-
 
 
             // Προσθήκη των ερωτήσεων στο Step
@@ -81,11 +75,6 @@ public class JobAdConfig {
             //Προσθηκη score στον Candidate
             johny.addscore(score1);
             jamal.addscore(score2);
-
-
-
-
-
 
             jobAd1.setInterview(interview);
 
