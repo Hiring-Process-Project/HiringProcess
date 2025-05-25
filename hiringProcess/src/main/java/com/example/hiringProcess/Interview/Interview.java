@@ -30,8 +30,6 @@ public class Interview {
     @JsonIgnore
     private InterviewReport interviewReport;
 
-
-
     public Interview() {}
 
     public int getId() {

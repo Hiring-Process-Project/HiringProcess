@@ -35,8 +35,8 @@ public class InterviewReport {
     private List<StepResults> stepResults = new ArrayList<>();
 
     // Σχέση InterviewReport με interview (OneToOne)
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "interview_id", referencedColumnName = "interview_id")
+    @OneToOne
+    @JoinColumn(name = "interview_id", referencedColumnName = "id")
     Interview interview;
 
     public InterviewReport() {

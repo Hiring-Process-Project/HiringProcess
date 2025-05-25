@@ -4,8 +4,6 @@ import com.example.hiringProcess.Candidate.Candidate;
 import com.example.hiringProcess.Interview.Interview;
 import com.example.hiringProcess.Occupation.Occupation;
 
-import com.example.hiringProcess.Skill.Skill;
-import com.example.hiringProcess.Step.Step;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
