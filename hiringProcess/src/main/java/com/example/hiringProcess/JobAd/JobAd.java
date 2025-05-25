@@ -1,7 +1,9 @@
 package com.example.hiringProcess.JobAd;
 
 import com.example.hiringProcess.Candidate.Candidate;
+import com.example.hiringProcess.Department.Department;
 import com.example.hiringProcess.Interview.Interview;
+import com.example.hiringProcess.QuestionScore.QuestionScore;
 import com.example.hiringProcess.Skill.Skill;
 import com.example.hiringProcess.Step.Step;
 import jakarta.persistence.*;
@@ -9,6 +11,7 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table
@@ -41,6 +44,15 @@ public class JobAd {
     // Σχέση JobAd με Skill (OneToMany)
     @OneToMany(mappedBy = "jobAd", cascade = CascadeType.ALL, orphanRemoval = true) // Σωστό mapping
     private List<Skill> skills = new ArrayList<>();
+
+    // Σχέση Jobad με Departmenet (OneToMany)
+    @ManyToMany
+    @JoinTable(
+            name = "jobad_department", // όνομα του ενδιάμεσου πίνακα
+            joinColumns = @JoinColumn(name = "jobad_id"), // ξένο κλειδί προς JobAd
+            inverseJoinColumns = @JoinColumn(name = "department_id") // ξένο κλειδί προς Department
+    )
+    private Set<Department> departments;
 
 
 

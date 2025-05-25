@@ -2,6 +2,7 @@ package com.example.hiringProcess.Step;
 
 import com.example.hiringProcess.Interview.Interview;
 import com.example.hiringProcess.Questions.Questions;
+import com.example.hiringProcess.StepResults.StepResults;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
@@ -26,6 +27,11 @@ public class Step {
     // Σχέση questions με step (OneToMany)
     @OneToMany(mappedBy = "step", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Questions> questions = new ArrayList<>();
+
+    // Σχέση StepResults με step (OneToOne)
+    @OneToOne(mappedBy = "step")
+    @JsonIgnore
+    StepResults stepResults;
 
     public Step() {}
 

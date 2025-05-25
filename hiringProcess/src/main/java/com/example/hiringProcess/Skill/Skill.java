@@ -1,6 +1,5 @@
 package com.example.hiringProcess.Skill;
 
-import com.example.hiringProcess.Cand_Score.Cand_Score;
 import com.example.hiringProcess.JobAd.JobAd;
 import com.example.hiringProcess.Questions.Questions;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -25,7 +24,7 @@ public class Skill {
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "Cand_Score_id", referencedColumnName = "Cand_Score_id")
-    private Cand_Score cand_score;
+
 
     @ManyToOne
     @JsonIgnore
@@ -62,20 +61,9 @@ public class Skill {
         this.question = question;
     }
 
-    @JsonIgnore // Δεν θα εμφανίζεται στη λίστα skills της JobAd
-    public Cand_Score getCand_score() {
-        return cand_score;
-    }
 
-    @JsonProperty("cand_score") // Θα εμφανίζεται μόνο αν υπάρχει σχετική ερώτηση
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public Cand_Score getCandScoreForQuestion() {
-        return (question != null) ? cand_score : null;
-    }
 
-    public void setCand_score(Cand_Score cand_score) {
-        this.cand_score = cand_score;
-    }
+
 
     public JobAd getJobAd() {
         return jobAd;
@@ -91,13 +79,9 @@ public class Skill {
                 "skill_id=" + skill_id +
                 ", skill_name=" + skill_name +
                 ", question=" + (question != null ? question.getId() : "null") +
-                ", cand_score=" + (cand_score != null ? cand_score.getId() : "null") +
                 ", Job_ad=" + (jobAd != null ? jobAd.getId() : "null") +
                 '}';
     }
 
-    public void addcand_score(Cand_Score cand_score) {
-        this.cand_score = cand_score;
-        cand_score.setSkill(this);
-    }
+
 }

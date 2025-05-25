@@ -1,7 +1,9 @@
 package com.example.hiringProcess.Interview;
 
+import com.example.hiringProcess.InterviewReport.InterviewReport;
 import com.example.hiringProcess.JobAd.JobAd;
 import com.example.hiringProcess.Step.Step;
+import com.example.hiringProcess.StepResults.StepResults;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.util.ArrayList;
@@ -22,6 +24,13 @@ public class Interview {
     // Σχέση interview με step (OneToMany)
     @OneToMany(mappedBy = "interview", cascade = CascadeType.ALL, orphanRemoval = true) // Σωστό mapping
     private List<Step> steps = new ArrayList<>();
+
+    // Σχέση InterviewReport με interview (OneToOne)
+    @OneToOne(mappedBy = "interview")
+    @JsonIgnore
+    private InterviewReport interviewReport;
+
+
 
     public Interview() {}
 

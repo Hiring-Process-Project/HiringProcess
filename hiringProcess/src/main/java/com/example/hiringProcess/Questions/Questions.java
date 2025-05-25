@@ -1,5 +1,7 @@
 package com.example.hiringProcess.Questions;
 
+import com.example.hiringProcess.Candidate.Candidate;
+import com.example.hiringProcess.QuestionScore.QuestionScore;
 import com.example.hiringProcess.Skill.Skill;
 import com.example.hiringProcess.Step.Step;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -27,6 +29,11 @@ public class Questions {
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true) // Σωστή πλευρά του OneToOne
     @JoinColumn(name = "skill_id", referencedColumnName = "skill_id") // Foreign key για τη σχέση με Step την οποία διαχειρίζεται το Questions
     private Skill skill;
+
+    //Σχεση interviewReprt με Candidate OneToOne
+    @OneToOne(mappedBy = "questionscore")
+    @JsonIgnore
+    QuestionScore questionScore;
 
     public Questions() {}
 

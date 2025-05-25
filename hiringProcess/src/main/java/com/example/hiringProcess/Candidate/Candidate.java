@@ -1,12 +1,11 @@
 package com.example.hiringProcess.Candidate;
 
-//import com.example.hiringProcess.JobAd.JobAd;
-//import jakarta.persistence.*;
-import com.example.hiringProcess.Cand_Score.Cand_Score;
+
+import com.example.hiringProcess.InterviewReport.InterviewReport;
 import com.example.hiringProcess.JobAd.JobAd;
+import com.example.hiringProcess.Skill.Skill;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-//import org.springframework.data.annotation.Id;
 
 
 @Entity
@@ -24,115 +23,62 @@ public class Candidate {
     )
     private int id;  // ΤΟ ID ΠΡΕΠΕΙ ΝΑ ΔΗΛΩΘΕΙ ΠΡΩΤΟ!
 
-    private String name;
+
+    private String firstName;
+    private  String lastName;
+    private String email;
+    private String info;
+    private String decision;
+    private String reasoning;
 
     @ManyToOne
     @JoinColumn(name = "job_ad_id") // Αυτό πρέπει να ταιριάζει με το mappedBy της JobAd
     @JsonIgnore
     private JobAd jobAd;
 
-    // Σχέση candidate με cand_score (OneToOne)
+    // Σχέση inteviewreport με candidate (OneToOne)
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true) // Σωστή πλευρά του OneToOne
-    @JoinColumn(name = "cand_score_id", referencedColumnName = "cand_score_id")
-    private Cand_Score cand_score;
-
+    @JoinColumn(name = "interviewreport_id", referencedColumnName = "interviewreport_id") // Foreign key για τη σχέση με Step την οποία διαχειρίζεται το Questions
+    InterviewReport interviewReport;
 
     public Candidate() {}
 
-    public Candidate(String name) {
-        this.name = name;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public JobAd getJobAd() {
-        return jobAd;
-    }
-
-    public void setJobAd(JobAd jobAd) {
-        this.jobAd = jobAd;
-    }
-
-    // Μέθοδος που ρυθμίζει τη σχέση με το cand score
-    public void addscore(Cand_Score cand_score) {
-        this.cand_score = cand_score;
-        cand_score.setCandidate(this);  // Ορίζει το score στο candidate (αντίστροφη σχέση)
+    public Candidate(String firstName,String lastName, String email, String info, String decision, String reasoning) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.info = info;
+        this.decision = decision;
+        this.reasoning = reasoning;
     }
 
     @Override
     public String toString() {
         return "Candidate{" +
                 "id=" + id +
-                ", name='" + name + '\'' +
+                ", First Name='" + firstName + '\'' +
+                ", Last Name='" + lastName + '\'' +
+                ", email='" + email + '\'' +
+                ", Info='" + info + '\'' +
+                ", Decision='" + decision + '\'' +
+                ", Reasoning='" + reasoning + '\'' +
                 ", jobAdId=" + (jobAd != null ? jobAd.getId() : "null") +
-                ", cand_score=" + (cand_score != null ? cand_score.getScore() : "null") +
                 '}';
     }
 
+    public void setJobAd(JobAd jobAd) {
+        this.jobAd=jobAd;
+    }
+
+    public int getId() {
+       return id;
+    }
+
+    public String getName() {
+        return firstName;
+    }
 }
 
 
-
-
-
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    private int id;
-//
-//    private String name;
-//
-//    @ElementCollection
-//    private List<String> uploadedFiles = new ArrayList<>();
-//
-//    @ManyToOne
-//    @JoinColumn(name = "job_ad_id")
-//    private JobAd jobAd;
-//
-//    // Constructor
-//    public Candidate() {}
-//
-//    public Candidate(String name) {
-//        this.name = name;
-//    }
-//
-//    // Methods
-//    public void uploadFile(String filePath) {
-//        uploadedFiles.add(filePath);
-//    }
-//
-//    public void removeFile(String filePath) {
-//        uploadedFiles.remove(filePath);
-//    }
-//
-//    // Methods
-//        public void uploadFile(String filePath) {
-//            uploadedFiles.add(filePath);
-//        }
-//
-//        public void removeFile(String filePath) {
-//            uploadedFiles.remove(filePath);
-//        }
-
-        // Getters and Setters
-       // public Long getId() { return id; }
-        //public String getName() { return name; }
-       // public void setName(String name) { this.name = name; }
-       // public List<String> getUploadedFiles() { return uploadedFiles; }
-       // public int getJobAdId() { return jobAdId; }
-       // public void setJobAdId(int jobAdId) { this.jobAdId = jobAdId; }
-    //}
 
 
