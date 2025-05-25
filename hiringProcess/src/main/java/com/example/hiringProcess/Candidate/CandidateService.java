@@ -51,7 +51,7 @@ public class CandidateService {
                 "candidate with id" + candidateId + "does not exists"));
 
         if(name != null && !name.isEmpty() && !Objects.equals(candidate.getName(),name)){
-            candidate.setName(name);
+            candidate.setFirstName(name);
         }
     }
 
