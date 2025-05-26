@@ -44,6 +44,8 @@ public class Department {
         this.description=description;
     }
 
+    // Getters and Setters
+
     public String getName() {
         return name;
     }
