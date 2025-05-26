@@ -1,7 +1,7 @@
 package com.example.hiringProcess.Step;
 
 import com.example.hiringProcess.Interview.Interview;
-import com.example.hiringProcess.Questions.Questions;
+import com.example.hiringProcess.Question.Question;
 import com.example.hiringProcess.StepResults.StepResults;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -13,82 +13,63 @@ import java.util.List;
 @Table
 public class Step {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "step_sequence")
-    @SequenceGenerator(name = "step_sequence", sequenceName = "step_sequence", allocationSize = 1)
+    @SequenceGenerator(
+            name = "step_sequence",
+            sequenceName = "step_sequence",
+            allocationSize = 1
+    )
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "step_sequence"
+    )
+
     private int id;
 
-    private String category; // Διορθωμένο όνομα μεταβλητής (σύμφωνα με Java naming conventions)
+    private String title;
+    private String description;
 
-    @ManyToOne  // Σωστή σχέση (Many Steps -> One Interview)
-    @JoinColumn(name = "interview_id")  // Το step κρατάει το foreign key
+    // Σχέση Step με Interview
+    @ManyToOne()
+    @JoinColumn(name = "interview_id", referencedColumnName = "id")
     @JsonIgnore
     private Interview interview;
 
-    // Σχέση questions με step (OneToMany)
+    // Σχέση Step με Question
     @OneToMany(mappedBy = "step", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Questions> questions = new ArrayList<>();
+    @JsonIgnore
+    private List<Question> questions = new ArrayList<>();
 
-    // Σχέση StepResults με step (OneToOne)
+    // Σχέση Step με StepResults
     @OneToOne(mappedBy = "step")
     @JsonIgnore
     StepResults stepResults;
 
     public Step() {}
 
-    public Step(String category){
-        this.category = category;
+    public Step(String title, String description){
+        this.title = title;
+        this. description = description;
     }
 
-    // Getters and Setters
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getCategory() {
-        return category;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
-    public Interview getInterview() {
-        return interview;
-    }
-
-    public void setInterview(Interview interview) {
-        this.interview = interview;
-    }
-
-    public List<Questions> getQuestions() {
-        return questions;
-    }
-
-    public void setQuestions(List<Questions> questions) {
-        this.questions = questions;
-    }
-
-    // Προσθήκη ερώτησης στη λίστα (βοηθητική μέθοδος)
-    public void addQuestion(Questions question) {
-        if (questions != null) {
-            questions.add(question);
-            question.setStep(this);  // Σύνδεση της ερώτησης με το step
-        }
-    }
-
+    // ToString για debugging
     @Override
     public String toString() {
         return "Step{" +
                 "id=" + id +
-                ", category='" + category + '\'' +
+                ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
                 ", interview=" + (interview != null ? interview.getId() : "null") +
                 ", questions=" + questionsToString() +
                 '}';
 
+    }
+
+    // Βοηθητική μέθοδος για προσθήκη ερώτησης στη λίστα
+    public void addQuestion(Question question) {
+        if (questions != null) {
+            questions.add(question);
+            question.setStep(this);  // Σύνδεση της ερώτησης με το step
+        }
     }
 
     // Βοηθητική μέθοδος για την αναπαράσταση των ερωτήσεων
@@ -101,4 +82,34 @@ public class Step {
                 .toList()
                 .toString();
     }
+
+    // Getters and Setters
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public Interview getInterview() {
+        return interview;
+    }
+
+    public void setInterview(Interview interview) {
+        this.interview = interview;
+    }
+
+    public List<Question> getQuestions() {
+        return questions;
+    }
+
+    public void setQuestions(List<Question> questions) {
+        this.questions = questions;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
 }

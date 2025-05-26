@@ -1,12 +1,9 @@
 package com.example.hiringProcess.Candidate;
 
-
 import com.example.hiringProcess.InterviewReport.InterviewReport;
 import com.example.hiringProcess.JobAd.JobAd;
-import com.example.hiringProcess.Skill.Skill;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-
 
 @Entity
 @Table
@@ -21,25 +18,26 @@ public class Candidate {
             strategy = GenerationType.SEQUENCE,
             generator = "candidate_sequence"
     )
-    private int id;  // ΤΟ ID ΠΡΕΠΕΙ ΝΑ ΔΗΛΩΘΕΙ ΠΡΩΤΟ!
-
+    private int id;
 
     private String firstName;
-    private  String lastName;
+    private String lastName;
     private String email;
     private String info;
     private String decision;
     private String reasoning;
 
+    // Σχέση Candidate με JobAd
     @ManyToOne
-    @JoinColumn(name = "job_ad_id") // Αυτό πρέπει να ταιριάζει με το mappedBy της JobAd
+    @JoinColumn(name = "job_ad_id", referencedColumnName = "id")
     @JsonIgnore
     private JobAd jobAd;
 
-    // Σχέση inteviewreport με candidate (OneToOne)
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true) // Σωστή πλευρά του OneToOne
-    @JoinColumn(name = "interviewreport_id", referencedColumnName = "interviewreport_id") // Foreign key για τη σχέση με Step την οποία διαχειρίζεται το Questions
-    InterviewReport interviewReport;
+    // Σχέση Candidate με InterviewReport
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "interviewReport_id", referencedColumnName = "id")
+    @JsonIgnore
+    private InterviewReport interviewReport;
 
     public Candidate() {}
 
@@ -56,15 +54,17 @@ public class Candidate {
     public String toString() {
         return "Candidate{" +
                 "id=" + id +
-                ", First Name='" + firstName + '\'' +
-                ", Last Name='" + lastName + '\'' +
+                ", first name='" + firstName + '\'' +
+                ", last name='" + lastName + '\'' +
                 ", email='" + email + '\'' +
-                ", Info='" + info + '\'' +
-                ", Decision='" + decision + '\'' +
-                ", Reasoning='" + reasoning + '\'' +
+                ", info='" + info + '\'' +
+                ", decision='" + decision + '\'' +
+                ", reasoning='" + reasoning + '\'' +
                 ", jobAdId=" + (jobAd != null ? jobAd.getId() : "null") +
                 '}';
     }
+
+    //Getters and Setters
 
     public void setJobAd(JobAd jobAd) {
         this.jobAd=jobAd;

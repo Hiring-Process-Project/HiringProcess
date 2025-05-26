@@ -1,7 +1,7 @@
 package com.example.hiringProcess.JobAd;
 
 import com.example.hiringProcess.Interview.Interview;
-import com.example.hiringProcess.Questions.Questions;
+import com.example.hiringProcess.Question.Question;
 import com.example.hiringProcess.Step.Step;
 import com.example.hiringProcess.Skill.Skill;
 import org.springframework.boot.CommandLineRunner;
@@ -22,17 +22,17 @@ public class JobAdConfig {
 
             JobAd jobAd1= new JobAd("title1","description1" , LocalDate.of(2012, 12, 12) ,"waiting", interview);
 
-            Step step1 = new Step("Technical Interview");
-            Step step2 = new Step("HR Interview");
+            Step step1 = new Step("Technical Interview", "desc1");
+            Step step2 = new Step("HR Interview", "desc2");
 
             // Πρόσθεσε τα steps στο interview
             interview.addStep(step1);
             interview.addStep(step2);
 
             // Δημιουργία ερωτήσεων
-            Questions q1 = new Questions("What is polymorphism?");
-            Questions q2 = new Questions("Explain dependency injection.");
-            Questions q3 = new Questions("What is the difference between abstract classes and interfaces?");
+            Question q1 = new Question("What is polymorphism?");
+            Question q2 = new Question("Explain dependency injection.");
+            Question q3 = new Question("What is the difference between abstract classes and interfaces?");
 
             // Δημιουργία skills
             Skill s1 = new Skill("Polymorphism");

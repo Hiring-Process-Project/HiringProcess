@@ -2,7 +2,6 @@ package com.example.hiringProcess.Department;
 
 import com.example.hiringProcess.JobAd.JobAd;
 import com.example.hiringProcess.Organisation.Organisation;
-import com.example.hiringProcess.StepResults.StepResults;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
@@ -27,12 +26,15 @@ public class Department {
     private String location;
     private String description;
 
+    // Σχέση Department με JobAd
     @ManyToMany(mappedBy = "departments")
+    @JsonIgnore
     private Set<JobAd> jobAds;
 
+    // Σχέση Department με Organisation
     @ManyToOne
     @JsonIgnore
-    @JoinColumn(name = "organisation_id")
+    @JoinColumn(name = "organisation_id", referencedColumnName = "id")
     private Organisation organisation;
 
     public Department(){}

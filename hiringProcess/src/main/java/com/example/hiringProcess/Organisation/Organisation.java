@@ -1,11 +1,8 @@
 package com.example.hiringProcess.Organisation;
 
 import com.example.hiringProcess.Department.Department;
-import com.example.hiringProcess.JobAd.JobAd;
-import com.example.hiringProcess.Skill.Skill;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,13 +19,14 @@ public class Organisation {
             strategy = GenerationType.SEQUENCE,
             generator = "department_sequence"
     )
-    private int id;  // ΤΟ ID ΠΡΕΠΕΙ ΝΑ ΔΗΛΩΘΕΙ ΠΡΩΤΟ!
+    private int id;
 
     private String name;
     private String description;
 
-    // Σχέση JobAd με Skill (OneToMany)
-    @OneToMany(mappedBy = "organisation", cascade = CascadeType.ALL, orphanRemoval = true) // Σωστό mapping
+    // Σχέση Organization με Department
+    @OneToMany(mappedBy = "organisation", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<Department> departments = new ArrayList<>();
 
     public Organisation(){}
@@ -37,5 +35,4 @@ public class Organisation {
         this.name = name;
         this.description=description;
     }
-
 }

@@ -1,5 +1,6 @@
 package com.example.hiringProcess.Occupation;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +9,6 @@ import com.example.hiringProcess.JobAd.JobAd;
 @Entity
 @Table
 public class Occupation {
-
     @Id
     @SequenceGenerator(
             name = "occupation_sequence",
@@ -25,8 +25,9 @@ public class Occupation {
     private String title;
     private String escoId;
 
-    // Σχέση JobAd με Occupation (OneToMany)
+    // Σχέση Occupation με JobAd
     @OneToMany(mappedBy = "occupation", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @JsonIgnore
     private List<JobAd> jobAds = new ArrayList<>();
 
     public Occupation() {}
@@ -44,5 +45,11 @@ public class Occupation {
                 ", title='" + title + '\'' +
                 ", escoId='" + escoId + '\'' +
                 '}';
+    }
+
+    // Getters and Setters
+
+    public String getTitle() {
+        return title;
     }
 }

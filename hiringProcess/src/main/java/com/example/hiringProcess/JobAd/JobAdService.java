@@ -27,9 +27,9 @@ public class JobAdService {
     }
 
     public void addNewJobAd(JobAd jobAd) {
-        Optional<JobAd> jobAdByName = jobAdRepository.findJobAdByTitle(jobAd.getTitle());
+        Optional<JobAd> jobAdByName = jobAdRepository.findJobAdById(jobAd.getId());
         if (jobAdByName.isPresent()) {
-            throw new IllegalStateException("Title already taken");
+            throw new IllegalStateException("Id already taken");
         }
         jobAdRepository.save(jobAd);
     }

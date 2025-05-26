@@ -16,28 +16,30 @@ import java.util.List;
 public class StepResults {
     @Id
     @SequenceGenerator(
-            name = "stepresults_sequence",
-            sequenceName = "stepresults_sequence",
+            name = "stepResults_sequence",
+            sequenceName = "stepResults_sequence",
             allocationSize = 1
     )
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "stepresults_sequence"
+            generator = "stepResults_sequence"
     )
-    private int id;  // ΤΟ ID ΠΡΕΠΕΙ ΝΑ ΔΗΛΩΘΕΙ ΠΡΩΤΟ!
+    private int id;
 
-    // Σχέση StepResults με step (OneToOne)
+    // Σχέση StepResults με Step
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "step_id", referencedColumnName = "step_id")
+    @JoinColumn(name = "step_id", referencedColumnName = "id")
+    @JsonIgnore
     Step step;
 
-    @ManyToOne  // Σωστή σχέση (Many StepResults -> One InterviewReport)
-    @JoinColumn(name = "interviewreport_id")
+    // Σχέση StepResults με InterviewReport
+    @ManyToOne
+    @JoinColumn(name = "interviewReport_id", referencedColumnName = "id")
     @JsonIgnore
     private InterviewReport interviewReport;
 
-    // Σχέση QuestionScore με stepresults (OneToMany)
-    @OneToMany(mappedBy = "questionscore", cascade = CascadeType.ALL, orphanRemoval = true)
+    // Σχέση StepResults με QuestionScore
+    @OneToMany(mappedBy = "questionScore", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<QuestionScore> questionScore = new ArrayList<>();
 
     public StepResults() {

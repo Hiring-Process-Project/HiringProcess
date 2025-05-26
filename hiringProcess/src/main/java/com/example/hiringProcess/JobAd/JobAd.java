@@ -4,6 +4,7 @@ import com.example.hiringProcess.Candidate.Candidate;
 import com.example.hiringProcess.Interview.Interview;
 import com.example.hiringProcess.Occupation.Occupation;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -23,10 +24,9 @@ public class JobAd {
             strategy = GenerationType.SEQUENCE,
             generator = "jobAd_sequence"
     )
-    
+
     private int id;
 
-    private String title;
     private String description;
     private LocalDate publishDate;
     private String status;
@@ -38,23 +38,24 @@ public class JobAd {
     // Σχέση JobAd με Interview (OneToOne)
     // Το Interview αποθηκεύεται, ενημερώνεται ή διαγράφεται αυτόματα μαζί με το JobAd
     // μέσω του CascadeType.ALL. Δηλαδή, ό,τι κάνουμε στο JobAd επηρεάζει και το Interview.
-    @OneToOne(cascade = CascadeType.ALL) // Η owning πλευρά
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "interview_id", referencedColumnName = "id")
+    @JsonIgnore
     private Interview interview;
 
     // Σχέση JobAd με Occupation (OneToMany)
     @ManyToOne
     @JoinColumn(name = "occupation_id", referencedColumnName = "id")
+    @JsonIgnore
     private Occupation occupation;
 
     public JobAd() {}
 
-    public JobAd(String title, String description, LocalDate date, String status, Interview interview) {
-        this.title = title;
+    public JobAd(String title, String description, LocalDate publishDate, String status, Interview interview) {
         this.description = description;
-        this.publishDate = date;
+        this.publishDate = publishDate;
         this.status = status;
-        //προσθήκη του interview στον constructor γιατί θέλω να δημιουργώ ένα interview
+        //προσθήκη του interview στον constructor γιατί θέλω να δημιουργώ ένα interview με το που δημιουργώ ένα jobAd
         this.interview = interview;
     }
 
@@ -63,12 +64,12 @@ public class JobAd {
     public String toString() {
         return "JobAd{" +
                 "id=" + id +
-                ", title='" + title + '\'' +
                 ", description='" + description + '\'' +
                 ", date=" + publishDate +
                 ", status='" + status + '\'' +
                 ", interview=" + (interview != null ? interview.getId() : "null") +
                 ", candidates="+candidatesToString()+
+                ", occcupation='" + occupation + '\'' +
                 '}';
     }
 
@@ -91,16 +92,16 @@ public class JobAd {
                 .toString();
     }
 
+    // Getters and Setters
+
     public int getId() {
         return id;
-    }
-
-    public String getTitle() {
-        return title;
     }
 
     public void setInterview(Interview interview) {
         this.interview = interview;
     }
+
+
 }
 

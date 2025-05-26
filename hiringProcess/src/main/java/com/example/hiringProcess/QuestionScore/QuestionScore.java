@@ -1,15 +1,9 @@
 package com.example.hiringProcess.QuestionScore;
 
-import com.example.hiringProcess.Interview.Interview;
-import com.example.hiringProcess.InterviewReport.InterviewReport;
-import com.example.hiringProcess.Questions.Questions;
-import com.example.hiringProcess.Step.Step;
+import com.example.hiringProcess.Question.Question;
 import com.example.hiringProcess.StepResults.StepResults;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table
@@ -24,19 +18,19 @@ public class QuestionScore {
             strategy = GenerationType.SEQUENCE,
             generator = "candidate_sequence"
     )
-    private int id;  // ΤΟ ID ΠΡΕΠΕΙ ΝΑ ΔΗΛΩΘΕΙ ΠΡΩΤΟ!
+    private int id;
 
-    // Σχέση QuestionScore με question (OneToOne)
+    // Σχέση QuestionScore με Question
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "question_id", referencedColumnName = "question_id")
-    Questions questions;
+    @JsonIgnore
+    @JoinColumn(name = "question_id", referencedColumnName = "id")
+    Question questions;
 
-    @ManyToOne  // Σωστή σχέση (Many QuestionScore -> One Stepresult)
-    @JoinColumn(name = "stepresults_id")
+    // Σχέση QuestionScore με StepResults
+    @ManyToOne
+    @JoinColumn(name = "stepResults_id", referencedColumnName = "id")
     @JsonIgnore
     private StepResults stepResults;
-
-
 
     private double score;
 

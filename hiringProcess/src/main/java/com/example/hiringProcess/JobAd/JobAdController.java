@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-//@RequestMapping(path = "api/v1/Candidate")
-
 public class JobAdController {
 
     private final JobAdService jobAdService;
@@ -26,7 +24,6 @@ public class JobAdController {
     @GetMapping (path="/jobAd")
     public Optional<JobAd> getJobAd(Integer jobAdId){
         return jobAdService.getJobAd(jobAdId);
-
     }
 
     @PostMapping(path="/newjobAd")
