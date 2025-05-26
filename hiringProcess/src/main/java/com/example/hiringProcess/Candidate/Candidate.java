@@ -77,6 +77,10 @@ public class Candidate {
     public String getName() {
         return firstName;
     }
+
+    public void setName(String firstName) {
+        this.firstName = firstName;
+    }
 }
 
 

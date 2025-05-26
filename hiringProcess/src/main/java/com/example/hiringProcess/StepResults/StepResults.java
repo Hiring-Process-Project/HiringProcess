@@ -1,13 +1,10 @@
 package com.example.hiringProcess.StepResults;
 
-
-
 import com.example.hiringProcess.InterviewReport.InterviewReport;
 import com.example.hiringProcess.QuestionScore.QuestionScore;
 import com.example.hiringProcess.Step.Step;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-
 import java.util.ArrayList;
 import java.util.List;
 

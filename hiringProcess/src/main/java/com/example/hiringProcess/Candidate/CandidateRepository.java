@@ -1,11 +1,8 @@
 package com.example.hiringProcess.Candidate;
 
-//για την αλληλεπίδραση με τη βάση δεδομένων
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-
 import java.util.Optional;
 
 @Repository

@@ -21,7 +21,6 @@ public class Interview {
             strategy = GenerationType.SEQUENCE,
             generator = "interview_sequence"
     )
-
     private int id;
 
     private String title;

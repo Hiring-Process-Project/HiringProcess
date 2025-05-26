@@ -5,7 +5,6 @@ import com.example.hiringProcess.Interview.Interview;
 import com.example.hiringProcess.StepResults.StepResults;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-
 import java.util.ArrayList;
 import java.util.List;
 

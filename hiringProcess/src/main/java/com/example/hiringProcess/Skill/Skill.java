@@ -1,6 +1,5 @@
 package com.example.hiringProcess.Skill;
 
-import com.example.hiringProcess.JobAd.JobAd;
 import com.example.hiringProcess.Question.Question;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;

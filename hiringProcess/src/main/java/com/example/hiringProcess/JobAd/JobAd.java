@@ -3,10 +3,8 @@ package com.example.hiringProcess.JobAd;
 import com.example.hiringProcess.Candidate.Candidate;
 import com.example.hiringProcess.Interview.Interview;
 import com.example.hiringProcess.Occupation.Occupation;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
