@@ -1,13 +1,16 @@
 package com.example.hiringProcess.JobAd;
 
 import com.example.hiringProcess.Candidate.Candidate;
+import com.example.hiringProcess.Department.Department;
 import com.example.hiringProcess.Interview.Interview;
 import com.example.hiringProcess.Occupation.Occupation;
+import com.example.hiringProcess.Organisation.Organisation;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table
@@ -47,6 +50,15 @@ public class JobAd {
     @JsonIgnore
     private Occupation occupation;
 
+    // Σχέση JobAdd με Department
+    @ManyToMany
+    @JoinTable(
+            name = "jobad_department",
+            joinColumns = @JoinColumn(name = "jobad_id"),
+            inverseJoinColumns = @JoinColumn(name = "department_id")
+    )
+    private Set<Department> departments;
+
     public JobAd() {}
 
     public JobAd(String title, String description, LocalDate publishDate, String status, Interview interview) {
@@ -85,7 +97,7 @@ public class JobAd {
             return "[]";
         }
         return candidates.stream()
-                .map(candidate -> "{id=" + candidate.getId() + ", name=" + candidate.getName() + "}")
+                .map(candidate -> "{id=" + candidate.getId() + ", name=" + candidate.getFirstName() + "}")
                 .toList()
                 .toString();
     }
@@ -101,5 +113,8 @@ public class JobAd {
     }
 
 
+    public Set<Department> getDepartment() {
+        return departments;
+    }
 }
 

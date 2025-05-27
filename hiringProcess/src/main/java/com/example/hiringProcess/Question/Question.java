@@ -67,6 +67,13 @@ public class Question {
         skill.setQuestion(this);  // Ορίζει το question στο skill (αντίστροφη σχέση)
     }
 
+    public void  addScore(QuestionScore score){
+        this.questionScore=score;
+        score.setQuestion(this);
+    }
+
+
+
 
     // Getters and Setters
 
@@ -101,4 +108,7 @@ public class Question {
     public void setSkill(Skill skill) {
         this.skill = skill;
     }
+
+
+
 }

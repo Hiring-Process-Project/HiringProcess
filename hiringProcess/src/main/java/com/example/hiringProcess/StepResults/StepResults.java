@@ -36,8 +36,9 @@ public class StepResults {
     private InterviewReport interviewReport;
 
     // Σχέση StepResults με QuestionScore
-    @OneToMany(mappedBy = "questionScore", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<QuestionScore> questionScore = new ArrayList<>();
+    @OneToMany(mappedBy = "stepResults", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<QuestionScore> questionScores = new ArrayList<>();
+
 
     public StepResults() {
     }

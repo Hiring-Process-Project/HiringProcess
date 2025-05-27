@@ -24,7 +24,7 @@ public class QuestionScore {
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     @JoinColumn(name = "question_id", referencedColumnName = "id")
-    Question questions;
+    private Question question;
 
     // Σχέση QuestionScore με StepResults
     @ManyToOne
@@ -36,5 +36,9 @@ public class QuestionScore {
 
     public QuestionScore(double score){
         this.score=score;
+    }
+
+    public void setQuestion(Question question) {
+        this.question = question;
     }
 }

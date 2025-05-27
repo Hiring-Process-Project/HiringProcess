@@ -7,7 +7,7 @@ import java.util.Optional;
 
     @Repository
     public interface JobAdRepository extends JpaRepository<JobAd, Integer> {
-        @Query("SELECT c FROM JobAd c WHERE c.title = ?1")
+        @Query("SELECT c FROM JobAd c WHERE c.id = ?1")
         Optional<JobAd> findJobAdById(Integer id);
     }
 

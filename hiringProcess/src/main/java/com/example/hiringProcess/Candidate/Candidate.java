@@ -20,7 +20,9 @@ public class Candidate {
     )
     private int id;
 
+
     private String firstName;
+
     private String lastName;
     private String email;
     private String info;
@@ -74,13 +76,67 @@ public class Candidate {
        return id;
     }
 
-    public String getName() {
-        return firstName;
-    }
 
     public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getInfo() {
+        return info;
+    }
+
+    public void setInfo(String info) {
+        this.info = info;
+    }
+
+    public String getDecision() {
+        return decision;
+    }
+
+    public void setDecision(String decision) {
+        this.decision = decision;
+    }
+
+    public String getReasoning() {
+        return reasoning;
+    }
+
+    public void setReasoning(String reasoning) {
+        this.reasoning = reasoning;
+    }
+
+    public InterviewReport getInterviewReport() {
+        return interviewReport;
+    }
+
+    public void setInterviewReport(InterviewReport interviewReport) {
+        this.interviewReport = interviewReport;
+    }
+
+    public JobAd getJobAd() {
+        return jobAd;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+
 }
 
 

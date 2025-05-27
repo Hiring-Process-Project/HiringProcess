@@ -7,6 +7,8 @@ import java.util.Optional;
 
 @Repository
 public interface CandidateRepository extends JpaRepository<Candidate, Integer> {
-    @Query("SELECT c FROM Candidate c WHERE c.name = ?1")
- Optional<Candidate> findCandidateByName(String name);
+
+    Optional<Candidate> findCandidateByFirstName(String firstName);
+
 }
+

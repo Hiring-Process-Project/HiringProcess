@@ -1,6 +1,8 @@
 package com.example.hiringProcess.JobAd;
 
+import com.example.hiringProcess.Department.Department;
 import com.example.hiringProcess.Interview.Interview;
+import com.example.hiringProcess.Organisation.Organisation;
 import com.example.hiringProcess.Question.Question;
 import com.example.hiringProcess.Step.Step;
 import com.example.hiringProcess.Skill.Skill;
@@ -19,6 +21,8 @@ public class JobAdConfig {
             System.out.println("Saving jobAds...");
 
             Interview interview = new Interview();
+            Organisation org = new Organisation("Hype" ,"A good Organisation");
+            Department dep = new Department("Software Development" ,"Abu Dhabi","the best department");
 
             JobAd jobAd1= new JobAd("title1","description1" , LocalDate.of(2012, 12, 12) ,"waiting", interview);
 
@@ -78,6 +82,9 @@ public class JobAdConfig {
 
 //            jobAd1.addCandidate(johny);
 //            jobAd1.addCandidate(jamal);
+
+//            jobAd1.getDepartment();
+//            jobAd1.getDepartment().getOrganisation();
 
             repository.save(jobAd1);
             System.out.println("JobAds saved.");

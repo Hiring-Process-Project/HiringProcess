@@ -28,9 +28,10 @@ public class InterviewReport {
     Candidate candidate;
 
     // Σχέση InterviewReport με stepResults
-    @OneToMany(mappedBy = "stepResults", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
+    @OneToMany(mappedBy = "interviewReport", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<StepResults> stepResults = new ArrayList<>();
+
+
 
     // Σχέση InterviewReport με Interview
     @OneToOne
