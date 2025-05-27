@@ -26,7 +26,7 @@ public class Organisation {
 
     // Σχέση Organization με Department
     @OneToMany(mappedBy = "organisation", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
+
     private List<Department> departments = new ArrayList<>();
 
     public Organisation(){}
@@ -35,4 +35,10 @@ public class Organisation {
         this.name = name;
         this.description=description;
     }
+
+    public void addDepartment(Department department) {
+        departments.add(department);
+        department.setOrganisation(this);
+    }
+
 }

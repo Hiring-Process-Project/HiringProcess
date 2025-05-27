@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -57,7 +58,8 @@ public class JobAd {
             joinColumns = @JoinColumn(name = "jobad_id"),
             inverseJoinColumns = @JoinColumn(name = "department_id")
     )
-    private Set<Department> departments;
+    private Set<Department> departments = new HashSet<>();
+
 
     public JobAd() {}
 
@@ -113,8 +115,9 @@ public class JobAd {
     }
 
 
-    public Set<Department> getDepartment() {
+    public Set<Department> getDepartments() {
         return departments;
     }
+
 }
 

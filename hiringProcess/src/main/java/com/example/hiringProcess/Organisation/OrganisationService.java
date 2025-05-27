@@ -35,6 +35,8 @@ public class OrganisationService {
         organisationRepository.deleteById(organisationId);
     }
 
+
+
 //    @Transactional
 //    public void updateOrganisation(Integer organisationId, String name) {
 //        Organisation organisation = organisationRepository.findById(organisationId)
