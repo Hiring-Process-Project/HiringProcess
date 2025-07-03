@@ -66,9 +66,9 @@ public class JobAdConfig {
             step1.addQuestion(q3);
 
             // Προσθήκη των skill στο question
-            q1.addSkill(s1);
-            q2.addSkill(s2);
-            q3.addSkill(s3);
+           // q1.addSkill(s1);
+            //q2.addSkill(s2);
+           // q3.addSkill(s3);
 
             //Προσθήκη score στα skill
 //            s1.addcand_score(score1);
