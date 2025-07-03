@@ -86,4 +86,11 @@ public class Department {
         this.organisation = organisation;
     }
 
+    public Set<JobAd> getJobAds() {
+        return jobAds;
+    }
+
+    public void setJobAds(Set<JobAd> jobAds) {
+        this.jobAds = jobAds;
+    }
 }

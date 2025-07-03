@@ -24,7 +24,7 @@ public class StepResults {
     private int id;
 
     // Σχέση StepResults με Step
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "step_id", referencedColumnName = "id")
     @JsonIgnore
     Step step;

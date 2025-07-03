@@ -25,7 +25,8 @@ public class Skill {
     private String escoId;
 
     //Σχέση Skill με Question
-    @OneToOne(mappedBy = "skill")
+    @ManyToOne
+    @JoinColumn(name = "question_id", referencedColumnName = "id")
     @JsonIgnore
     private Question question;
 

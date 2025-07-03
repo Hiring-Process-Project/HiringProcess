@@ -54,7 +54,7 @@ public class OrganisationConfig {
 
             // Δημιουργία QuestionScore και προσθήκη στο Question
             QuestionScore qs1 = new QuestionScore(56.2);
-            q1.addScore(qs1);
+         //   q1.addScore(qs1);
 
             // Αποθήκευση ολόκληρης της ιεραρχίας μέσω του Organisation repository
             repository.save(org);

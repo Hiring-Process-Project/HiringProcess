@@ -119,5 +119,8 @@ public class JobAd {
         return departments;
     }
 
+    public void setDepartments(Set<Department> departments) {
+        this.departments = departments;
+    }
 }
 

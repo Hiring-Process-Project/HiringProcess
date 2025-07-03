@@ -41,4 +41,23 @@ public class Organisation {
         department.setOrganisation(this);
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public List<Department> getDepartments() {
+        return departments;
+    }
 }

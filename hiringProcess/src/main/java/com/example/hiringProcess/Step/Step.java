@@ -39,9 +39,9 @@ public class Step {
     private List<Question> questions = new ArrayList<>();
 
     // Σχέση Step με StepResults
-    @OneToOne(mappedBy = "step")
+    @OneToMany(mappedBy = "step")
     @JsonIgnore
-    StepResults stepResults;
+    private List<StepResults> stepResults = new ArrayList<>() ;
 
     public Step() {}
 

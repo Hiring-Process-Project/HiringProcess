@@ -6,6 +6,9 @@ import com.example.hiringProcess.Step.Step;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table
 public class Question {
@@ -32,15 +35,14 @@ public class Question {
     private Step step;
 
     // Σχέση Question με Skill
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "skill_id", referencedColumnName = "id")
+    @OneToMany(mappedBy = "question")
     @JsonIgnore
-    private Skill skill;
+    private List<Skill> skills = new ArrayList<>();
 
     //Σχεση Question με QuestionScore
-    @OneToOne(mappedBy = "question")
+    @OneToMany(mappedBy = "question")
     @JsonIgnore
-    private QuestionScore questionScore;
+    private List<QuestionScore> questionScore= new ArrayList<>();
 
     public Question() {}
 
@@ -56,21 +58,20 @@ public class Question {
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", step=" + (step != null ? step.getId() : "null") +
-                ", skill" + (skill != null ? skill.getId()  : "null") +
                 //", question_score=" + (questionScore != null ? questionScore.getScore() : "null") + '}';
         '}';
     }
 
-    // Μέθοδος που ρυθμίζει τη σχέση με το Skill
-    public void addSkill(Skill skill) {
-        this.skill = skill;  // Ορίζει το skill στο question
-        skill.setQuestion(this);  // Ορίζει το question στο skill (αντίστροφη σχέση)
-    }
+//    // Μέθοδος που ρυθμίζει τη σχέση με το Skill
+//    public void addSkill(Skill skill) {
+//        this.skill = skill;  // Ορίζει το skill στο question
+//        skill.setQuestion(this);  // Ορίζει το question στο skill (αντίστροφη σχέση)
+//    }
 
-    public void  addScore(QuestionScore score){
-        this.questionScore=score;
-        score.setQuestion(this);
-    }
+//    public void  addScore(QuestionScore score){
+//        this.questionScore=score;
+//        score.setQuestion(this);
+//    }
 
 
 
@@ -101,14 +102,19 @@ public class Question {
         this.step = step;
     }
 
-    public Skill getSkill() {
-        return skill;
+    public List<Skill> getSkills() {
+        return skills;
     }
 
-    public void setSkill(Skill skill) {
-        this.skill = skill;
+    public void setSkills(List<Skill> skills) {
+        this.skills = skills;
     }
 
+    public List<QuestionScore> getQuestionScore() {
+        return questionScore;
+    }
 
-
+    public void setQuestionScore(List<QuestionScore> questionScore) {
+        this.questionScore = questionScore;
+    }
 }

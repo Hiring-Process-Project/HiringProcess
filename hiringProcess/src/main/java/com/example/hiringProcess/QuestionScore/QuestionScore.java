@@ -21,7 +21,7 @@ public class QuestionScore {
     private int id;
 
     // Σχέση QuestionScore με Question
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @ManyToOne
     @JsonIgnore
     @JoinColumn(name = "question_id", referencedColumnName = "id")
     private Question question;
