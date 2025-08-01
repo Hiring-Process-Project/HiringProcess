@@ -16,6 +16,17 @@ public class CandidateService {
         this.candidateRepository = candidateRepository;
     }
 
+    public List<CandidateDTO> getCandidateDTOs() {
+        return candidateRepository.findAll()
+                .stream()
+                .map(candidate -> new CandidateDTO(
+                        candidate.getFirstName(),
+                        candidate.getLastName(),
+                        candidate.getEmail()))
+                .toList();
+    }
+
+
     public List<Candidate> getCandidates() {
         return candidateRepository.findAll();
     }
@@ -25,10 +36,11 @@ public class CandidateService {
     }
 
     public void addNewCandidate(Candidate candidate) {
-        Optional<Candidate> candidateByName = candidateRepository.findCandidateByFirstName(candidate.getFirstName());
-        if (candidateByName.isPresent()) {
-            throw new IllegalStateException("firstname taken");
-        }
+//        Optional<Candidate> candidateByName = candidateRepository.findCandidateByFirstName(candidate.getFirstName());
+//        if (candidateByName.isPresent()) {
+//            throw new IllegalStateException("firstname taken");
+//        }
+        System.out.println("Saving candidate: " + candidate);
         candidateRepository.save(candidate);
     }
 

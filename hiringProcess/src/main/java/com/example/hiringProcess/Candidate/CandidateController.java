@@ -2,12 +2,12 @@ package com.example.hiringProcess.Candidate;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 import java.util.Optional;
 
 @RestController
-//@RequestMapping(path = "api/v1/Candidate")
-
+@RequestMapping("/api/v1/candidates")
 public class CandidateController {
 
     private final CandidateService candidateService;
@@ -17,31 +17,39 @@ public class CandidateController {
         this.candidateService = candidateService;
     }
 
-   @GetMapping (path="/candidates")
-    public List<Candidate> getCandidates(){
-        return candidateService.getCandidates();
+
+
+    // GET /api/v1/candidates - Λίστα όλων των υποψηφίων
+    @GetMapping
+    public List<CandidateDTO> getCandidates() {
+        return candidateService.getCandidateDTOs();
     }
 
-    @GetMapping (path="/candidate")
-    public Optional<Candidate> getCandidate(Integer candidateId){
+
+    // GET /api/v1/candidates/{id} - Ένας υποψήφιος με βάση το id
+    @GetMapping("/{candidateId}")
+    public Optional<Candidate> getCandidate(@PathVariable Integer candidateId) {
         return candidateService.getCandidate(candidateId);
     }
 
-    @PostMapping (path="/newcandidate")
-    public void addNewCandidate(Candidate candidate){
-         candidateService.addNewCandidate(candidate);
+    // POST /api/v1/candidates - Προσθήκη νέου υποψηφίου
+    @PostMapping
+    public void addNewCandidate(@RequestBody Candidate candidate) {
+        candidateService.addNewCandidate(candidate);
     }
 
-
-    @DeleteMapping(path = "{candidateId}")
-    public void deleteCandidate(@PathVariable("candidateId") Integer id){
-    candidateService.deleteCandidate(id);
+    // DELETE /api/v1/candidates/{id} - Διαγραφή υποψηφίου
+    @DeleteMapping("/{candidateId}")
+    public void deleteCandidate(@PathVariable Integer candidateId) {
+        candidateService.deleteCandidate(candidateId);
     }
 
-    @PutMapping(path = "{candidateId}")
-    public void updateCandidate(@PathVariable("candidateId") Integer candidateId,
-                                @RequestParam(required = false) String name) {
-        candidateService.updateCandidate(candidateId, name);
-    }
-
+    // PUT /api/v1/candidates/{id} - Ενημέρωση στοιχείων υποψηφίου
+//    @PutMapping("/{candidateId}")
+//    public void updateCandidate(
+//            @PathVariable Integer candidateId,
+//            @RequestBody Candidate candidateDetails
+//    ) {
+//        candidateService.updateCandidate(candidateId, candidateDetails);
+//    }
 }
