@@ -2,6 +2,7 @@ package com.example.hiringProcess.Skill;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -36,11 +37,27 @@ public class SkillService {
         skillRepository.deleteById(skillId);
     }
 
-//    @Transactional
-//    public void updateSkill(Integer skillId, ...) {
-//        Skill skill = skillRepository.findById(skillId)
-//                .orElseThrow(() -> new IllegalStateException(
-//                        "Skill with id " + skillId + " does not exist"));
-//        // Ενημέρωση πεδίων εδώ
-//    }
+    @Transactional
+    public void updateSkill(Integer skillId, Skill updatedSkill) {
+        Skill existingSkill = skillRepository.findById(skillId)
+                .orElseThrow(() -> new IllegalStateException(
+                        "Skill with id " + skillId + " does not exist"));
+
+        if (updatedSkill.getName() != null) {
+            existingSkill.setName(updatedSkill.getName());
+        }
+
+        if (updatedSkill.getTitle() != null) {
+            existingSkill.setTitle(updatedSkill.getTitle());
+        }
+
+        if (updatedSkill.getEscoId() != null) {
+            existingSkill.setEscoId(updatedSkill.getEscoId());
+        }
+
+        if (updatedSkill.getQuestion() != null) {
+            existingSkill.setQuestion(updatedSkill.getQuestion());
+        }
+    }
+
 }

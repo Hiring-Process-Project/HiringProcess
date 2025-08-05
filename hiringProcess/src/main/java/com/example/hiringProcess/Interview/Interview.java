@@ -87,4 +87,49 @@ public class Interview {
     public void setId(int id) {
         this.id = id;
     }
+
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public JobAd getJobAd() {
+        return jobAd;
+    }
+
+    public void setJobAd(JobAd jobAd) {
+        this.jobAd = jobAd;
+    }
+
+    public List<Step> getSteps() {
+        return steps;
+    }
+
+    public void setSteps(List<Step> steps) {
+        // καθαρίζουμε την παλιά λίστα σωστά
+        this.steps.clear();
+        if (steps != null) {
+            steps.forEach(this::addStep); // χρησιμοποιούμε helper για να κρατάμε consistency
+        }
+    }
+
+    public InterviewReport getInterviewReport() {
+        return interviewReport;
+    }
+
+    public void setInterviewReport(InterviewReport interviewReport) {
+        this.interviewReport = interviewReport;
+    }
 }

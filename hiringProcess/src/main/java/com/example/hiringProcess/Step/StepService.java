@@ -1,7 +1,9 @@
 package com.example.hiringProcess.Step;
+import com.example.hiringProcess.Question.Question;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -36,11 +38,30 @@ public class StepService {
         stepRepository.deleteById(stepId);
     }
 
-//    @Transactional
-//    public void updateStep(Integer stepId, ...) {
-//        Step step = stepRepository.findById(stepId)
-//                .orElseThrow(() -> new IllegalStateException(
-//                        "Step with id " + stepId + " does not exist"));
-//        // Ενημέρωση πεδίων εδώ
-//    }
+    @Transactional
+    public void updateStep(Integer stepId, Step updatedStep) {
+        Step existingStep = stepRepository.findById(stepId)
+                .orElseThrow(() -> new IllegalStateException("Step with id " + stepId + " does not exist"));
+
+        // Ενημέρωση πεδίων
+        if (updatedStep.getTitle() != null) {
+            existingStep.setTitle(updatedStep.getTitle());
+        }
+
+        if (updatedStep.getDescription() != null) {
+            existingStep.setDescription(updatedStep.getDescription());
+        }
+
+        if (updatedStep.getInterview() != null) {
+            existingStep.setInterview(updatedStep.getInterview());
+        }
+
+        if (updatedStep.getQuestions() != null && !updatedStep.getQuestions().isEmpty()) {
+            existingStep.getQuestions().clear();
+            for (Question question : updatedStep.getQuestions()) {
+                existingStep.addQuestion(question);
+            }
+        }
+    }
+
 }

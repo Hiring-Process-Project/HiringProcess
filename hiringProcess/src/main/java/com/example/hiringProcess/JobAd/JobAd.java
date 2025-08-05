@@ -4,7 +4,6 @@ import com.example.hiringProcess.Candidate.Candidate;
 import com.example.hiringProcess.Department.Department;
 import com.example.hiringProcess.Interview.Interview;
 import com.example.hiringProcess.Occupation.Occupation;
-import com.example.hiringProcess.Organisation.Organisation;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDate;
@@ -110,10 +109,53 @@ public class JobAd {
         return id;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public LocalDate getPublishDate() {
+        return publishDate;
+    }
+
+    public void setPublishDate(LocalDate publishDate) {
+        this.publishDate = publishDate;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public List<Candidate> getCandidates() {
+        return candidates;
+    }
+
+    public void setCandidates(List<Candidate> candidates) {
+        this.candidates = candidates;
+    }
+
+    public Interview getInterview() {
+        return interview;
+    }
+
     public void setInterview(Interview interview) {
         this.interview = interview;
     }
 
+    public Occupation getOccupation() {
+        return occupation;
+    }
+
+    public void setOccupation(Occupation occupation) {
+        this.occupation = occupation;
+    }
 
     public Set<Department> getDepartments() {
         return departments;
@@ -122,5 +164,6 @@ public class JobAd {
     public void setDepartments(Set<Department> departments) {
         this.departments = departments;
     }
+
 }
 

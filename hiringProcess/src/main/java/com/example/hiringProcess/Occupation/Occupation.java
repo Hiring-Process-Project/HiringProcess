@@ -52,4 +52,17 @@ public class Occupation {
     public String getTitle() {
         return title;
     }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getEscoId() {
+        return escoId;
+    }
+
+    public void setEscoId(String escoId) {
+        this.escoId = escoId;
+    }
+
 }
