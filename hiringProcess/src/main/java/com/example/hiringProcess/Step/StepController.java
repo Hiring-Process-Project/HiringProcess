@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-//@RequestMapping(path = "api/v1/step")
+@RequestMapping(path = "api/v1/step")
 public class StepController {
 
     private final StepService stepService;
@@ -32,12 +32,12 @@ public class StepController {
         stepService.addNewStep(step);
     }
 
-    @DeleteMapping(path = "/{stepId}")
+    @DeleteMapping("/{stepId}")
     public void deleteStep(@PathVariable("stepId") Integer stepId) {
         stepService.deleteStep(stepId);
     }
 
-    @PutMapping(path = "/{stepId}")
+    @PutMapping("/{stepId}")
     public void updateStep(@PathVariable("stepId") Integer stepId,
                            @RequestBody Step updatedStep) {
         stepService.updateStep(stepId, updatedStep);
