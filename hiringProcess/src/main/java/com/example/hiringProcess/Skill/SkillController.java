@@ -32,14 +32,14 @@ public class SkillController {
         skillService.addNewSkill(skill);
     }
 
-//    @DeleteMapping(path = "/skill/{skillId}")
-//    public void deleteSkill(@PathVariable("skillId") Integer skillId) {
-//        skillService.deleteSkill(skillId);
-//    }
+    @DeleteMapping(path = "/skill/{skillId}")
+    public void deleteSkill(@PathVariable("skillId") Integer skillId) {
+        skillService.deleteSkill(skillId);
+    }
 
-//    @PutMapping(path = "/skill/{skillId}")
-//    public void updateSkill(@PathVariable("skillId") Integer skillId,
-//                            @RequestBody Skill updatedSkill) {
-//        skillService.updateSkill(skillId, ...);
-//    }
+    @PutMapping(path = "/skill/{skillId}")
+    public void updateSkill(@PathVariable("skillId") Integer skillId,
+                            @RequestBody Skill updatedSkill) {
+        skillService.updateSkill(skillId, updatedSkill);
+    }
 }
