@@ -16,10 +16,12 @@ public class OccupationController {
         this.occupationService = occupationService;
     }
 
-    @GetMapping(path="/occupations")
-    public List<Occupation> getOccupations(){
-        return occupationService.getOccupations();
+
+    @GetMapping(path = "/occupation-titles")
+    public List<OccupationDTO> getOccupationTitles() {
+        return occupationService.getOccupationDTOs();
     }
+
 
     @GetMapping (path="/occupation")
     public Optional<Occupation> getOccupation(Integer occupationId){

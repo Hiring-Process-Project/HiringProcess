@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-//@RequestMapping(path = "api/v1/interview")
+@RequestMapping(path = "api/v1/interview")
 public class InterviewController {
 
     private final InterviewService interviewService;
@@ -32,13 +32,13 @@ public class InterviewController {
         interviewService.addNewInterview(interview);
     }
 
-    @PutMapping(path = "/interview/{interviewId}")
+    @PutMapping(path = "/{interviewId}")
     public void updateInterview(@PathVariable("interviewId") Integer interviewId,
                                 @RequestBody Interview updatedInterview) {
         interviewService.updateInterview(interviewId, updatedInterview);
     }
 
-    @DeleteMapping(path = "/interview/{interviewId}")
+    @DeleteMapping(path = "/{interviewId}")
     public void deleteInterview(@PathVariable("interviewId") Integer interviewId) {
         interviewService.deleteInterview(interviewId);
     }

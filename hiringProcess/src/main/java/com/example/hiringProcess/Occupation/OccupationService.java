@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class OccupationService {
@@ -21,6 +22,13 @@ public class OccupationService {
     @GetMapping(path="/occupations")
     public List<Occupation> getOccupations(){
         return occupationRepository.findAll();
+    }
+
+    public List<OccupationDTO> getOccupationDTOs() {
+        return occupationRepository.findAll()
+                .stream()
+                .map(occupation -> new OccupationDTO(occupation.getTitle()))
+                .collect(Collectors.toList());
     }
 
     @GetMapping(path="/occupation")
