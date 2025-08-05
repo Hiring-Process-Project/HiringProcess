@@ -15,8 +15,8 @@ INSERT INTO interview (id, title, description) VALUES
 (7, 'Backend Interview', 'Spring Boot and APIs');
 
 -- === JOB_AD ===
-INSERT INTO job_ad (id, description, publish_date, status, occupation_id, interview_id) VALUES
-(8, 'We are hiring a backend Java developer', '2025-08-01', 'Open', 6, 7);
+INSERT INTO job_ad (id, tittle, description, publish_date, status, occupation_id, interview_id) VALUES
+(8, 'Backend', 'We are hiring a backend Java developer', '2025-08-01', 'Open', 6, 7);
 
 -- === jobad_department (join table) ===
 INSERT INTO jobad_department (jobad_id, department_id) VALUES (8, 4), (8, 5);

@@ -27,7 +27,7 @@ public class JobAd {
     )
 
     private int id;
-
+    private String tittle;
     private String description;
     private LocalDate publishDate;
     private String status;
@@ -63,6 +63,7 @@ public class JobAd {
     public JobAd() {}
 
     public JobAd(String title, String description, LocalDate publishDate, String status, Interview interview) {
+        this.tittle = title;
         this.description = description;
         this.publishDate = publishDate;
         this.status = status;
@@ -107,6 +108,14 @@ public class JobAd {
 
     public int getId() {
         return id;
+    }
+
+    public String getTittle() {
+        return tittle;
+    }
+
+    public void setTittle(String tittle) {
+        this.tittle = tittle;
     }
 
     public String getDescription() {

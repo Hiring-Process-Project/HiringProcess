@@ -43,6 +43,19 @@ public class JobAdService {
         jobAdRepository.deleteById(jobAdId);
     }
 
+    public List<JobAdSummaryDTO> getJobAdSummaries() {
+        return jobAdRepository.findAll().stream()
+                .flatMap(jobAd -> jobAd.getDepartments().stream().map(department ->
+                        new JobAdSummaryDTO(
+                                jobAd.getTittle(),
+                                jobAd.getOccupation() != null ? jobAd.getOccupation().getTitle() : "Χωρίς Occupation",
+                                department.getName()
+                        )
+                ))
+                .toList();
+    }
+
+
     @Transactional
     public void updateJobAd(Integer jobAdId, JobAd updatedJobAd) {
         JobAd existingJobAd = jobAdRepository.findById(jobAdId)
