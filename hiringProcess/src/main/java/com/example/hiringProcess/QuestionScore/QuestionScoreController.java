@@ -1,13 +1,14 @@
 package com.example.hiringProcess.QuestionScore;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
-//@RequestMapping(path = "api/v1/QuestionScore")
+@RequestMapping("/api/v1/question-scores")
 public class QuestionScoreController {
 
     private final QuestionScoreService questionScoreService;
@@ -17,29 +18,37 @@ public class QuestionScoreController {
         this.questionScoreService = questionScoreService;
     }
 
-    @GetMapping(path = "/questionScores")
-    public List<QuestionScore> getQuestionScores() {
-        return questionScoreService.getQuestionScores();
+    @GetMapping
+    public List<QuestionScore> getAll() {
+        return questionScoreService.getAll();
     }
 
-    @GetMapping(path = "/questionScore")
-    public Optional<QuestionScore> getQuestionScore(Integer questionScoreId) {
-        return questionScoreService.getQuestionScore(questionScoreId);
+    @GetMapping("/{id}")
+    public ResponseEntity<QuestionScore> getById(@PathVariable("id") Integer id) {
+        return questionScoreService.getById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
-    @PostMapping(path = "/newQuestionScore")
-    public void addNewQuestionScore(QuestionScore questionScore) {
-        questionScoreService.addNewQuestionScore(questionScore);
+    @PostMapping
+    public ResponseEntity<QuestionScore> create(@RequestBody QuestionScore questionScore) {
+        QuestionScore saved = questionScoreService.create(questionScore);
+        URI location = URI.create("/api/v1/question-scores/" + saved.getId());
+        return ResponseEntity.created(location).body(saved);
     }
 
-//    @DeleteMapping(path = "{questionScoreId}")
-//    public void deleteQuestionScore(@PathVariable("questionScoreId") Integer id) {
-//        questionScoreService.deleteQuestionScore(id);
-//    }
+    @PutMapping("/{id}")
+    public ResponseEntity<QuestionScore> update(
+            @PathVariable("id") Integer id,
+            @RequestBody QuestionScore updatedFields
+    ) {
+        QuestionScore updated = questionScoreService.update(id, updatedFields);
+        return ResponseEntity.ok(updated);
+    }
 
-//    @PutMapping(path = "{questionScoreId}")
-//    public void updateQuestionScore(@PathVariable("questionScoreId") Integer questionScoreId,
-//                                    @RequestParam(required = false) double score) {
-//        questionScoreService.updateQuestionScore(questionScoreId, score);
-//    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable("id") Integer id) {
+        questionScoreService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
 }

@@ -1,13 +1,14 @@
 package com.example.hiringProcess.StepResults;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
-//@RequestMapping(path = "api/v1/StepResults")
+@RequestMapping("/api/v1/step-results")
 public class StepResultsController {
 
     private final StepResultsService stepResultsService;
@@ -17,29 +18,37 @@ public class StepResultsController {
         this.stepResultsService = stepResultsService;
     }
 
-    @GetMapping(path = "/stepResults")
-    public List<StepResults> getStepResults() {
-        return stepResultsService.getStepResults();
+    @GetMapping
+    public List<StepResults> getAllStepResults() {
+        return stepResultsService.getAll();
     }
 
-    @GetMapping(path = "/stepResult")
-    public Optional<StepResults> getStepResult(Integer stepResultId) {
-        return stepResultsService.getStepResult(stepResultId);
+    @GetMapping("/{id}")
+    public ResponseEntity<StepResults> getStepResult(@PathVariable("id") Integer id) {
+        return stepResultsService.getById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
-    @PostMapping(path = "/newStepResult")
-    public void addNewStepResult(StepResults stepResults) {
-        stepResultsService.addNewStepResult(stepResults);
+    @PostMapping
+    public ResponseEntity<StepResults> createStepResult(@RequestBody StepResults stepResults) {
+        StepResults saved = stepResultsService.create(stepResults);
+        URI location = URI.create("/api/v1/step-results/" + saved.getId());
+        return ResponseEntity.created(location).body(saved);
     }
 
-//    @DeleteMapping(path = "{stepResultId}")
-//    public void deleteStepResult(@PathVariable("stepResultId") Integer id) {
-//        stepResultsService.deleteStepResult(id);
-//    }
+    @PutMapping("/{id}")
+    public ResponseEntity<StepResults> updateStepResult(
+            @PathVariable("id") Integer id,
+            @RequestBody StepResults updatedFields) {
 
-//    @PutMapping(path = "{stepResultId}")
-//    public void updateStepResult(@PathVariable("stepResultId") Integer stepResultId,
-//                                 @RequestParam(required = false) ...) {
-//        stepResultsService.updateStepResult(stepResultId, ...);
-//    }
+        StepResults updated = stepResultsService.update(id, updatedFields);
+        return ResponseEntity.ok(updated);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteStepResult(@PathVariable("id") Integer id) {
+        stepResultsService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
 }

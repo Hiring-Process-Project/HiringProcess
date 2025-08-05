@@ -1,12 +1,14 @@
 package com.example.hiringProcess.Department;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
-//@RequestMapping(path = "api/v1/Department")
+@RequestMapping("/api/v1/departments")
 public class DepartmentController {
 
     private final DepartmentService departmentService;
@@ -16,29 +18,42 @@ public class DepartmentController {
         this.departmentService = departmentService;
     }
 
-    @GetMapping(path = "/departments")
+    //  GET all
+    @GetMapping
     public List<Department> getDepartments() {
         return departmentService.getDepartments();
     }
 
-    @GetMapping(path = "/department")
-    public Optional<Department> getDepartment(Integer departmentId) {
-        return departmentService.getDepartment(departmentId);
+    //  GET by ID
+    @GetMapping("/{id}")
+    public ResponseEntity<Department> getDepartment(@PathVariable("id") Integer id) {
+        return departmentService.getDepartment(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
-    @PostMapping(path = "/newDepartment")
-    public void addNewDepartment(Department department) {
-        departmentService.addNewDepartment(department);
+    //  POST: Create new department
+    @PostMapping
+    public ResponseEntity<Department> addNewDepartment(@RequestBody Department department) {
+        Department saved = departmentService.addNewDepartment(department);
+        URI location = URI.create("/api/v1/departments/" + saved.getId());
+        return ResponseEntity.created(location).body(saved);
     }
 
-//    @DeleteMapping(path = "{departmentId}")
-//    public void deleteDepartment(@PathVariable("departmentId") Integer id) {
-//        departmentService.deleteDepartment(id);
-//    }
+    //  PUT: Update department (all editable fields)
+    @PutMapping("/{id}")
+    public ResponseEntity<Department> updateDepartment(
+            @PathVariable("id") Integer id,
+            @RequestBody Department updatedFields) {
 
-//    @PutMapping(path = "{departmentId}")
-//    public void updateDepartment(@PathVariable("departmentId") Integer departmentId,
-//                                 @RequestParam(required = false) String name) {
-//        departmentService.updateDepartment(departmentId, name);
-//    }
+        Department updated = departmentService.updateDepartment(id, updatedFields);
+        return ResponseEntity.ok(updated);
+    }
+
+    //  DELETE
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteDepartment(@PathVariable("id") Integer id) {
+        departmentService.deleteDepartment(id);
+        return ResponseEntity.noContent().build();
+    }
 }

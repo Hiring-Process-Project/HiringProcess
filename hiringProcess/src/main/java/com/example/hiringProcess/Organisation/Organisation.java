@@ -60,4 +60,16 @@ public class Organisation {
     public List<Department> getDepartments() {
         return departments;
     }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setDepartments(List<Department> departments) {
+        this.departments = departments;
+    }
 }

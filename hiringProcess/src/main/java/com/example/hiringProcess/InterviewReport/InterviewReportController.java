@@ -1,13 +1,14 @@
 package com.example.hiringProcess.InterviewReport;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
-//@RequestMapping(path = "api/v1/InterviewReport")
+@RequestMapping("/api/v1/interview-reports")
 public class InterviewReportController {
 
     private final InterviewReportService interviewReportService;
@@ -17,29 +18,37 @@ public class InterviewReportController {
         this.interviewReportService = interviewReportService;
     }
 
-    @GetMapping(path = "/interviewReports")
-    public List<InterviewReport> getInterviewReports() {
-        return interviewReportService.getInterviewReports();
+    @GetMapping
+    public List<InterviewReport> getAll() {
+        return interviewReportService.getAll();
     }
 
-    @GetMapping(path = "/interviewReport")
-    public Optional<InterviewReport> getInterviewReport(Integer interviewReportId) {
-        return interviewReportService.getInterviewReport(interviewReportId);
+    @GetMapping("/{id}")
+    public ResponseEntity<InterviewReport> getById(@PathVariable("id") Integer id) {
+        return interviewReportService.getById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
-    @PostMapping(path = "/newInterviewReport")
-    public void addNewInterviewReport(InterviewReport interviewReport) {
-        interviewReportService.addNewInterviewReport(interviewReport);
+    @PostMapping
+    public ResponseEntity<InterviewReport> create(@RequestBody InterviewReport report) {
+        InterviewReport saved = interviewReportService.create(report);
+        URI location = URI.create("/api/v1/interview-reports/" + saved.getId());
+        return ResponseEntity.created(location).body(saved);
     }
 
-//    @DeleteMapping(path = "{interviewReportId}")
-//    public void deleteInterviewReport(@PathVariable("interviewReportId") Integer id) {
-//        interviewReportService.deleteInterviewReport(id);
-//    }
+    @PutMapping("/{id}")
+    public ResponseEntity<InterviewReport> update(
+            @PathVariable("id") Integer id,
+            @RequestBody InterviewReport updatedFields) {
 
-//    @PutMapping(path = "{interviewReportId}")
-//    public void updateInterviewReport(@PathVariable("interviewReportId") Integer interviewReportId,
-//                                      @RequestParam(required = false) ...) {
-//        interviewReportService.updateInterviewReport(interviewReportId, ...);
-//    }
+        InterviewReport updated = interviewReportService.update(id, updatedFields);
+        return ResponseEntity.ok(updated);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable("id") Integer id) {
+        interviewReportService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
 }

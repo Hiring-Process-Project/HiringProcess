@@ -31,7 +31,37 @@ public class InterviewReport {
     @OneToMany(mappedBy = "interviewReport", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<StepResults> stepResults = new ArrayList<>();
 
+    public int getId() {
+        return id;
+    }
 
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public Candidate getCandidate() {
+        return candidate;
+    }
+
+    public void setCandidate(Candidate candidate) {
+        this.candidate = candidate;
+    }
+
+    public List<StepResults> getStepResults() {
+        return stepResults;
+    }
+
+    public void setStepResults(List<StepResults> stepResults) {
+        this.stepResults = stepResults;
+    }
+
+    public Interview getInterview() {
+        return interview;
+    }
+
+    public void setInterview(Interview interview) {
+        this.interview = interview;
+    }
 
     // Σχέση InterviewReport με Interview
     @OneToOne

@@ -1,13 +1,16 @@
 package com.example.hiringProcess.QuestionScore;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
 public class QuestionScoreService {
+
     private final QuestionScoreRepository questionScoreRepository;
 
     @Autowired
@@ -15,32 +18,40 @@ public class QuestionScoreService {
         this.questionScoreRepository = questionScoreRepository;
     }
 
-    public List<QuestionScore> getQuestionScores() {
+    public List<QuestionScore> getAll() {
         return questionScoreRepository.findAll();
     }
 
-    public Optional<QuestionScore> getQuestionScore(Integer questionScoreId) {
-        return questionScoreRepository.findById(questionScoreId);
+    public Optional<QuestionScore> getById(Integer id) {
+        return questionScoreRepository.findById(id);
     }
 
-    public void addNewQuestionScore(QuestionScore questionScore) {
-        questionScoreRepository.save(questionScore);
+    public QuestionScore create(QuestionScore questionScore) {
+        questionScore.setId(0); // force insert
+        return questionScoreRepository.save(questionScore);
     }
 
-    public void deleteQuestionScore(Integer questionScoreId) {
-        boolean exists = questionScoreRepository.existsById(questionScoreId);
-        if (!exists) {
-            throw new IllegalStateException("QuestionScore with id " + questionScoreId + " does not exist");
+    @Transactional
+    public QuestionScore update(Integer id, QuestionScore updatedFields) {
+        QuestionScore existing = questionScoreRepository.findById(id)
+                .orElseThrow(() -> new IllegalStateException("QuestionScore with id " + id + " does not exist"));
+
+        if (!Objects.equals(existing.getScore(), updatedFields.getScore())) {
+            existing.setScore(updatedFields.getScore());
         }
-        questionScoreRepository.deleteById(questionScoreId);
+
+        return existing;
     }
 
-//    @Transactional
-//    public void updateQuestionScore(Integer questionScoreId, double score) {
-//        QuestionScore questionScore = questionScoreRepository.findById(questionScoreId)
-//                .orElseThrow(() -> new IllegalStateException(
-//                        "QuestionScore with id " + questionScoreId + " does not exist"));
-//
-//        questionScore.setScore(score);
-//    }
+    @Transactional
+    public void delete(Integer id) {
+        QuestionScore existing = questionScoreRepository.findById(id)
+                .orElseThrow(() -> new IllegalStateException("QuestionScore with id " + id + " does not exist"));
+
+        // Optional: remove associations if needed
+        existing.setQuestion(null);
+        existing.setStepResults(null);
+
+        questionScoreRepository.delete(existing);
+    }
 }
