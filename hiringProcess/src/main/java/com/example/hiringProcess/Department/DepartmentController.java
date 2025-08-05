@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.util.List;
 
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/v1/departments")
 public class DepartmentController {
@@ -18,10 +19,13 @@ public class DepartmentController {
         this.departmentService = departmentService;
     }
 
-    //  GET all
-    @GetMapping
-    public List<Department> getDepartments() {
-        return departmentService.getDepartments();
+    // GET all department names
+    @GetMapping("/names")
+    public List<DepartmentNameDTO> getDepartmentNames() {
+        return departmentService.getDepartments()
+                .stream()
+                .map(dept -> new DepartmentNameDTO(dept.getId(), dept.getName()))
+                .toList();
     }
 
     //  GET by ID
