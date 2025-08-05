@@ -32,14 +32,14 @@ public class StepController {
         stepService.addNewStep(step);
     }
 
-//    @DeleteMapping(path = "/step/{stepId}")
-//    public void deleteStep(@PathVariable("stepId") Integer stepId) {
-//        stepService.deleteStep(stepId);
-//    }
+    @DeleteMapping(path = "/{stepId}")
+    public void deleteStep(@PathVariable("stepId") Integer stepId) {
+        stepService.deleteStep(stepId);
+    }
 
-//    @PutMapping(path = "/step/{stepId}")
-//    public void updateStep(@PathVariable("stepId") Integer stepId,
-//                           @RequestBody Step updatedStep) {
-//        stepService.updateStep(stepId, ...);
-//    }
+    @PutMapping(path = "/{stepId}")
+    public void updateStep(@PathVariable("stepId") Integer stepId,
+                           @RequestBody Step updatedStep) {
+        stepService.updateStep(stepId, updatedStep);
+    }
 }

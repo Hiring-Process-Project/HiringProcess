@@ -30,7 +30,8 @@ public class Skill {
     @JsonIgnore
     private Question question;
 
-    public Skill() {}
+    public Skill() {
+    }
 
     public Skill(String skill_name) {
         this.name = name;
@@ -65,6 +66,22 @@ public class Skill {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getEscoId() {
+        return escoId;
+    }
+
+    public void setEscoId(String escoId) {
+        this.escoId = escoId;
     }
 
     public Question getQuestion() {

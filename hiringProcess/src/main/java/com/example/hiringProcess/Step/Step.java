@@ -91,6 +91,22 @@ public class Step {
         this.id = id;
     }
 
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public Interview getInterview() {
         return interview;
     }
@@ -107,8 +123,12 @@ public class Step {
         this.questions = questions;
     }
 
-    public String getDescription() {
-        return description;
+    public List<StepResults> getStepResults() {
+        return stepResults;
+    }
+
+    public void setStepResults(List<StepResults> stepResults) {
+        this.stepResults = stepResults;
     }
 
 }

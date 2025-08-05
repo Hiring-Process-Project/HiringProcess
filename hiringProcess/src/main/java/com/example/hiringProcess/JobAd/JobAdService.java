@@ -1,8 +1,11 @@
 package com.example.hiringProcess.JobAd;
 
+import com.example.hiringProcess.Candidate.Candidate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
+import java.util.Objects;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,12 +18,10 @@ public class JobAdService {
         this.jobAdRepository = jobAdRepository;
     }
 
-    @GetMapping(path="/jobAds")//χρειαζεται??
     public List<JobAd> getJobAds(){
         return jobAdRepository.findAll();
     }
 
-    @GetMapping(path="/jobAd")
     public Optional<JobAd> getJobAd(Integer jobAdId) {
         return jobAdRepository.findById(jobAdId);
     }
@@ -42,14 +43,42 @@ public class JobAdService {
         jobAdRepository.deleteById(jobAdId);
     }
 
-//    @Transactional
-//    public void updateJobAd(Integer jobAdId, String name) {
-//        JobAd jobAd = jobAdRepository.findById(jobAdId).orElseThrow(() -> new IllegalStateException(
-//                "jobAd with id" + jobAdId + "does not exists"));
-//
-//        if(name != null && !name.isEmpty() && !Objects.equals(jobAd.getName(),name)){
-//            jobAd.setName(name);
-//        }
- //   }
+    @Transactional
+    public void updateJobAd(Integer jobAdId, JobAd updatedJobAd) {
+        JobAd existingJobAd = jobAdRepository.findById(jobAdId)
+                .orElseThrow(() -> new IllegalStateException("JobAd with id " + jobAdId + " does not exist"));
+
+        if (updatedJobAd.getDescription() != null) {
+            existingJobAd.setDescription(updatedJobAd.getDescription());
+        }
+
+        if (updatedJobAd.getPublishDate() != null) {
+            existingJobAd.setPublishDate(updatedJobAd.getPublishDate());
+        }
+
+        if (updatedJobAd.getStatus() != null) {
+            existingJobAd.setStatus(updatedJobAd.getStatus());
+        }
+
+        if (updatedJobAd.getOccupation() != null) {
+            existingJobAd.setOccupation(updatedJobAd.getOccupation());
+        }
+
+        if (updatedJobAd.getInterview() != null) {
+            existingJobAd.setInterview(updatedJobAd.getInterview());
+        }
+
+        if (updatedJobAd.getDepartments() != null && !updatedJobAd.getDepartments().isEmpty()) {
+            existingJobAd.setDepartments(updatedJobAd.getDepartments());
+        }
+
+        // Αν θέλεις να αντικαταστήσεις και τους υποψηφίους (προαιρετικό)
+        if (updatedJobAd.getCandidates() != null) {
+            existingJobAd.getCandidates().clear();
+            for (Candidate candidate : updatedJobAd.getCandidates()) {
+                existingJobAd.addCandidate(candidate);
+            }
+        }
+    }
 
 }

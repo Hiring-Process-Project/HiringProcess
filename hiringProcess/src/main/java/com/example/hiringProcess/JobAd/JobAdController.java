@@ -31,15 +31,14 @@ public class JobAdController {
     }
 
 
-//    @DeleteMapping(path = "{jobAdId}")
-//    public void deleteJobAd(@PathVariable("jobAdId") Integer id){
-//        jobAdService.deleteJobAd(id);
-//    }
+    @DeleteMapping(path = "{jobAdId}")
+    public void deleteJobAd(@PathVariable("jobAdId") Integer id){
+        jobAdService.deleteJobAd(id);
+    }
 
-//    @PutMapping(path = "{jobAdId}")
-//    public void updateJobAd(@PathVariable("jobAdId") Integer jobAdId,
-//                                @RequestParam(required = false) String name) {
-//        jobAdService.updateJobAd(jobAdId, name);
-//    }
-
+    @PutMapping(path = "/{jobAdId}")
+    public void putUpdateJobAd(@PathVariable("jobAdId") Integer id, @RequestBody JobAd jobAd) {
+        jobAdService.updateJobAd(id, jobAd);
+    }
+    
 }

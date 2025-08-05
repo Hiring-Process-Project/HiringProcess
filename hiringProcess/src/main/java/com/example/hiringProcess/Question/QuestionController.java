@@ -36,11 +36,8 @@ public class QuestionController {
         questionService.deleteQuestion(questionId);
     }
 
-    // Αν χρειάζεσαι update endpoint:
-    /*
     @PutMapping(path = "/question")
-    public void updateQuestion(@RequestParam Integer questionId, @RequestParam(required = false) String name) {
+    public void updateQuestion(@RequestParam Integer questionId, @RequestParam(required = false) Question name) {
         questionService.updateQuestion(questionId, name);
     }
-    */
 }

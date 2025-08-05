@@ -32,14 +32,4 @@ public class InterviewController {
         interviewService.addNewInterview(interview);
     }
 
-//    @DeleteMapping(path = "/interview/{interviewId}")
-//    public void deleteInterview(@PathVariable("interviewId") Integer interviewId) {
-//        interviewService.deleteInterview(interviewId);
-//    }
-
-//    @PutMapping(path = "/interview/{interviewId}")
-//    public void updateInterview(@PathVariable("interviewId") Integer interviewId,
-//                                @RequestBody Interview updatedInterview) {
-//        interviewService.updateInterview(interviewId, ...);
-//    }
 }

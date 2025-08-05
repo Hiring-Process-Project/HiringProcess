@@ -3,6 +3,9 @@ package com.example.hiringProcess.Occupation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.transaction.annotation.Transactional;
+
+
 import java.util.List;
 import java.util.Optional;
 
@@ -41,4 +44,23 @@ public class OccupationService {
         }
         occupationRepository.deleteById(occupationId);
     }
+
+    @Transactional
+    public void updateOccupation(Integer occupationId, Occupation updatedOccupation) {
+        Occupation existingOccupation = occupationRepository.findById(occupationId)
+                .orElseThrow(() -> new IllegalStateException(
+                        "Occupation with id " + occupationId + " does not exist"));
+
+        if (updatedOccupation.getTitle() != null) {
+            existingOccupation.setTitle(updatedOccupation.getTitle());
+        }
+
+        if (updatedOccupation.getEscoId() != null) {
+            existingOccupation.setEscoId(updatedOccupation.getEscoId());
+        }
+
+        // Προσοχή: Η ενημέρωση των jobAds συνήθως γίνεται αλλού
+        // Αν χρειαστεί να τα ενημερώσεις και εδώ, πρόσθεσε χειρισμό
+    }
+
 }
