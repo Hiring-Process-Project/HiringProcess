@@ -39,6 +39,37 @@ public class StepResults {
     @OneToMany(mappedBy = "stepResults", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<QuestionScore> questionScores = new ArrayList<>();
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public Step getStep() {
+        return step;
+    }
+
+    public void setStep(Step step) {
+        this.step = step;
+    }
+
+    public InterviewReport getInterviewReport() {
+        return interviewReport;
+    }
+
+    public void setInterviewReport(InterviewReport interviewReport) {
+        this.interviewReport = interviewReport;
+    }
+
+    public List<QuestionScore> getQuestionScores() {
+        return questionScores;
+    }
+
+    public void setQuestionScores(List<QuestionScore> questionScores) {
+        this.questionScores = questionScores;
+    }
 
     public StepResults() {
     }

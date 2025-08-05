@@ -56,12 +56,47 @@ public class CandidateService {
     }
 
     @Transactional
-    public void updateCandidate(Integer candidateId, String firstname) {
+    public Candidate updateCandidate(Integer candidateId, Candidate updatedFields) {
         Candidate candidate = candidateRepository.findById(candidateId)
-                .orElseThrow(() -> new IllegalStateException("candidate with id " + candidateId + " does not exist"));
+                .orElseThrow(() -> new IllegalStateException(
+                        "Candidate with id " + candidateId + " does not exist"));
 
-        if (firstname != null && !firstname.isEmpty() && !Objects.equals(candidate.getFirstName(), firstname)) {
-            candidate.setFirstName(firstname);
+        if (updatedFields.getFirstName() != null &&
+                !updatedFields.getFirstName().isEmpty() &&
+                !Objects.equals(candidate.getFirstName(), updatedFields.getFirstName())) {
+            candidate.setFirstName(updatedFields.getFirstName());
         }
+
+        if (updatedFields.getLastName() != null &&
+                !updatedFields.getLastName().isEmpty() &&
+                !Objects.equals(candidate.getLastName(), updatedFields.getLastName())) {
+            candidate.setLastName(updatedFields.getLastName());
+        }
+
+        if (updatedFields.getEmail() != null &&
+                !updatedFields.getEmail().isEmpty() &&
+                !Objects.equals(candidate.getEmail(), updatedFields.getEmail())) {
+            candidate.setEmail(updatedFields.getEmail());
+        }
+
+        if (updatedFields.getInfo() != null &&
+                !updatedFields.getInfo().isEmpty() &&
+                !Objects.equals(candidate.getInfo(), updatedFields.getInfo())) {
+            candidate.setInfo(updatedFields.getInfo());
+        }
+
+        if (updatedFields.getDecision() != null &&
+                !Objects.equals(candidate.getDecision(), updatedFields.getDecision())) {
+            candidate.setDecision(updatedFields.getDecision());
+        }
+
+        if (updatedFields.getReasoning() != null &&
+                !updatedFields.getReasoning().isEmpty() &&
+                !Objects.equals(candidate.getReasoning(), updatedFields.getReasoning())) {
+            candidate.setReasoning(updatedFields.getReasoning());
+        }
+
+        return candidate; // το αντικείμενο είναι ήδη ενημερωμένο λόγω @Transactional
     }
+
 }

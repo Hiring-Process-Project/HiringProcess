@@ -19,6 +19,9 @@ public class QuestionScore {
             generator = "candidate_sequence"
     )
     private int id;
+    private double score;
+
+
 
     // Σχέση QuestionScore με Question
     @ManyToOne
@@ -32,7 +35,14 @@ public class QuestionScore {
     @JsonIgnore
     private StepResults stepResults;
 
-    private double score;
+    public QuestionScore() {
+        // Required by JPA
+    }
+
+
+    public double getScore() {
+        return score;
+    }
 
     public QuestionScore(double score){
         this.score=score;
@@ -40,5 +50,29 @@ public class QuestionScore {
 
     public void setQuestion(Question question) {
         this.question = question;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setScore(double score) {
+        this.score = score;
+    }
+
+    public Question getQuestion() {
+        return question;
+    }
+
+    public StepResults getStepResults() {
+        return stepResults;
+    }
+
+    public void setStepResults(StepResults stepResults) {
+        this.stepResults = stepResults;
     }
 }

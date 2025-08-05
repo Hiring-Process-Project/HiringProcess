@@ -1,6 +1,7 @@
 package com.example.hiringProcess.Candidate;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -44,12 +45,14 @@ public class CandidateController {
         candidateService.deleteCandidate(candidateId);
     }
 
-    // PUT /api/v1/candidates/{id} - Ενημέρωση στοιχείων υποψηφίου
-//    @PutMapping("/{candidateId}")
-//    public void updateCandidate(
-//            @PathVariable Integer candidateId,
-//            @RequestBody Candidate candidateDetails
-//    ) {
-//        candidateService.updateCandidate(candidateId, candidateDetails);
-//    }
+   // PUT /api/v1/candidates/{id} - Ενημέρωση στοιχείων υποψηφίου
+    @PutMapping("/{id}")
+    public ResponseEntity<Candidate> updateCandidate(
+        @PathVariable("id") Integer id,
+        @RequestBody Candidate updatedCandidate) {
+
+    Candidate updated = candidateService.updateCandidate(id, updatedCandidate);
+    return ResponseEntity.ok(updated);
+}
+
 }

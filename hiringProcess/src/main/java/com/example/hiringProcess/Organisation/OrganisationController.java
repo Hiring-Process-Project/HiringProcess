@@ -1,13 +1,14 @@
 package com.example.hiringProcess.Organisation;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
-//@RequestMapping(path = "api/v1/Organisation")
+@RequestMapping("/api/v1/organisations")
 public class OrganisationController {
 
     private final OrganisationService organisationService;
@@ -17,29 +18,37 @@ public class OrganisationController {
         this.organisationService = organisationService;
     }
 
-    @GetMapping(path = "/organisations")
-    public List<Organisation> getOrganisations() {
-        return organisationService.getOrganisations();
+    @GetMapping
+    public List<Organisation> getAll() {
+        return organisationService.getAll();
     }
 
-    @GetMapping(path = "/organisation")
-    public Optional<Organisation> getOrganisation(Integer organisationId) {
-        return organisationService.getOrganisation(organisationId);
+    @GetMapping("/{id}")
+    public ResponseEntity<Organisation> getById(@PathVariable("id") Integer id) {
+        return organisationService.getById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
-    @PostMapping(path = "/newOrganisation")
-    public void addNewOrganisation(Organisation organisation) {
-        organisationService.addNewOrganisation(organisation);
+    @PostMapping
+    public ResponseEntity<Organisation> create(@RequestBody Organisation organisation) {
+        Organisation saved = organisationService.create(organisation);
+        URI location = URI.create("/api/v1/organisations/" + saved.getId());
+        return ResponseEntity.created(location).body(saved);
     }
 
-//    @DeleteMapping(path = "{organisationId}")
-//    public void deleteOrganisation(@PathVariable("organisationId") Integer id) {
-//        organisationService.deleteOrganisation(id);
-//    }
+    @PutMapping("/{id}")
+    public ResponseEntity<Organisation> update(
+            @PathVariable("id") Integer id,
+            @RequestBody Organisation updatedFields) {
 
-//    @PutMapping(path = "{organisationId}")
-//    public void updateOrganisation(@PathVariable("organisationId") Integer organisationId,
-//                                   @RequestParam(required = false) String name) {
-//        organisationService.updateOrganisation(organisationId, name);
-//    }
+        Organisation updated = organisationService.update(id, updatedFields);
+        return ResponseEntity.ok(updated);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable("id") Integer id) {
+        organisationService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
 }
