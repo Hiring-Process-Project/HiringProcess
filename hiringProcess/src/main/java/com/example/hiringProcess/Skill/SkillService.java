@@ -55,8 +55,8 @@ public class SkillService {
             existingSkill.setEscoId(updatedSkill.getEscoId());
         }
 
-        if (updatedSkill.getQuestion() != null) {
-            existingSkill.setQuestion(updatedSkill.getQuestion());
+        if (updatedSkill.getQuestions() != null) {
+            existingSkill.setQuestions(updatedSkill.getQuestions());
         }
     }
 

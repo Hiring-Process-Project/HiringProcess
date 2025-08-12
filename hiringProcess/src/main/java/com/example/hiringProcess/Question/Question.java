@@ -7,122 +7,57 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table
 public class Question {
     @Id
-    @SequenceGenerator(
-            name = "questions_sequence",
-            sequenceName = "questions_sequence",
-            allocationSize = 1
-    )
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "questions_sequence"
-    )
-
+    @SequenceGenerator(name = "questions_sequence", sequenceName = "questions_sequence", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "questions_sequence")
     private int id;
 
     private String name;
     private String description;
 
-    // Σχέση Question με Step
     @ManyToOne
     @JoinColumn(name = "step_id", referencedColumnName = "id")
     @JsonIgnore
     private Step step;
 
-    // Σχέση Question με Skill
-    @OneToMany(mappedBy = "question")
-    @JsonIgnore
-    private List<Skill> skills = new ArrayList<>();
+    // === Many-to-Many με Skill (OWNING SIDE) ===
+    @ManyToMany
+    @JoinTable(
+            name = "question_skill",
+            joinColumns = @JoinColumn(name = "question_id"),
+            inverseJoinColumns = @JoinColumn(name = "skill_id")
+    )
+    private Set<Skill> skills = new HashSet<>();
 
-    //Σχεση Question με QuestionScore
     @OneToMany(mappedBy = "question")
     @JsonIgnore
-    private List<QuestionScore> questionScore= new ArrayList<>();
+    private List<QuestionScore> questionScore = new ArrayList<>();
 
     public Question() {}
+    public Question(String name){ this.name = name; }
 
-    public Question(String name){
-        this.name = name;
-    }
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
 
-    // ToString για debugging
-    @Override
-    public String toString() {
-        return "Questions{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", step=" + (step != null ? step.getId() : "null") +
-                //", question_score=" + (questionScore != null ? questionScore.getScore() : "null") + '}';
-        '}';
-    }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
 
-//    // Μέθοδος που ρυθμίζει τη σχέση με το Skill
-//    public void addSkill(Skill skill) {
-//        this.skill = skill;  // Ορίζει το skill στο question
-//        skill.setQuestion(this);  // Ορίζει το question στο skill (αντίστροφη σχέση)
-//    }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
 
-//    public void  addScore(QuestionScore score){
-//        this.questionScore=score;
-//        score.setQuestion(this);
-//    }
+    public Step getStep() { return step; }
+    public void setStep(Step step) { this.step = step; }
 
+    public Set<Skill> getSkills() { return skills; }
+    public void setSkills(Set<Skill> skills) { this.skills = skills; }
 
-
-
-    // Getters and Setters
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public Step getStep() {
-        return step;
-    }
-
-    public void setStep(Step step) {
-        this.step = step;
-    }
-
-    public List<Skill> getSkills() {
-        return skills;
-    }
-
-    public void setSkills(List<Skill> skills) {
-        this.skills = skills;
-    }
-
-    public List<QuestionScore> getQuestionScore() {
-        return questionScore;
-    }
-
-    public void setQuestionScore(List<QuestionScore> questionScore) {
-        this.questionScore = questionScore;
-    }
+    public List<QuestionScore> getQuestionScore() { return questionScore; }
+    public void setQuestionScore(List<QuestionScore> questionScore) { this.questionScore = questionScore; }
 }

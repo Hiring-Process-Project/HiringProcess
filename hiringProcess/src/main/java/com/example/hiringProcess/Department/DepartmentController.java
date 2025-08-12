@@ -1,5 +1,7 @@
 package com.example.hiringProcess.Department;
 
+import com.example.hiringProcess.Occupation.OccupationNameDTO;
+import com.example.hiringProcess.Occupation.OccupationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,13 +15,14 @@ import java.util.List;
 public class DepartmentController {
 
     private final DepartmentService departmentService;
+    private final OccupationService occupationService;
 
     @Autowired
-    public DepartmentController(DepartmentService departmentService) {
+    public DepartmentController(DepartmentService departmentService, OccupationService occupationService) {
         this.departmentService = departmentService;
+        this.occupationService = occupationService;
     }
 
-    // GET all department names
     @GetMapping("/names")
     public List<DepartmentNameDTO> getDepartmentNames() {
         return departmentService.getDepartments()
@@ -28,7 +31,6 @@ public class DepartmentController {
                 .toList();
     }
 
-    //  GET by ID
     @GetMapping("/{id}")
     public ResponseEntity<Department> getDepartment(@PathVariable("id") Integer id) {
         return departmentService.getDepartment(id)
@@ -36,7 +38,6 @@ public class DepartmentController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    //  POST: Create new department
     @PostMapping
     public ResponseEntity<Department> addNewDepartment(@RequestBody Department department) {
         Department saved = departmentService.addNewDepartment(department);
@@ -44,20 +45,21 @@ public class DepartmentController {
         return ResponseEntity.created(location).body(saved);
     }
 
-    //  PUT: Update department (all editable fields)
     @PutMapping("/{id}")
-    public ResponseEntity<Department> updateDepartment(
-            @PathVariable("id") Integer id,
-            @RequestBody Department updatedFields) {
-
+    public ResponseEntity<Department> updateDepartment(@PathVariable("id") Integer id,
+                                                       @RequestBody Department updatedFields) {
         Department updated = departmentService.updateDepartment(id, updatedFields);
         return ResponseEntity.ok(updated);
     }
 
-    //  DELETE
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteDepartment(@PathVariable("id") Integer id) {
         departmentService.deleteDepartment(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/occupations")
+    public List<OccupationNameDTO> getOccupationNamesByDepartment(@PathVariable("id") Integer id) {
+        return occupationService.getOccupationNamesByDepartment(id);
     }
 }

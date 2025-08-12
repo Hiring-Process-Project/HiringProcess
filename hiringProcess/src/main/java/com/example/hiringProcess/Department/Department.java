@@ -4,7 +4,10 @@ import com.example.hiringProcess.JobAd.JobAd;
 import com.example.hiringProcess.Organisation.Organisation;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+
 import java.util.Set;
+
 
 @Entity
 @Table
