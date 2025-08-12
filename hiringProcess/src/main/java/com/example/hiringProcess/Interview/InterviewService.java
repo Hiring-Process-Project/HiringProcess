@@ -1,5 +1,8 @@
 package com.example.hiringProcess.Interview;
 
+import com.example.hiringProcess.JobAd.JobAd;
+import com.example.hiringProcess.JobAd.JobAdRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,10 +13,15 @@ import java.util.Optional;
 @Service
 public class InterviewService {
     private final InterviewRepository interviewRepository;
+    private final JobAdRepository jobAdRepository;   // <-- inject αυτό
+
+
 
     @Autowired
-    public InterviewService(InterviewRepository interviewRepository) {
+    public InterviewService(InterviewRepository interviewRepository,  JobAdRepository jobAdRepository) {
         this.interviewRepository = interviewRepository;
+        this.jobAdRepository = jobAdRepository;
+
     }
 
     public List<Interview> getInterviews() {
@@ -64,6 +72,28 @@ public class InterviewService {
         }
         interviewRepository.deleteById(interviewId);
     }
+
+    public InterviewDetailsDTO getInterviewDetailsByJobAd(Integer jobAdId) {
+        JobAd jobAd = jobAdRepository.findById(jobAdId)   // <-- instance call
+                .orElseThrow(() -> new RuntimeException("JobAd not found with id: " + jobAdId));
+
+        var interview = jobAd.getInterview();
+        if (interview == null) {
+            throw new RuntimeException("No interview found for JobAd with id: " + jobAdId);
+        }
+
+        return InterviewMapper.toDetailsDTO(interview);
+    }
+
+    @Transactional
+    public void updateDescription(Integer interviewId, String description) {
+        Interview interview = interviewRepository.findById(interviewId)
+                .orElseThrow(() -> new IllegalStateException("Interview " + interviewId + " not found"));
+        interview.setDescription(description);
+
+    }
+
+
 
 
 }

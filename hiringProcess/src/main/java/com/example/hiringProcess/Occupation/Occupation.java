@@ -65,4 +65,11 @@ public class Occupation {
         this.escoId = escoId;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 }

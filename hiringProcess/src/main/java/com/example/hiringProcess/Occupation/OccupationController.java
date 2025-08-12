@@ -1,12 +1,14 @@
 package com.example.hiringProcess.Occupation;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
+@RequestMapping("/api/v1/occupations")
 public class OccupationController {
 
     private final OccupationService occupationService;
@@ -16,29 +18,42 @@ public class OccupationController {
         this.occupationService = occupationService;
     }
 
-    @GetMapping(path="/occupations")
-    public List<Occupation> getOccupations(){
+    @GetMapping
+    public List<Occupation> getOccupations() {
         return occupationService.getOccupations();
     }
 
-    @GetMapping (path="/occupation")
-    public Optional<Occupation> getOccupation(Integer occupationId){
-        return occupationService.getOccupation(occupationId);
+    @GetMapping("/names")
+    public List<OccupationNameDTO> getOccupationNames() {
+        return occupationService.getOccupations()
+                .stream()
+                .map(o -> new OccupationNameDTO(o.getId(), o.getTitle()))
+                .toList();
     }
 
-    @PostMapping(path="/newOccupation")
-    public void addNewOccupation(Occupation occupation){
+    @GetMapping("/{occupationId}")
+    public ResponseEntity<Occupation> getOccupation(@PathVariable Integer occupationId) {
+        return occupationService.getOccupation(occupationId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PostMapping
+    public ResponseEntity<Occupation> addNewOccupation(@RequestBody Occupation occupation) {
         occupationService.addNewOccupation(occupation);
-    }
-
-    @DeleteMapping("/{occupationId}")
-    public void deleteOccupation(@PathVariable Integer occupationId) {
-        occupationService.deleteOccupation(occupationId);
+        return ResponseEntity.ok(occupation);
     }
 
     @PutMapping("/{occupationId}")
-    public void updateOccupation(@PathVariable Integer occupationId,
-                                 @RequestBody Occupation updatedOccupation) {
+    public ResponseEntity<Void> updateOccupation(@PathVariable Integer occupationId,
+                                                 @RequestBody Occupation updatedOccupation) {
         occupationService.updateOccupation(occupationId, updatedOccupation);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{occupationId}")
+    public ResponseEntity<Void> deleteOccupation(@PathVariable Integer occupationId) {
+        occupationService.deleteOccupation(occupationId);
+        return ResponseEntity.noContent().build();
     }
 }

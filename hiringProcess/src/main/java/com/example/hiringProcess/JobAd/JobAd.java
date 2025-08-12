@@ -4,6 +4,7 @@ import com.example.hiringProcess.Candidate.Candidate;
 import com.example.hiringProcess.Department.Department;
 import com.example.hiringProcess.Interview.Interview;
 import com.example.hiringProcess.Occupation.Occupation;
+import com.example.hiringProcess.Skill.Skill;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDate;
@@ -58,6 +59,15 @@ public class JobAd {
             inverseJoinColumns = @JoinColumn(name = "department_id")
     )
     private Set<Department> departments = new HashSet<>();
+
+    // Σχέση JobAdd με Skills
+    @ManyToMany
+    @JoinTable(
+            name = "jobad_skill",
+            joinColumns = @JoinColumn(name = "jobad_id"),
+            inverseJoinColumns = @JoinColumn(name = "skill_id")
+    )
+    private Set<Skill> skills = new HashSet<>();
 
 
     public JobAd() {}
@@ -174,5 +184,16 @@ public class JobAd {
         this.departments = departments;
     }
 
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public Set<Skill> getSkills() {
+        return skills;
+    }
+
+    public void setSkills(Set<Skill> skills) {
+        this.skills = skills;
+    }
 }
 
