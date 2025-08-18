@@ -117,11 +117,11 @@ public class QuestionService {
         var existing = skillRepository.findByNameIn(wanted);
 
         // Δημιούργησε όσα λείπουν (αν δεν το θες, αφαίρεσέ το μπλοκ)
-        var existingNames = existing.stream().map(Skill::getName).toList();
+        var existingNames = existing.stream().map(Skill::getTitle).toList();
         for (String name : wanted) {
             if (!existingNames.contains(name)) {
                 Skill s = new Skill();
-                s.setName(name);
+                s.setTitle(name);
                 existing.add(skillRepository.save(s));
             }
         }

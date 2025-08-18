@@ -29,7 +29,7 @@ public interface QuestionMapper {
     // Skill -> SkillDTO (αν δεν το έχεις ήδη)
     default SkillDTO toSkillDTO(Skill s) {
         if (s == null) return null;
-        return new SkillDTO(s.getId(), s.getName());
+        return new SkillDTO(s.getId(), s.getTitle());
     }
 
     default List<SkillDTO> toSkillDTOs(Set<Skill> set) {

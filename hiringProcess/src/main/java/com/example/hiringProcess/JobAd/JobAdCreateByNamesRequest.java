@@ -3,15 +3,15 @@ package com.example.hiringProcess.JobAd;
 import java.time.LocalDate;
 
 public class JobAdCreateByNamesRequest {
-    private String tittle;
+    private String title;
     private String description;
     private String status;
     private LocalDate publishDate;
     private String departmentName;
     private String occupationTitle;
 
-    public String getTittle() { return tittle; }
-    public void setTittle(String tittle) { this.tittle = tittle; }
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
     public String getStatus() { return status; }

@@ -63,7 +63,7 @@ public class JobAdController {
         Optional<JobAd> jobAdOpt = jobAdService.getJobAd(jobAdId);
         if (jobAdOpt.isPresent()) {
             List<JobAdSkillsDTO> skills = jobAdOpt.get().getSkills().stream()
-                    .map(skill -> new JobAdSkillsDTO(skill.getName()))
+                    .map(skill -> new JobAdSkillsDTO(skill.getTitle()))
                     .collect(Collectors.toList());
             return ResponseEntity.ok(skills);
         } else {

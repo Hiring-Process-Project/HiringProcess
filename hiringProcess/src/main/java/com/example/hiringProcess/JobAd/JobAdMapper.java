@@ -14,7 +14,7 @@ public interface JobAdMapper {
     JobAdDetailsDTO jobAdToDetailsDTO(JobAd jobAd);
 
     @Mapping(source = "id", target = "id")
-    @Mapping(source = "tittle", target = "jobTitle")
+    @Mapping(source = "title", target = "jobTitle")
     @Mapping(source = "occupation.title", target = "occupationName")
     @Mapping(source = "status", target = "status")
     @Mapping(target = "departmentName", expression = "java(jobAd.getDepartments().stream().findFirst().map(d -> d.getName()).orElse(null))")

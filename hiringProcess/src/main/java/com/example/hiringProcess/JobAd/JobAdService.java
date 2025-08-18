@@ -82,7 +82,7 @@ public class JobAdService {
                 });
 
         JobAd ja = new JobAd();
-        ja.setTittle(req.getTittle());
+        ja.setTitle(req.getTitle());
         ja.setDescription(req.getDescription());
         ja.setStatus(req.getStatus());
         ja.setPublishDate(req.getPublishDate());
@@ -123,14 +123,14 @@ public class JobAdService {
 
             List<Skill> existing = names.isEmpty() ? List.of() : skillRepository.findByNameIn(names);
             Map<String, Skill> byName = existing.stream()
-                    .collect(Collectors.toMap(Skill::getName, s -> s));
+                    .collect(Collectors.toMap(Skill::getTitle, s -> s));
 
             Set<Skill> newSet = new HashSet<>();
             for (String n : names) {
                 Skill s = byName.get(n);
                 if (s == null) {
                     s = new Skill();
-                    s.setName(n);
+                    s.setTitle(n);
                     s = skillRepository.save(s);
                 }
                 newSet.add(s);
@@ -164,7 +164,7 @@ public class JobAdService {
                 .flatMap(step -> step.getQuestions().stream())
                 .flatMap(question -> question.getSkills().stream())
                 .distinct()
-                .map(skill -> new SkillDTO(skill.getId(), skill.getName()))
+                .map(skill -> new SkillDTO(skill.getId(), skill.getTitle()))
                 .toList();
     }
 }

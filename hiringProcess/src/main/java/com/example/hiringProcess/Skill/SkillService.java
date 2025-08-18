@@ -43,21 +43,26 @@ public class SkillService {
                 .orElseThrow(() -> new IllegalStateException(
                         "Skill with id " + skillId + " does not exist"));
 
-        if (updatedSkill.getName() != null) {
-            existingSkill.setName(updatedSkill.getName());
-        }
-
+        // Title
         if (updatedSkill.getTitle() != null) {
             existingSkill.setTitle(updatedSkill.getTitle());
         }
 
+        // Score
+        // Χρησιμοποίησε wrapper (Double) στο DTO/Request αν θες να ξεχωρίζεις "δεν εστάλη" vs "0.0"
+        existingSkill.setScore(updatedSkill.getScore());
+
+        // EscoId
         if (updatedSkill.getEscoId() != null) {
             existingSkill.setEscoId(updatedSkill.getEscoId());
         }
 
+        // Σχέσεις (προσοχή: εδώ κάνεις πλήρη αντικατάσταση)
         if (updatedSkill.getQuestions() != null) {
             existingSkill.setQuestions(updatedSkill.getQuestions());
         }
+        if (updatedSkill.getJobAds() != null) {
+            existingSkill.setJobAds(updatedSkill.getJobAds());
+        }
     }
-
 }

@@ -28,7 +28,7 @@ public class JobAd {
     )
 
     private int id;
-    private String tittle;
+    private String title;
     private String description;
     private LocalDate publishDate;
     private String status;
@@ -69,11 +69,10 @@ public class JobAd {
     )
     private Set<Skill> skills = new HashSet<>();
 
-
     public JobAd() {}
 
     public JobAd(String title, String description, LocalDate publishDate, String status, Interview interview) {
-        this.tittle = title;
+        this.title = title;
         this.description = description;
         this.publishDate = publishDate;
         this.status = status;
@@ -120,12 +119,12 @@ public class JobAd {
         return id;
     }
 
-    public String getTittle() {
-        return tittle;
+    public String getTitle() {
+        return title;
     }
 
-    public void setTittle(String tittle) {
-        this.tittle = tittle;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getDescription() {

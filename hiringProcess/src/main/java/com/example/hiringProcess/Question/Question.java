@@ -19,7 +19,7 @@ public class Question {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "questions_sequence")
     private int id;
 
-    private String name;
+    private String title;
     private String description;
 
     @ManyToOne
@@ -40,24 +40,33 @@ public class Question {
     @JsonIgnore
     private List<QuestionScore> questionScore = new ArrayList<>();
 
+    // Getters and Setters
+
     public Question() {}
-    public Question(String name){ this.name = name; }
+
+    public Question(String title){ this.title = title; }
 
     public int getId() { return id; }
+
     public void setId(int id) { this.id = id; }
 
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
+    public String getName() { return title; }
+
+    public void setName(String title) { this.title = title; }
 
     public String getDescription() { return description; }
+
     public void setDescription(String description) { this.description = description; }
 
     public Step getStep() { return step; }
+
     public void setStep(Step step) { this.step = step; }
 
     public Set<Skill> getSkills() { return skills; }
+
     public void setSkills(Set<Skill> skills) { this.skills = skills; }
 
     public List<QuestionScore> getQuestionScore() { return questionScore; }
+
     public void setQuestionScore(List<QuestionScore> questionScore) { this.questionScore = questionScore; }
 }

@@ -8,6 +8,7 @@ import jakarta.persistence.*;
 @Entity
 @Table
 public class Candidate {
+
     @Id
     @SequenceGenerator(
             name = "candidate_sequence",
@@ -20,14 +21,16 @@ public class Candidate {
     )
     private int id;
 
-
     private String firstName;
-
     private String lastName;
     private String email;
+
+    /** Path/URL προς το αποθηκευμένο CV (π.χ. uploads/cv/nick_smith.pdf) */
+    private String cvPath;
+
     private String info;
-    private String decision;
-    private String reasoning;
+    private String status;
+    private String comments;
 
     // Σχέση Candidate με JobAd
     @ManyToOne
@@ -41,49 +44,63 @@ public class Candidate {
     @JsonIgnore
     private InterviewReport interviewReport;
 
+    // Required by JPA
     public Candidate() {}
 
-    public Candidate(String firstName,String lastName, String email, String info, String decision, String reasoning) {
+    // Constructor χωρίς cvPath (για συμβατότητα)
+    public Candidate(String firstName, String lastName, String email,
+                     String info, String status, String comments) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.info = info;
-        this.decision = decision;
-        this.reasoning = reasoning;
+        this.status = status;
+        this.comments = comments;
+    }
+
+    // Νέος constructor ΜΕ cvPath
+    public Candidate(String firstName, String lastName, String email,
+                     String cvPath, String info, String status, String comments) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.cvPath = cvPath;
+        this.info = info;
+        this.status = status;
+        this.comments = comments;
     }
 
     @Override
     public String toString() {
         return "Candidate{" +
                 "id=" + id +
-                ", first name='" + firstName + '\'' +
-                ", last name='" + lastName + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
                 ", email='" + email + '\'' +
+                ", cvPath='" + cvPath + '\'' +
                 ", info='" + info + '\'' +
-                ", decision='" + decision + '\'' +
-                ", reasoning='" + reasoning + '\'' +
+                ", status='" + status + '\'' +
+                ", comments='" + comments + '\'' +
                 ", jobAdId=" + (jobAd != null ? jobAd.getId() : "null") +
                 '}';
     }
 
-    //Getters and Setters
-
-    public void setJobAd(JobAd jobAd) {
-        this.jobAd=jobAd;
-    }
+    // Getters & Setters
 
     public int getId() {
-       return id;
+        return id;
     }
 
-
+    public String getFirstName() {
+        return firstName;
+    }
     public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
+
     public String getLastName() {
         return lastName;
     }
-
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
@@ -91,39 +108,41 @@ public class Candidate {
     public String getEmail() {
         return email;
     }
-
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getCvPath() {
+        return cvPath;
+    }
+    public void setCvPath(String cvPath) {
+        this.cvPath = cvPath;
     }
 
     public String getInfo() {
         return info;
     }
-
     public void setInfo(String info) {
         this.info = info;
     }
 
-    public String getDecision() {
-        return decision;
+    public String getStatus() {
+        return status;
+    }
+    public void setStatus(String status) {
+        this.status = status;
     }
 
-    public void setDecision(String decision) {
-        this.decision = decision;
+    public String getComments() {
+        return comments;
     }
-
-    public String getReasoning() {
-        return reasoning;
-    }
-
-    public void setReasoning(String reasoning) {
-        this.reasoning = reasoning;
+    public void setComments(String comments) {
+        this.comments = comments;
     }
 
     public InterviewReport getInterviewReport() {
         return interviewReport;
     }
-
     public void setInterviewReport(InterviewReport interviewReport) {
         this.interviewReport = interviewReport;
     }
@@ -131,14 +150,7 @@ public class Candidate {
     public JobAd getJobAd() {
         return jobAd;
     }
-
-    public String getFirstName() {
-        return firstName;
+    public void setJobAd(JobAd jobAd) {
+        this.jobAd = jobAd;
     }
-
-
 }
-
-
-
-
