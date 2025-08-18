@@ -1,3 +1,5 @@
+
+
 -- === ORGANISATION ===
 INSERT INTO organisation (id, name, description) VALUES (3, 'TechCorp', 'A global tech company');
 
@@ -41,6 +43,7 @@ INSERT INTO interview (id, title, description) VALUES
 (24, 'AI Research Interview', 'Advanced ML knowledge');
 
 -- === JOB_AD ===
+-- Προσοχή: η στήλη είναι 'tittle' (όχι 'title') όπως στο schema σου.
 INSERT INTO job_ad (id, tittle, description, publish_date, status, occupation_id, interview_id) VALUES
 -- Published
 (8, 'Backend Developer', 'We are hiring a backend Java developer', '2025-08-01', 'Published', 6, 7),
@@ -81,6 +84,7 @@ INSERT INTO candidate (id, first_name, last_name, email, info, decision, reasoni
 (10, 'John', 'Doe', 'john@example.com', 'Experienced dev', 'Accepted', 'Strong coding skills', 8, 9);
 
 -- === STEP ===
+-- ΔΙΟΡΘΩΣΗ: Προστέθηκε η στήλη score με τιμή 0 σε όλα τα rows.
 INSERT INTO step (id, title, description, interview_id, position, score) VALUES
 (11, 'Technical', 'Java & Spring Boot', 7, 0, 0),
 (12, 'HR Round', 'Soft skills & culture fit', 7, 1, 0),
@@ -118,8 +122,6 @@ INSERT INTO step (id, title, description, interview_id, position, score) VALUES
 (44, 'Content Creation', 'Workshops & materials', 23, 1, 0),
 (45, 'Research Methods', 'Papers, novelty & rigor', 24, 0, 0),
 (46, 'Model Evaluation', 'Benchmarks & ablations', 24, 1, 0);
-
-
 
 -- === QUESTION ===
 INSERT INTO question (id, name, description, step_id) VALUES
