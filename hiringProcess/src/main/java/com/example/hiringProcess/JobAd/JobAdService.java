@@ -121,7 +121,7 @@ public class JobAdService {
                     .distinct()
                     .toList();
 
-            List<Skill> existing = names.isEmpty() ? List.of() : skillRepository.findByNameIn(names);
+            List<Skill> existing = names.isEmpty() ? List.of() : skillRepository.findByTitleIn(names);
             Map<String, Skill> byName = existing.stream()
                     .collect(Collectors.toMap(Skill::getTitle, s -> s));
 

@@ -66,7 +66,7 @@ public class QuestionController {
                 req.getName().trim(),
                 req.getDescription() == null ? null : req.getDescription().trim()
         );
-        var dto = new QuestionLiteDTO(created.getId(), created.getName());
+        var dto = new QuestionLiteDTO(created.getId(), created.getTitle());
         return ResponseEntity.created(URI.create("/api/v1/question/" + created.getId())).body(dto);
     }
 

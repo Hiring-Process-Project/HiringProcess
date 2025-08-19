@@ -154,43 +154,49 @@ public class StepService {
     public void deleteStep(Integer stepId) { deleteAndCompact(stepId); }
 
     @Transactional
-    public void updateStep(Integer stepId, Step updatedStep) {
-        Step existingStep = stepRepository.findById(stepId)
+    public void updateStep(Integer stepId, StepUpdateDTO dto) {
+        Step existing = stepRepository.findById(stepId)
                 .orElseThrow(() -> new IllegalStateException("Step with id " + stepId + " does not exist"));
 
-        if (updatedStep.getTitle() != null) existingStep.setTitle(updatedStep.getTitle());
-        if (updatedStep.getDescription() != null) existingStep.setDescription(updatedStep.getDescription());
-
-        if (updatedStep.getInterview() != null && updatedStep.getInterview().getId() != 0) {
-            int newInterviewId = updatedStep.getInterview().getId();
-            Interview newInterview = interviewRepository.findById(newInterviewId)
-                    .orElseThrow(() -> new IllegalStateException("Interview " + newInterviewId + " not found"));
-            existingStep.setInterview(newInterview);
-            int max = stepRepository.findMaxPositionByInterviewId(newInterviewId);
-            existingStep.setPosition(max + 1);
+        // 1) Τίτλος / Περιγραφή (μόνο αν δόθηκαν)
+        if (dto.getTitle() != null) {
+            existing.setTitle(dto.getTitle());
+        }
+        if (dto.getDescription() != null) {
+            existing.setDescription(dto.getDescription());
         }
 
-        if (updatedStep.getQuestions() != null) {
-            existingStep.getQuestions().clear();
-            for (Question q : updatedStep.getQuestions()) {
-                existingStep.addQuestion(q);
+        // 2) Μεταφορά σε άλλη συνέντευξη (μόνο αν ζητήθηκε ΚΑΙ αλλάζει)
+        if (dto.getInterviewId() != null) {
+            int newInterviewId = dto.getInterviewId();
+            int currentInterviewId = existing.getInterview() != null ? existing.getInterview().getId() : 0;
+            if (newInterviewId != currentInterviewId) {
+                Interview newInterview = interviewRepository.findById(newInterviewId)
+                        .orElseThrow(() -> new IllegalStateException("Interview " + newInterviewId + " not found"));
+                existing.setInterview(newInterview);
+
+                // βάλε το step στο ΤΕΛΟΣ της νέας συνέντευξης για να μην «σκουντήσει» άλλο
+                int max = stepRepository.findMaxPositionByInterviewId(newInterviewId);
+                existing.setPosition(max + 1);
             }
         }
 
-        // Αν το Step.score είναι primitive (double/int), δεν κάνουμε null-check.
-        // Αν θέλεις να επιτρέπεις update του score, απλώς πάρε την τιμή που έρχεται.
-        // Προσοχή: αυτό θα γράψει 0 αν ο caller δεν στείλει κάτι «ειδικό».
-        existingStep.setScore(updatedStep.getScore());
+        // 3) Score (μόνο αν ζητήθηκε να αλλαχθεί)
+        if (dto.getScore() != null) {
+            // αν το field στο entity είναι primitive (int/double), αυτόματα θα γραφτεί η τιμή
+            existing.setScore(dto.getScore());
+        }
 
-        stepRepository.save(existingStep);
+        stepRepository.save(existing);
     }
+
 
     public List<StepSkillDTO> getSkillsForStep(Integer stepId) {
         stepRepository.findById(stepId).orElseThrow(() ->
                 new EntityNotFoundException("Step " + stepId + " not found"));
         List<Skill> skills = questionRepository.findDistinctSkillsByStepId(stepId);
         return skills.stream()
-                .map(s -> new StepSkillDTO(stepId, s.getId(), s.getName()))
+                .map(s -> new StepSkillDTO(stepId, s.getId(), s.getTitle()))
                 .collect(Collectors.toList());
     }
 

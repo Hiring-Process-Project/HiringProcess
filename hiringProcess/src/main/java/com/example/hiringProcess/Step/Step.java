@@ -80,7 +80,7 @@ public class Step {
     private String questionsToString() {
         if (questions == null || questions.isEmpty()) return "[]";
         return questions.stream()
-                .map(q -> "{id=" + q.getId() + ", name=" + q.getName() + "}")
+                .map(q -> "{id=" + q.getId() + ", name=" + q.getTitle() + "}")
                 .toList()
                 .toString();
     }
