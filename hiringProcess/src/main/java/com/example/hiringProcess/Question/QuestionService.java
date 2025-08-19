@@ -31,7 +31,9 @@ public class QuestionService {
     }
 
     // ============ legacy ============
-    public List<Question> getQuestions() { return questionRepository.findAll(); }
+    public List<Question> getQuestions() {
+        return questionRepository.findAll();
+    }
 
     public Optional<Question> getQuestion(Integer questionId) {
         return questionRepository.findById(questionId);
@@ -56,9 +58,9 @@ public class QuestionService {
         Question existing = questionRepository.findById(questionId)
                 .orElseThrow(() -> new IllegalStateException("Question with id " + questionId + " does not exist"));
 
-        if (updatedQuestion.getName() != null)        existing.setName(updatedQuestion.getName());
+        if (updatedQuestion.getTitle() != null) existing.setTitle(updatedQuestion.getTitle());
         if (updatedQuestion.getDescription() != null) existing.setDescription(updatedQuestion.getDescription());
-        if (updatedQuestion.getStep() != null)        existing.setStep(updatedQuestion.getStep());
+        if (updatedQuestion.getStep() != null) existing.setStep(updatedQuestion.getStep());
 
         if (updatedQuestion.getSkills() != null && !updatedQuestion.getSkills().isEmpty()) {
             existing.getSkills().clear();
@@ -82,7 +84,7 @@ public class QuestionService {
 
         Question q = new Question();
         q.setStep(step);
-        q.setName(name);
+        q.setTitle(name);
         q.setDescription(description);
 
         return questionRepository.save(q);
@@ -114,14 +116,15 @@ public class QuestionService {
                 .distinct()
                 .toList();
 
-        var existing = skillRepository.findByNameIn(wanted);
+        // Χρήση findByTitleIn αντί για findByNameIn
+        var existing = skillRepository.findByTitleIn(wanted);
 
         // Δημιούργησε όσα λείπουν (αν δεν το θες, αφαίρεσέ το μπλοκ)
-        var existingNames = existing.stream().map(Skill::getTitle).toList();
-        for (String name : wanted) {
-            if (!existingNames.contains(name)) {
+        var existingTitles = existing.stream().map(Skill::getTitle).toList();
+        for (String title : wanted) {
+            if (!existingTitles.contains(title)) {
                 Skill s = new Skill();
-                s.setTitle(name);
+                s.setTitle(title);
                 existing.add(skillRepository.save(s));
             }
         }

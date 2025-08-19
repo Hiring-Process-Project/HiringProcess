@@ -32,8 +32,8 @@ public class Interview {
     private JobAd jobAd;
 
     // Σχέση Interview με Step
-    @OneToMany (mappedBy = "interview", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
+    @OneToMany(mappedBy = "interview", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("position ASC")
     private List<Step> steps = new ArrayList<>();
 
     // Σχέση Interview με InterviewReport

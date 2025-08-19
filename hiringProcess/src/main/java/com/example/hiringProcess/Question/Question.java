@@ -50,9 +50,9 @@ public class Question {
 
     public void setId(int id) { this.id = id; }
 
-    public String getName() { return title; }
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
 
-    public void setName(String title) { this.title = title; }
 
     public String getDescription() { return description; }
 
