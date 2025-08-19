@@ -1,58 +1,128 @@
+// src/main/java/com/example/hiringProcess/Candidate/CandidateController.java
 package com.example.hiringProcess.Candidate;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/candidates")
+@CrossOrigin(origins = "http://localhost:3000") // dev
 public class CandidateController {
 
     private final CandidateService candidateService;
+
+    @Value("${app.cv.dir:/opt/app/uploads/cv}")
+    private String cvBaseDir;
 
     @Autowired
     public CandidateController(CandidateService candidateService) {
         this.candidateService = candidateService;
     }
 
+    // -------- DETAILS (Entity) --------
+    @GetMapping("/{id}")
+    public Candidate getCandidate(@PathVariable Integer id) {
+        return candidateService.getCandidate(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Candidate not found"));
+    }
 
+    // -------- UPDATE (Entity) --------
+    @PutMapping("/{id}")
+    public ResponseEntity<Candidate> updateCandidate(
+            @PathVariable("id") Integer id,
+            @RequestBody Candidate updatedCandidate) {
+        Candidate updated = candidateService.updateCandidate(id, updatedCandidate);
+        return ResponseEntity.ok(updated);
+    }
 
-    // GET /api/v1/candidates - Λίστα όλων των υποψηφίων
+    // -------- DELETE --------
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteCandidate(@PathVariable Integer id) {
+        candidateService.deleteCandidate(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // -------- LIST (DTO) --------
     @GetMapping
     public List<CandidateDTO> getCandidates() {
         return candidateService.getCandidateDTOs();
     }
 
-
-    // GET /api/v1/candidates/{id} - Ένας υποψήφιος με βάση το id
-    @GetMapping("/{candidateId}")
-    public Optional<Candidate> getCandidate(@PathVariable Integer candidateId) {
-        return candidateService.getCandidate(candidateId);
+    // -------- COMMENTS (write) --------
+    @PatchMapping("/{id}/comments")
+    public ResponseEntity<Void> saveCandidateComment(@PathVariable Integer id,
+                                                     @RequestBody CandidateCommentDTO dto) {
+        if (dto == null || dto.getComments() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "comments is required");
+        }
+        // Καθαρά: δεν φτιάχνουμε προσωρινό Candidate, απλώς ενημερώνουμε το πεδίο
+        candidateService.updateComments(id, dto.getComments());
+        // ή αν θες mapper-based:
+        // candidateService.updateComments(id, dto);
+        return ResponseEntity.noContent().build();
     }
 
-    // POST /api/v1/candidates - Προσθήκη νέου υποψηφίου
-    @PostMapping
-    public void addNewCandidate(@RequestBody Candidate candidate) {
-        candidateService.addNewCandidate(candidate);
+    // -------- EVALUATIONS (write, SAFE DTO) --------
+    @PostMapping("/{id}/evaluations")
+    public ResponseEntity<Void> saveSkillEvaluation(@PathVariable int id,
+                                                    @RequestBody SkillEvaluationDTO dto) {
+        if (dto == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Body is required");
+        }
+        // ΣΥΝΘΕΤΟΥΜΕ "ασφαλές" DTO ώστε το candidateId να προέρχεται ΜΟΝΟ από το path
+        SkillEvaluationDTO safeDto = new SkillEvaluationDTO(
+                id,                     // authoritative από το path
+                dto.getSkillId(),
+                dto.getRating(),
+                dto.getComments()
+        );
+
+        candidateService.saveSkillEvaluation(safeDto);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    // DELETE /api/v1/candidates/{id} - Διαγραφή υποψηφίου
-    @DeleteMapping("/{candidateId}")
-    public void deleteCandidate(@PathVariable Integer candidateId) {
-        candidateService.deleteCandidate(candidateId);
+    // -------- CV DOWNLOAD --------
+    @GetMapping("/{id}/cv")
+    public ResponseEntity<Resource> downloadCv(@PathVariable Integer id) {
+        Candidate candidate = candidateService.getCandidate(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Candidate not found"));
+
+        String cvPath = candidate.getCvPath();
+        if (cvPath == null || cvPath.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "CV not available");
+        }
+
+        Path filePath = Paths.get(cvBaseDir).resolve(cvPath).normalize();
+        if (!Files.exists(filePath)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "CV file not found");
+        }
+
+        try {
+            Resource resource = new UrlResource(filePath.toUri());
+            String filename = filePath.getFileName().toString();
+            String contentType = Files.probeContentType(filePath);
+            if (contentType == null) contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(contentType))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                    .body(resource);
+
+        } catch (MalformedURLException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Invalid CV path");
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "CV download failed");
+        }
     }
-
-   // PUT /api/v1/candidates/{id} - Ενημέρωση στοιχείων υποψηφίου
-    @PutMapping("/{id}")
-    public ResponseEntity<Candidate> updateCandidate(
-        @PathVariable("id") Integer id,
-        @RequestBody Candidate updatedCandidate) {
-
-    Candidate updated = candidateService.updateCandidate(id, updatedCandidate);
-    return ResponseEntity.ok(updated);
-}
-
 }

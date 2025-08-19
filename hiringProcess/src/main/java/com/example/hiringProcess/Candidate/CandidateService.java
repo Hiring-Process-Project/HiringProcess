@@ -1,8 +1,13 @@
+// src/main/java/com/example/hiringProcess/Candidate/CandidateService.java
 package com.example.hiringProcess.Candidate;
 
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
+
+import com.example.hiringProcess.Skill.Skill;
+import com.example.hiringProcess.Skill.SkillRepository;
 
 import java.util.List;
 import java.util.Objects;
@@ -12,26 +17,19 @@ import java.util.Optional;
 public class CandidateService {
 
     private final CandidateRepository candidateRepository;
+    private final SkillRepository skillRepository;
+    private final CandidateMapper candidateMapper;
 
     @Autowired
-    public CandidateService(CandidateRepository candidateRepository) {
+    public CandidateService(CandidateRepository candidateRepository,
+                            SkillRepository skillRepository,
+                            CandidateMapper candidateMapper) {
         this.candidateRepository = candidateRepository;
+        this.skillRepository = skillRepository;
+        this.candidateMapper = candidateMapper;
     }
 
-    // Επιστροφή CandidateDTOs για το tab
-    public List<CandidateDTO> getCandidateDTOs() {
-        return candidateRepository.findAll()
-                .stream()
-                .map(c -> new CandidateDTO(
-                        c.getId(),
-                        c.getFirstName(),
-                        c.getLastName(),
-                        c.getEmail(),
-                        c.getStatus(),
-                        c.getCvPath()
-                ))
-                .toList();
-    }
+    // -------- READS --------
 
     public List<Candidate> getCandidates() {
         return candidateRepository.findAll();
@@ -41,8 +39,24 @@ public class CandidateService {
         return candidateRepository.findById(candidateId);
     }
 
+    // Λίστα για το front (DTOs)
+    public List<CandidateDTO> getCandidateDTOs() {
+        return candidateRepository.findAll()
+                .stream()
+                .map(candidateMapper::toListDto)
+                .toList();
+    }
+
+    // Read comments (αν το χρειαστείς)
+    public CandidateCommentDTO getCandidateComments(Integer candidateId) {
+        Candidate c = candidateRepository.findById(candidateId)
+                .orElseThrow(() -> new IllegalStateException("Candidate with id " + candidateId + " does not exist"));
+        return candidateMapper.toCommentDto(c);
+    }
+
+    // -------- WRITES --------
+
     public void addNewCandidate(Candidate candidate) {
-        System.out.println("Saving candidate: " + candidate);
         candidateRepository.save(candidate);
     }
 
@@ -101,6 +115,57 @@ public class CandidateService {
             candidate.setComments(updatedFields.getComments());
         }
 
-        return candidate; // ενημερώνεται λόγω @Transactional
+        return candidate; // managed entity, ενημερώνεται λόγω @Transactional
+    }
+
+    // Update μόνο των comments (καθαρό)
+    @Transactional
+    public void updateComments(Integer candidateId, String comments) {
+        Candidate candidate = candidateRepository.findById(candidateId)
+                .orElseThrow(() -> new IllegalStateException(
+                        "Candidate with id " + candidateId + " does not exist"));
+        candidate.setComments(comments);
+    }
+
+    // Εναλλακτικά, με mapper merge από DTO:
+    @Transactional
+    public void updateComments(Integer candidateId, CandidateCommentDTO dto) {
+        Candidate candidate = candidateRepository.findById(candidateId)
+                .orElseThrow(() -> new IllegalStateException(
+                        "Candidate with id " + candidateId + " does not exist"));
+        candidateMapper.updateCommentsFromDto(dto, candidate);
+    }
+
+    // Αποθήκευση αξιολόγησης Skill → γράφει score στο Skill
+    @Transactional
+    public void saveSkillEvaluation(SkillEvaluationDTO dto) {
+        if (dto == null) throw new IllegalArgumentException("SkillEvaluationDTO is null");
+
+        Integer candidateId = dto.getCandidateId();
+        Integer skillId     = dto.getSkillId();
+        Integer rating      = dto.getRating(); // 0–100
+
+        Assert.notNull(candidateId, "candidateId is required");
+        Assert.notNull(skillId, "skillId is required");
+        Assert.notNull(rating, "rating is required");
+
+        if (rating < 0 || rating > 100) {
+            throw new IllegalArgumentException("rating must be between 0 and 100");
+        }
+
+        // check candidate existence
+        candidateRepository.findById(candidateId)
+                .orElseThrow(() -> new IllegalStateException(
+                        "Candidate with id " + candidateId + " does not exist"));
+
+        // find Skill and write score
+        Skill skill = skillRepository.findById(skillId)
+                .orElseThrow(() -> new IllegalStateException(
+                        "Skill with id " + skillId + " does not exist"));
+
+        skill.setScore(rating);
+        // if (dto.getComments() != null) skill.setComments(dto.getComments());
+
+        skillRepository.save(skill);
     }
 }

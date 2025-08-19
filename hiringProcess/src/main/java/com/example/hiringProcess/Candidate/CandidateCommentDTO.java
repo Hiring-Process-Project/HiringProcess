@@ -1,6 +1,7 @@
 package com.example.hiringProcess.Candidate;
 
-//Result tab
+// Result tab
+// PATCH + GET
 public class CandidateCommentDTO {
     private int candidateId;   // σε ποιον υποψήφιο μπαίνει το σχόλιο
     private String comments;   // το σχόλιο
@@ -21,7 +22,7 @@ public class CandidateCommentDTO {
         return comments;
     }
 
-    // Setters
+    // Setters (και για mapper, και για PATCH update)
     public void setCandidateId(int candidateId) {
         this.candidateId = candidateId;
     }
