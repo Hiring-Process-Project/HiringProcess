@@ -86,11 +86,11 @@ INSERT INTO step (id, title, description, interview_id, position, score) VALUES
 (15, 'SQL & Statistics', 'Joins, window functions, hypothesis testing', 9, 0, 0),
 (16, 'Python/Analytics Case', 'Pandas/numpy case exercise', 9, 1, 0);
 
--- === QUESTION ===
-INSERT INTO question (id, title, description, step_id) VALUES
-(13, 'What is a HashMap?', 'Explain usage and performance', 11),
-(14, 'SOLID Principles', 'Define the 5 principles', 11),
-(15, 'Conflict Resolution', 'How do you resolve team conflicts?', 12);
+-- === QUESTION ===  (ΠΡΟΣΟΧΗ: με position)
+INSERT INTO question (id, title, description, step_id, position) VALUES
+(13, 'What is a HashMap?', 'Explain usage and performance', 11, 0),
+(14, 'SOLID Principles', 'Define the 5 principles',        11, 1),
+(15, 'Conflict Resolution', 'How do you resolve team conflicts?', 12, 0);
 
 -- === SKILL ===
 INSERT INTO skill (id, title, esco_id, score) VALUES
@@ -122,25 +122,4 @@ INSERT INTO question_score (id, question_id, step_results_id, score) VALUES
 (20, 13, 18, 9.0),
 (21, 14, 18, 8.5),
 (22, 15, 19, 7.0);
-
--- === jobad_skill ===
-INSERT INTO jobad_skill (jobad_id, skill_id) VALUES
-(8, 16), (8, 17),
-(9, 24), (9, 25),
-(10, 17), (10, 18), (10, 23), (10, 26),
-(11, 20), (11, 17),
-(12, 25), (12, 24),
-(13, 16), (13, 18), (13, 26),
-(14, 16), (14, 21), (14, 22),
-(15, 24), (15, 23),
-(16, 16), (16, 17), (16, 18), (16, 27),
-(17, 16), (17, 17), (17, 21),
-(18, 23), (18, 24), (18, 25),
-(19, 23), (19, 26), (19, 18),
-(20, 20), (20, 17),
-(21, 25), (21, 24),
-(22, 26), (22, 18), (22, 16),
-(23, 21), (23, 22), (23, 16),
-(24, 23), (24, 24),
-(25, 27), (25, 18), (25, 16), (25, 17);
 
