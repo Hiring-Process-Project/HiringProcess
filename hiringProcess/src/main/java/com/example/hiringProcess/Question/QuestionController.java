@@ -1,4 +1,4 @@
-// QuestionController.java
+// src/main/java/com/example/hiringProcess/Question/QuestionController.java
 package com.example.hiringProcess.Question;
 
 import org.springframework.http.ResponseEntity;
@@ -18,7 +18,7 @@ public class QuestionController {
         this.questionService = questionService;
     }
 
-    // ===== LEGACY (κρατάς αν χρειάζονται) =====
+    // ===== LEGACY =====
     @GetMapping(path = "/questions")
     public List<Question> getQuestions() {
         return questionService.getQuestions();
@@ -39,7 +39,6 @@ public class QuestionController {
         questionService.deleteQuestion(questionId);
     }
 
-    // ΔΙΟΡΘΩΜΕΝΟ: update με JSON body (και path id)
     @PutMapping(path = "/question/{questionId}")
     public void updateQuestion(@PathVariable Integer questionId,
                                @RequestBody Question body) {
@@ -48,13 +47,13 @@ public class QuestionController {
 
     // ===== ΝΕΑ ENDPOINTS ΓΙΑ ΤΟ UI =====
 
-    /** Αριστερό panel: ερωτήσεις ανά step. */
+    /** Αριστερό panel: ερωτήσεις ανά step (ταξινομημένες). */
     @GetMapping("/api/v1/step/{stepId}/questions")
     public List<QuestionLiteDTO> getQuestionsForStep(@PathVariable Integer stepId) {
         return questionService.getQuestionsForStep(stepId);
     }
 
-    /** Create question κάτω από συγκεκριμένο step (το καλεί το AddQuestionModal). */
+    /** Create question κάτω από συγκεκριμένο step. */
     @PostMapping("/api/v1/step/{stepId}/questions")
     public ResponseEntity<QuestionLiteDTO> createQuestionUnderStep(@PathVariable Integer stepId,
                                                                    @RequestBody QuestionCreateRequest req) {
@@ -76,14 +75,33 @@ public class QuestionController {
         return questionService.getQuestionDetails(questionId);
     }
 
-    // QuestionController.java (πρόσθεσε)
+    /** Update description + skills */
     @PutMapping("/api/v1/question/{questionId}")
     public ResponseEntity<Void> updateQuestionDescAndSkills(@PathVariable Integer questionId,
                                                             @RequestBody QuestionUpdateRequest body) {
-        questionService.updateDescriptionAndSkills(questionId,
+        questionService.updateDescriptionAndSkills(
+                questionId,
                 body.getDescription(),
-                body.getSkillNames());
+                body.getSkillNames()
+        );
         return ResponseEntity.noContent().build();
     }
 
+    /** ΝΕΟ: Reorder ερωτήσεων ΜΕΣΑ στο ίδιο step */
+    @PatchMapping("/api/v1/step/{stepId}/questions/reorder")
+    public ResponseEntity<Void> reorderQuestionsInStep(
+            @PathVariable Integer stepId,
+            @RequestBody QuestionReorderRequest body) {
+        questionService.reorderInStep(stepId, body.getQuestionIds());
+        return ResponseEntity.noContent().build();
+    }
+
+    /** ΝΕΟ: Μετακίνηση ερώτησης σε άλλο step (και σε θέση μέσα σε αυτό) */
+    @PatchMapping("/api/v1/question/{questionId}/move")
+    public ResponseEntity<Void> moveQuestion(
+            @PathVariable Integer questionId,
+            @RequestBody QuestionMoveRequest body) {
+        questionService.moveQuestion(questionId, body.getToStepId(), body.getToIndex());
+        return ResponseEntity.noContent().build();
+    }
 }

@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 @Entity
-@Table
+@Table(name = "question")
 public class Question {
     @Id
     @SequenceGenerator(name = "questions_sequence", sequenceName = "questions_sequence", allocationSize = 1)
@@ -27,6 +27,10 @@ public class Question {
     @JsonIgnore
     private Step step;
 
+    // Ordering μέσα στο step
+    @Column(name = "position")
+    private Integer position;
+
     // === Many-to-Many με Skill (OWNING SIDE) ===
     @ManyToMany
     @JoinTable(
@@ -40,33 +44,27 @@ public class Question {
     @JsonIgnore
     private List<QuestionScore> questionScore = new ArrayList<>();
 
-    // Getters and Setters
-
     public Question() {}
-
     public Question(String title){ this.title = title; }
 
     public int getId() { return id; }
-
     public void setId(int id) { this.id = id; }
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
 
-
     public String getDescription() { return description; }
-
     public void setDescription(String description) { this.description = description; }
 
     public Step getStep() { return step; }
-
     public void setStep(Step step) { this.step = step; }
 
-    public Set<Skill> getSkills() { return skills; }
+    public Integer getPosition() { return position; }
+    public void setPosition(Integer position) { this.position = position; }
 
+    public Set<Skill> getSkills() { return skills; }
     public void setSkills(Set<Skill> skills) { this.skills = skills; }
 
     public List<QuestionScore> getQuestionScore() { return questionScore; }
-
     public void setQuestionScore(List<QuestionScore> questionScore) { this.questionScore = questionScore; }
 }
