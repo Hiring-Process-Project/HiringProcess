@@ -1,4 +1,3 @@
-// src/main/java/com/example/hiringProcess/Candidate/CandidateController.java
 package com.example.hiringProcess.Candidate;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +58,12 @@ public class CandidateController {
         return candidateService.getCandidateDTOs();
     }
 
+    // -------- LIST BY JOB AD (DTO) --------
+    @GetMapping("/jobad/{jobAdId}")
+    public List<CandidateDTO> getCandidatesByJobAd(@PathVariable Integer jobAdId) {
+        return candidateService.getCandidateDTOsByJobAd(jobAdId);
+    }
+
     // -------- COMMENTS (write) --------
     @PatchMapping("/{id}/comments")
     public ResponseEntity<Void> saveCandidateComment(@PathVariable Integer id,
@@ -66,10 +71,7 @@ public class CandidateController {
         if (dto == null || dto.getComments() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "comments is required");
         }
-        // Καθαρά: δεν φτιάχνουμε προσωρινό Candidate, απλώς ενημερώνουμε το πεδίο
         candidateService.updateComments(id, dto.getComments());
-        // ή αν θες mapper-based:
-        // candidateService.updateComments(id, dto);
         return ResponseEntity.noContent().build();
     }
 
@@ -80,9 +82,9 @@ public class CandidateController {
         if (dto == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Body is required");
         }
-        // ΣΥΝΘΕΤΟΥΜΕ "ασφαλές" DTO ώστε το candidateId να προέρχεται ΜΟΝΟ από το path
+        // ασφαλές DTO: το candidateId έρχεται από το path
         SkillEvaluationDTO safeDto = new SkillEvaluationDTO(
-                id,                     // authoritative από το path
+                id,
                 dto.getSkillId(),
                 dto.getRating(),
                 dto.getComments()
@@ -126,3 +128,4 @@ public class CandidateController {
         }
     }
 }
+
