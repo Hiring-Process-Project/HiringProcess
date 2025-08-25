@@ -1,11 +1,8 @@
 package com.example.hiringProcess.Candidate;
 
-import com.example.hiringProcess.Skill.Skill;
-import com.example.hiringProcess.Skill.SkillRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 
 import java.util.List;
 import java.util.Objects;
@@ -15,19 +12,16 @@ import java.util.Optional;
 public class CandidateService {
 
     private final CandidateRepository candidateRepository;
-    private final SkillRepository skillRepository;
     private final CandidateMapper candidateMapper;
 
     @Autowired
     public CandidateService(CandidateRepository candidateRepository,
-                            SkillRepository skillRepository,
                             CandidateMapper candidateMapper) {
         this.candidateRepository = candidateRepository;
-        this.skillRepository = skillRepository;
         this.candidateMapper = candidateMapper;
     }
 
-    // -------- READS --------
+    /* ===================== READS ===================== */
 
     /** Επιστρέφει οντότητες (αν χρειάζεται αλλού) */
     public List<Candidate> getCandidatesEntities() {
@@ -62,7 +56,7 @@ public class CandidateService {
         return candidateMapper.toCommentDto(c);
     }
 
-    // -------- WRITES --------
+    /* ===================== WRITES ===================== */
 
     public void addNewCandidate(Candidate candidate) {
         candidateRepository.save(candidate);
@@ -126,7 +120,7 @@ public class CandidateService {
         return candidate; // managed entity, ενημερώνεται λόγω @Transactional
     }
 
-    // Update μόνο των comments (String)
+    /** Update μόνο των comments (String) */
     @Transactional
     public void updateComments(Integer candidateId, String comments) {
         Candidate candidate = candidateRepository.findById(candidateId)
@@ -135,7 +129,7 @@ public class CandidateService {
         candidate.setComments(comments);
     }
 
-    // Εναλλακτικά, από DTO (Mapper-based)
+    /** Update comments μέσω DTO (Mapper-based) */
     @Transactional
     public void updateComments(Integer candidateId, CandidateCommentDTO dto) {
         Candidate candidate = candidateRepository.findById(candidateId)
@@ -145,40 +139,6 @@ public class CandidateService {
         if (dto != null) {
             candidateMapper.updateCommentsFromDto(dto, candidate);
         }
-        // δεν χρειάζεται save() λόγω @Transactional
-    }
-
-    // Αποθήκευση αξιολόγησης Skill → γράφει score στο Skill
-    @Transactional
-    public void saveSkillEvaluation(SkillEvaluationDTO dto) {
-        if (dto == null) throw new IllegalArgumentException("SkillEvaluationDTO is null");
-
-        Integer candidateId = dto.getCandidateId();
-        Integer skillId     = dto.getSkillId();
-        Integer rating      = dto.getRating(); // 0–100
-
-        Assert.notNull(candidateId, "candidateId is required");
-        Assert.notNull(skillId, "skillId is required");
-        Assert.notNull(rating, "rating is required");
-
-        if (rating < 0 || rating > 100) {
-            throw new IllegalArgumentException("rating must be between 0 and 100");
-        }
-
-        // check candidate existence
-        candidateRepository.findById(candidateId)
-                .orElseThrow(() -> new IllegalStateException(
-                        "Candidate with id " + candidateId + " does not exist"));
-
-        // find Skill and write score
-        Skill skill = skillRepository.findById(skillId)
-                .orElseThrow(() -> new IllegalStateException(
-                        "Skill with id " + skillId + " does not exist"));
-
-        skill.setScore(rating);
-        // αν θες, μπορείς να σώσεις και comments στο Skill
-
-        skillRepository.save(skill);
+        // @Transactional -> no explicit save() needed
     }
 }
-

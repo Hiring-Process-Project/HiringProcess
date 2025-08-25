@@ -1,11 +1,19 @@
 package com.example.hiringProcess.Candidate;
 
+import com.example.hiringProcess.SkillScore.SkillScore;
+import com.example.hiringProcess.SkillScore.SkillScoreService;
+import com.example.hiringProcess.SkillScore.SkillScoreUpsertRequestDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+import com.example.hiringProcess.SkillScore.SkillScoreResponseDTO;
+import com.example.hiringProcess.SkillScore.SkillScoreUpsertRequestDTO;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.net.MalformedURLException;
@@ -20,13 +28,16 @@ import java.util.List;
 public class CandidateController {
 
     private final CandidateService candidateService;
+    private final SkillScoreService skillScoreService; // 👈 προσθήκη
 
     @Value("${app.cv.dir:/opt/app/uploads/cv}")
     private String cvBaseDir;
 
     @Autowired
-    public CandidateController(CandidateService candidateService) {
+    public CandidateController(CandidateService candidateService,
+                               SkillScoreService skillScoreService) { // 👈 προσθήκη
         this.candidateService = candidateService;
+        this.skillScoreService = skillScoreService;
     }
 
     // -------- DETAILS (Entity) --------
@@ -75,24 +86,46 @@ public class CandidateController {
         return ResponseEntity.noContent().build();
     }
 
-    // -------- EVALUATIONS (write, SAFE DTO) --------
+    // -------- EVALUATIONS (compat wrapper -> SkillScore upsert) --------
+    /**
+     * Συμβατότητα με παλιό front:
+     * POST /api/v1/candidates/{id}/evaluations
+     * Body: SkillEvaluationDTO { questionId, skillId, rating, comments }
+     *
+     * Μετατρέπουμε σε SkillScoreUpsertRequestDTO και κάνουμε upsert στη skill_score.
+     */
     @PostMapping("/{id}/evaluations")
-    public ResponseEntity<Void> saveSkillEvaluation(@PathVariable int id,
-                                                    @RequestBody SkillEvaluationDTO dto) {
+    public ResponseEntity<SkillScoreResponseDTO> saveSkillEvaluation(
+            @PathVariable int id,
+            @RequestBody SkillScoreUpsertRequestDTO dto) {
+
         if (dto == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Body is required");
         }
-        // ασφαλές DTO: το candidateId έρχεται από το path
-        SkillEvaluationDTO safeDto = new SkillEvaluationDTO(
+        if (dto.questionId() == 0 || dto.skillId() == 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "questionId and skillId are required");
+        }
+        Integer rating = dto.score();
+        if (rating != null && (rating < 0 || rating > 100)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "rating must be between 0..100");
+        }
+
+        SkillScoreUpsertRequestDTO safeDto = new SkillScoreUpsertRequestDTO(
                 id,
-                dto.getSkillId(),
-                dto.getRating(),
-                dto.getComments()
+                dto.questionId(),
+                dto.skillId(),
+                dto.score(),
+                dto.comment(),
+                "system" // ή βάλε τον πραγματικό χρήστη όταν έχεις auth
         );
 
-        candidateService.saveSkillEvaluation(safeDto);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+
+        // ⬇️ επιστρέφει DTO (ΟΧΙ entity)
+        SkillScoreResponseDTO saved = skillScoreService.upsert(safeDto);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
+
 
     // -------- CV DOWNLOAD --------
     @GetMapping("/{id}/cv")
@@ -128,4 +161,3 @@ public class CandidateController {
         }
     }
 }
-
