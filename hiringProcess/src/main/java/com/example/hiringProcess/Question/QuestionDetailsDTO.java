@@ -9,3 +9,4 @@ public record QuestionDetailsDTO(
         String description,
         List<SkillDTO> skills
 ) { }
+

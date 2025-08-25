@@ -12,28 +12,19 @@ import java.util.Optional;
 public class CandidateService {
 
     private final CandidateRepository candidateRepository;
+    private final CandidateMapper candidateMapper;
 
     @Autowired
-    public CandidateService(CandidateRepository candidateRepository) {
+    public CandidateService(CandidateRepository candidateRepository,
+                            CandidateMapper candidateMapper) {
         this.candidateRepository = candidateRepository;
+        this.candidateMapper = candidateMapper;
     }
 
-    // Επιστροφή CandidateDTOs για το tab
-    public List<CandidateDTO> getCandidateDTOs() {
-        return candidateRepository.findAll()
-                .stream()
-                .map(c -> new CandidateDTO(
-                        c.getId(),
-                        c.getFirstName(),
-                        c.getLastName(),
-                        c.getEmail(),
-                        c.getStatus(),
-                        c.getCvPath()
-                ))
-                .toList();
-    }
+    /* ===================== READS ===================== */
 
-    public List<Candidate> getCandidates() {
+    /** Επιστρέφει οντότητες (αν χρειάζεται αλλού) */
+    public List<Candidate> getCandidatesEntities() {
         return candidateRepository.findAll();
     }
 
@@ -41,8 +32,33 @@ public class CandidateService {
         return candidateRepository.findById(candidateId);
     }
 
+    /** Λίστα για το front (DTOs) — MapStruct mapping */
+    public List<CandidateDTO> getCandidateDTOs() {
+        return candidateRepository.findAll()
+                .stream()
+                .map(candidateMapper::toListDto)
+                .toList();
+    }
+
+    /** Λίστα υποψηφίων (DTOs) για συγκεκριμένο Job Ad */
+    public List<CandidateDTO> getCandidateDTOsByJobAd(Integer jobAdId) {
+        return candidateRepository.findByJobAd_Id(jobAdId)
+                .stream()
+                .map(candidateMapper::toListDto)
+                .toList();
+    }
+
+    /** Read comments (DTO) — MapStruct mapping */
+    public CandidateCommentDTO getCandidateComments(Integer candidateId) {
+        Candidate c = candidateRepository.findById(candidateId)
+                .orElseThrow(() -> new IllegalStateException(
+                        "Candidate with id " + candidateId + " does not exist"));
+        return candidateMapper.toCommentDto(c);
+    }
+
+    /* ===================== WRITES ===================== */
+
     public void addNewCandidate(Candidate candidate) {
-        System.out.println("Saving candidate: " + candidate);
         candidateRepository.save(candidate);
     }
 
@@ -101,6 +117,28 @@ public class CandidateService {
             candidate.setComments(updatedFields.getComments());
         }
 
-        return candidate; // ενημερώνεται λόγω @Transactional
+        return candidate; // managed entity, ενημερώνεται λόγω @Transactional
+    }
+
+    /** Update μόνο των comments (String) */
+    @Transactional
+    public void updateComments(Integer candidateId, String comments) {
+        Candidate candidate = candidateRepository.findById(candidateId)
+                .orElseThrow(() -> new IllegalStateException(
+                        "Candidate with id " + candidateId + " does not exist"));
+        candidate.setComments(comments);
+    }
+
+    /** Update comments μέσω DTO (Mapper-based) */
+    @Transactional
+    public void updateComments(Integer candidateId, CandidateCommentDTO dto) {
+        Candidate candidate = candidateRepository.findById(candidateId)
+                .orElseThrow(() -> new IllegalStateException(
+                        "Candidate with id " + candidateId + " does not exist"));
+
+        if (dto != null) {
+            candidateMapper.updateCommentsFromDto(dto, candidate);
+        }
+        // @Transactional -> no explicit save() needed
     }
 }

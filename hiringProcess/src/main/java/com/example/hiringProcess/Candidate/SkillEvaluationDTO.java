@@ -39,10 +39,6 @@ public class SkillEvaluationDTO {
         this.candidateId = candidateId;
     }
 
-    public void setSkillId(int skillId) {
-        this.skillId = skillId;
-    }
-
     public void setRating(int rating) {
         this.rating = rating;
     }
