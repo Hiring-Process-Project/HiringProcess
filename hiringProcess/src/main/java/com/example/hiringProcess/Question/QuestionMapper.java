@@ -1,46 +1,44 @@
-// QuestionMapper.java
 package com.example.hiringProcess.Question;
 
-import com.example.hiringProcess.Skill.SkillDTO;
 import com.example.hiringProcess.Skill.Skill;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import com.example.hiringProcess.Skill.SkillDTO;
+import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
-@Mapper(componentModel = "spring")
-public interface QuestionMapper {
+@Component
+public class QuestionMapper {
 
-    // Question -> QuestionLiteDTO (id, name)   |  entity.title -> dto.name
-    @Mapping(source = "id",    target = "id")
-    @Mapping(source = "title", target = "name")
-    QuestionLiteDTO toLite(Question q);
-
-    List<QuestionLiteDTO> toLite(List<Question> list);
-
-    // Question -> QuestionDetailsDTO
-    // entity.title -> dto.name, description passthrough,
-    // skills: Set<Skill> -> List<SkillDTO> (βοηθάει το default toSkillDTOs)
-    @Mapping(source = "id",          target = "id")
-    @Mapping(source = "title",       target = "name")
-    @Mapping(source = "description", target = "description")
-    @Mapping(source = "skills",      target = "skills")
-    QuestionDetailsDTO toDetails(Question q);
-
-    // ---- Helpers for Skill mapping ----
-    default SkillDTO toSkillDTO(Skill s) {
-        if (s == null) return null;
-        return new SkillDTO(s.getId(), s.getTitle()); // entity έχει 'title'
+    // single item
+    public QuestionLiteDTO toLite(Question q) {
+        if (q == null) return null;
+        // entity.title -> DTO.name
+        return new QuestionLiteDTO(q.getId(), q.getTitle());
     }
 
-    default List<SkillDTO> toSkillDTOs(Set<Skill> set) {
-        return set == null ? List.of() : set.stream()
-                .map(this::toSkillDTO)
-                .toList();
+    // list overload (το θέλει το service)
+    public List<QuestionLiteDTO> toLite(List<Question> list) {
+        List<QuestionLiteDTO> out = new ArrayList<>();
+        if (list == null) return out;
+        for (Question q : list) out.add(toLite(q));
+        return out;
     }
 
-    // (Προαιρετικό) DTO για updates, αν το χρησιμοποιείς:
-    // void update(@MappingTarget Question q, QuestionUpdateDTO dto);
+    // details (record με List<SkillDTO>)
+    public QuestionDetailsDTO toDetails(Question q) {
+        if (q == null) return null;
+        List<SkillDTO> skills = new ArrayList<>();
+        if (q.getSkills() != null) {
+            for (Skill s : q.getSkills()) {
+                if (s != null) skills.add(new SkillDTO(s.getId(), s.getTitle()));
+            }
+        }
+        return new QuestionDetailsDTO(
+                q.getId(),
+                q.getTitle(),          // -> name
+                q.getDescription(),
+                skills
+        );
+    }
 }

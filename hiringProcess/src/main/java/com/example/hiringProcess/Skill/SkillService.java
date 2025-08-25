@@ -61,8 +61,6 @@ public class SkillService {
         if (updatedSkill.getQuestions() != null) {
             existingSkill.setQuestions(updatedSkill.getQuestions());
         }
-        if (updatedSkill.getJobAds() != null) {
-            existingSkill.setJobAds(updatedSkill.getJobAds());
-        }
+
     }
 }

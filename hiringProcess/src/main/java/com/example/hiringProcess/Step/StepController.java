@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = {"http://localhost:3000","http://localhost:5173"})
 @RestController
 @RequestMapping(path = "api/v1/step")
 public class StepController {
@@ -36,8 +36,9 @@ public class StepController {
     }
 
     @DeleteMapping("/{stepId}")
-    public void deleteStep(@PathVariable("stepId") Integer stepId) {
+    public ResponseEntity<Void> deleteStep(@PathVariable("stepId") Integer stepId) {
         stepService.deleteStep(stepId);
+        return ResponseEntity.noContent().build();
     }
 
     /* ======= Skills για step ======= */
@@ -65,12 +66,11 @@ public class StepController {
     @PutMapping("/{stepId}/description")
     public ResponseEntity<Void> updateDescription(@PathVariable int stepId,
                                                   @RequestBody StepUpdateDTO dto) {
-        // Ο StepUpdateDTO περιέχει πεδίο description (και προαιρετικά άλλα)
         stepService.updateStep(stepId, dto);
         return ResponseEntity.noContent().build();
     }
 
-    /* ======= Ενημέρωση Step μέσω DTO (κρατιέται για συμβατότητα) ======= */
+    /* ======= Ενημέρωση Step μέσω DTO (compat) ======= */
     @PutMapping("/steps/{id}")
     public ResponseEntity<Void> updateStep(@PathVariable int id,
                                            @RequestBody StepUpdateDTO dto) {
@@ -92,12 +92,11 @@ public class StepController {
             stepService.reorder(interviewId, body.getStepIds());
             return ResponseEntity.noContent().build();
         } catch (Exception ex) {
-            // επιστρέφουμε μήνυμα για εύκολη διάγνωση από το front
             return ResponseEntity.badRequest().body(ex.getMessage());
         }
     }
 
-    /* ======= Fallback δημιουργίας (συμβατότητα) ======= */
+    /* ======= Fallback δημιουργίας (compat) ======= */
     @PostMapping
     public StepResponseDTO createStepFallback(@RequestBody StepCreateRequest req) {
         if (req.getInterviewId() == null || req.getTitle() == null || req.getTitle().isBlank())

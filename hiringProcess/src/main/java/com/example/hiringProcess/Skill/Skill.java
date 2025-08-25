@@ -28,9 +28,6 @@ public class Skill {
     @JsonIgnore
     private Set<Question> questions = new HashSet<>();
 
-    @ManyToMany(mappedBy = "skills")
-    @JsonIgnore
-    private Set<JobAd> jobAds = new HashSet<>();
 
     public Skill() {}
 
@@ -76,10 +73,4 @@ public class Skill {
         this.questions = questions;
     }
 
-    public Set<JobAd> getJobAds() {
-        return jobAds;
-    }
-    public void setJobAds(Set<JobAd> jobAds) {
-        this.jobAds = jobAds;
-    }
 }

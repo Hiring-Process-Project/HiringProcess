@@ -5,15 +5,16 @@ import com.example.hiringProcess.Department.DepartmentRepository;
 import com.example.hiringProcess.Interview.Interview;
 import com.example.hiringProcess.Occupation.Occupation;
 import com.example.hiringProcess.Occupation.OccupationRepository;
-import com.example.hiringProcess.Skill.Skill;
 import com.example.hiringProcess.Skill.SkillDTO;
-import com.example.hiringProcess.Skill.SkillRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,19 +24,16 @@ public class JobAdService {
     private final JobAdMapper jobAdMapper;
     private final DepartmentRepository departmentRepository;
     private final OccupationRepository occupationRepository;
-    private final SkillRepository skillRepository;
 
     @Autowired
     public JobAdService(JobAdRepository jobAdRepository,
                         JobAdMapper jobAdMapper,
                         DepartmentRepository departmentRepository,
-                        OccupationRepository occupationRepository,
-                        SkillRepository skillRepository) {
+                        OccupationRepository occupationRepository) {
         this.jobAdRepository = jobAdRepository;
         this.jobAdMapper = jobAdMapper;
         this.departmentRepository = departmentRepository;
         this.occupationRepository = occupationRepository;
-        this.skillRepository = skillRepository;
     }
 
     public List<JobAd> getJobAds() {
@@ -93,8 +91,30 @@ public class JobAdService {
         return jobAdRepository.save(ja);
     }
 
-    public void deleteJobAd(Integer jobAdId) {
-        jobAdRepository.deleteById(jobAdId);
+    @Transactional
+    public void deleteJobAd(Integer id) {
+        JobAd ja = jobAdRepository.findById(id).orElseThrow();
+
+        // 1) καθάρισε M2M
+        if (ja.getDepartments() != null) ja.getDepartments().clear();
+
+        // 2) σπάσε 1–1 ώστε να λειτουργήσει το orphanRemoval στο Interview
+        if (ja.getInterview() != null) {
+            ja.setInterview(null);
+        }
+
+        // 3) καθάρισε candidates (orphanRemoval)
+        if (ja.getCandidates() != null) {
+            ja.getCandidates().clear();
+        }
+
+        // 4) καθάρισε και από Occupation για να μην “κρατιέται” από τον parent
+        if (ja.getOccupation() != null) {
+            ja.setOccupation(null); // job_ad.occupation_id -> NULL πριν το delete
+        }
+
+        // 5) διαγραφή
+        jobAdRepository.delete(ja);
     }
 
     @Transactional
@@ -110,34 +130,10 @@ public class JobAdService {
     public JobAd updateDetails(Integer jobAdId, JobAdUpdateDTO dto) {
         JobAd ja = jobAdRepository.findById(jobAdId).orElseThrow();
 
+        // ΜΟΝΟ description – skills πλέον ΔΕΝ αποθηκεύονται στο JobAd
         if (dto.getDescription() != null) {
             ja.setDescription(dto.getDescription());
         }
-
-        if (dto.getSkills() != null) {
-            List<String> names = dto.getSkills().stream()
-                    .filter(s -> s != null && !s.isBlank())
-                    .map(String::trim)
-                    .distinct()
-                    .toList();
-
-            List<Skill> existing = names.isEmpty() ? List.of() : skillRepository.findByTitleIn(names);
-            Map<String, Skill> byName = existing.stream()
-                    .collect(Collectors.toMap(Skill::getTitle, s -> s));
-
-            Set<Skill> newSet = new HashSet<>();
-            for (String n : names) {
-                Skill s = byName.get(n);
-                if (s == null) {
-                    s = new Skill();
-                    s.setTitle(n);
-                    s = skillRepository.save(s);
-                }
-                newSet.add(s);
-            }
-            ja.setSkills(newSet);
-        }
-
         return jobAdRepository.save(ja);
     }
 
@@ -156,9 +152,7 @@ public class JobAdService {
                 .orElseThrow(() -> new RuntimeException("JobAd not found"));
 
         Interview interview = jobAd.getInterview();
-        if (interview == null) {
-            return Collections.emptyList();
-        }
+        if (interview == null) return Collections.emptyList();
 
         return interview.getSteps().stream()
                 .flatMap(step -> step.getQuestions().stream())

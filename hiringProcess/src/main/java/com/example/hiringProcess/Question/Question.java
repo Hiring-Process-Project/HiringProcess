@@ -6,10 +6,7 @@ import com.example.hiringProcess.Step.Step;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "question")
@@ -17,38 +14,46 @@ public class Question {
     @Id
     @SequenceGenerator(name = "questions_sequence", sequenceName = "questions_sequence", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "questions_sequence")
-    private int id;
+    private Integer id;
 
+    @Column(nullable = false)
     private String title;
+
+    @Column(length = 2000)
     private String description;
 
-    @ManyToOne
-    @JoinColumn(name = "step_id", referencedColumnName = "id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "step_id", referencedColumnName = "id", nullable = false)
     @JsonIgnore
     private Step step;
 
-    // Ordering μέσα στο step
+    // Θέση μέσα στο step (0-based)
     @Column(name = "position")
     private Integer position;
 
-    // === Many-to-Many με Skill (OWNING SIDE) ===
+    // === Many-to-Many με Skill (owning side) ===
     @ManyToMany
-    @JoinTable(
-            name = "question_skill",
+    @JoinTable(name = "question_skill",
             joinColumns = @JoinColumn(name = "question_id"),
-            inverseJoinColumns = @JoinColumn(name = "skill_id")
-    )
+            inverseJoinColumns = @JoinColumn(name = "skill_id"))
     private Set<Skill> skills = new HashSet<>();
 
-    @OneToMany(mappedBy = "question")
+    @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<QuestionScore> questionScore = new ArrayList<>();
+
+
 
     public Question() {}
     public Question(String title){ this.title = title; }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    // Helpers
+    public void addSkill(Skill s){ if (s!=null) skills.add(s); }
+    public void removeSkill(Skill s){ if (s!=null) skills.remove(s); }
+
+    // Getters / Setters
+    public Integer getId() { return id; }
+    public void setId(Integer id) { this.id = id; }
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
@@ -67,4 +72,17 @@ public class Question {
 
     public List<QuestionScore> getQuestionScore() { return questionScore; }
     public void setQuestionScore(List<QuestionScore> questionScore) { this.questionScore = questionScore; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Question)) return false;
+        Question q = (Question) o;
+        return Objects.equals(id, q.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
+    }
 }

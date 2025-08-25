@@ -2,7 +2,6 @@ package com.example.hiringProcess.Step;
 
 import com.example.hiringProcess.Interview.Interview;
 import com.example.hiringProcess.Interview.InterviewRepository;
-import com.example.hiringProcess.Question.Question;
 import com.example.hiringProcess.Question.QuestionRepository;
 import com.example.hiringProcess.Skill.Skill;
 import jakarta.persistence.EntityNotFoundException;
@@ -40,9 +39,7 @@ public class StepService {
         s.setDescription(description);
         s.setInterview(interview);
         s.setPosition(max + 1);   // στο τέλος
-
-        // ΜΗΝ ελέγχεις για null όταν είναι primitive – δώσε ρητά default
-        s.setScore(0);
+        s.setScore(0);            // primitive -> δίνουμε ρητά default
 
         return stepRepository.save(s);
     }
@@ -61,8 +58,6 @@ public class StepService {
         if (otherOpt.isEmpty()) return;
 
         Step other = otherOpt.get();
-
-        // ΔΙΟΡΘΩΣΗ: getId() είναι primitive -> σύγκριση με '==', όχι equals()
         if (other.getId() == step.getId()) return;
 
         step.setPosition(to);
@@ -71,16 +66,26 @@ public class StepService {
         stepRepository.save(other);
     }
 
+    /** Προσοχή: ΔΕΝ βάζουμε @Transactional μόνο στο private,
+     *  πρέπει να υπάρχει στο public που το καλεί ο controller. */
     @Transactional
-    public void deleteAndCompact(int stepId) {
+    public void deleteStep(Integer stepId) {
+        deleteAndCompact(stepId);
+    }
+
+    /** Κάνει την πραγματική δουλειά διαγραφής + reindex */
+    void deleteAndCompact(int stepId) {
         Step s = stepRepository.findById(stepId)
                 .orElseThrow(() -> new IllegalStateException("Step " + stepId + " not found"));
 
         int interviewId = s.getInterview().getId();
         int deletedPos = s.getPosition();
 
+        // Λόγω cascade = ALL & orphanRemoval = true στο Step.questions,
+        // θα διαγραφούν αυτόματα όλα τα questions του step.
         stepRepository.delete(s);
 
+        // Reindex 0..N-1 στα υπόλοιπα βήματα του interview
         List<Step> rest = stepRepository.findByInterviewIdOrderByPositionAsc(interviewId);
         for (Step st : rest) {
             if (st.getPosition() > deletedPos) {
@@ -144,29 +149,18 @@ public class StepService {
             int max = stepRepository.findMaxPositionByInterviewId(interviewId);
             step.setPosition(max + 1);
         }
-
-        // primitive -> δώσε ρητά default
-        step.setScore(0);
-
+        step.setScore(0); // default
         stepRepository.save(step);
     }
-
-    public void deleteStep(Integer stepId) { deleteAndCompact(stepId); }
 
     @Transactional
     public void updateStep(Integer stepId, StepUpdateDTO dto) {
         Step existing = stepRepository.findById(stepId)
                 .orElseThrow(() -> new IllegalStateException("Step with id " + stepId + " does not exist"));
 
-        // 1) Τίτλος / Περιγραφή (μόνο αν δόθηκαν)
-        if (dto.getTitle() != null) {
-            existing.setTitle(dto.getTitle());
-        }
-        if (dto.getDescription() != null) {
-            existing.setDescription(dto.getDescription());
-        }
+        if (dto.getTitle() != null) existing.setTitle(dto.getTitle());
+        if (dto.getDescription() != null) existing.setDescription(dto.getDescription());
 
-        // 2) Μεταφορά σε άλλη συνέντευξη (μόνο αν ζητήθηκε ΚΑΙ αλλάζει)
         if (dto.getInterviewId() != null) {
             int newInterviewId = dto.getInterviewId();
             int currentInterviewId = existing.getInterview() != null ? existing.getInterview().getId() : 0;
@@ -174,27 +168,22 @@ public class StepService {
                 Interview newInterview = interviewRepository.findById(newInterviewId)
                         .orElseThrow(() -> new IllegalStateException("Interview " + newInterviewId + " not found"));
                 existing.setInterview(newInterview);
-
-                // βάλε το step στο ΤΕΛΟΣ της νέας συνέντευξης για να μην «σκουντήσει» άλλο
                 int max = stepRepository.findMaxPositionByInterviewId(newInterviewId);
                 existing.setPosition(max + 1);
             }
         }
 
-        // 3) Score (μόνο αν ζητήθηκε να αλλαχθεί)
         if (dto.getScore() != null) {
-            // αν το field στο entity είναι primitive (int/double), αυτόματα θα γραφτεί η τιμή
             existing.setScore(dto.getScore());
         }
 
         stepRepository.save(existing);
     }
 
-
     public List<StepSkillDTO> getSkillsForStep(Integer stepId) {
         stepRepository.findById(stepId).orElseThrow(() ->
                 new EntityNotFoundException("Step " + stepId + " not found"));
-        List<Skill> skills = questionRepository.findDistinctSkillsByStepId(stepId);
+        List<com.example.hiringProcess.Skill.Skill> skills = questionRepository.findDistinctSkillsByStepId(stepId);
         return skills.stream()
                 .map(s -> new StepSkillDTO(stepId, s.getId(), s.getTitle()))
                 .collect(Collectors.toList());

@@ -46,9 +46,11 @@ public class Step {
     private List<Question> questions = new ArrayList<>();
 
     // Σχέση Step με StepResults
-    @OneToMany(mappedBy = "step")
+    @OneToMany(mappedBy = "step", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private List<StepResults> stepResults = new ArrayList<>() ;
+    private List<StepResults> stepResults = new ArrayList<>();
+
+
 
     public Step() {}
 

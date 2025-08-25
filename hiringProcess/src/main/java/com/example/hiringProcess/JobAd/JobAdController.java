@@ -35,7 +35,7 @@ public class JobAdController {
 
     /* ===================== DETAILS (DTO) ===================== */
 
-    // παλιό μοτίβο που ήδη χρησιμοποιεί ο frontend: /jobAds/details?jobAdId=...
+    // συμβατότητα με υπάρχον frontend: /jobAds/details?jobAdId=...
     @GetMapping("/details")
     public ResponseEntity<JobAdDetailsDTO> getJobAdDetailsByQuery(@RequestParam("jobAdId") Integer jobAdId) {
         return jobAdService.getJobAdDetails(jobAdId)
@@ -43,7 +43,7 @@ public class JobAdController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // και RESTful εναλλακτική: /jobAds/{jobAdId}/details
+    // RESTful εναλλακτική: /jobAds/{jobAdId}/details
     @GetMapping("/{jobAdId}/details")
     public ResponseEntity<JobAdDetailsDTO> getJobAdDetailsByPath(@PathVariable Integer jobAdId) {
         return jobAdService.getJobAdDetails(jobAdId)
@@ -51,7 +51,7 @@ public class JobAdController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // Update description + skills (frontend απλώς ελέγχει r.ok, δεν διαβάζει body)
+    // Update μόνο description (skills πλέον ΔΕΝ αποθηκεύονται στο JobAd)
     @PutMapping("/{jobAdId}/details")
     public ResponseEntity<Void> updateDetails(@PathVariable Integer jobAdId,
                                               @RequestBody JobAdUpdateDTO body) {
@@ -68,7 +68,6 @@ public class JobAdController {
 
     @PostMapping("/by-names")
     public ResponseEntity<JobAd> addNewJobAdByNames(@RequestBody JobAdCreateByNamesRequest req) {
-        // επιστρέφουμε το created entity (ή φτιάξε DTO αν προτιμάς)
         JobAd created = jobAdService.addNewJobAdByNames(req);
         return ResponseEntity.ok(created);
     }
@@ -79,8 +78,9 @@ public class JobAdController {
     }
 
     @DeleteMapping("/{jobAdId}")
-    public void deleteJobAd(@PathVariable Integer jobAdId) {
+    public ResponseEntity<Void> deleteJobAd(@PathVariable Integer jobAdId) {
         jobAdService.deleteJobAd(jobAdId);
+        return ResponseEntity.noContent().build();
     }
 
     /* ===================== STATUS / PUBLISH ===================== */
@@ -91,30 +91,10 @@ public class JobAdController {
         return ResponseEntity.noContent().build();
     }
 
-    /* ===================== SKILLS ===================== */
+    /* ===================== SKILLS (ΜΟΝΟ από interview) ===================== */
 
-    // Skills που είναι δεμένα απευθείας στο job ad ( jobad_skill )
-    @GetMapping("/{jobAdId}/skills")
-    public ResponseEntity<List<JobAdSkillsDTO>> getSkillsForJobAd(@PathVariable Integer jobAdId) {
-        Optional<JobAd> jobAdOpt = jobAdService.getJobAd(jobAdId);
-        if (jobAdOpt.isEmpty()) return ResponseEntity.notFound().build();
-
-        List<JobAdSkillsDTO> skills = jobAdOpt.get().getSkills().stream()
-                .map(skill -> new JobAdSkillsDTO(skill.getTitle()))
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(skills);
-    }
-
-    // Alias για συμβατότητα με frontend (μερικές φορές ζητά "required-skills")
-    @GetMapping("/{jobAdId}/required-skills")
-    public ResponseEntity<List<JobAdSkillsDTO>> getRequiredSkillsForJobAd(@PathVariable Integer jobAdId) {
-        return getSkillsForJobAd(jobAdId);
-    }
-
-    // Skills που προκύπτουν από το interview (βασισμένα στα steps/questions)
     @GetMapping("/{jobAdId}/interview-skills")
     public List<SkillDTO> getInterviewSkills(@PathVariable Integer jobAdId) {
-        // ΕΠΙΣΗΜΑ: Διορθωμένο path. Δεν υπάρχει πλέον /jobAds/jobAds/...
         return jobAdService.getSkillsFromInterview(jobAdId);
     }
 }

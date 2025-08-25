@@ -26,9 +26,10 @@ public class Occupation {
     private String escoId;
 
     // Σχέση Occupation με JobAd
-    @OneToMany(mappedBy = "occupation", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "occupation", fetch = FetchType.LAZY)
     @JsonIgnore
     private List<JobAd> jobAds = new ArrayList<>();
+
 
     public Occupation() {}
 

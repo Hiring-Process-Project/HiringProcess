@@ -1,4 +1,3 @@
-// src/main/java/com/example/hiringProcess/Question/QuestionController.java
 package com.example.hiringProcess.Question;
 
 import org.springframework.http.ResponseEntity;
@@ -8,8 +7,9 @@ import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = {"http://localhost:3000","http://localhost:5173"})
 @RestController
+@RequestMapping
 public class QuestionController {
 
     private final QuestionService questionService;
@@ -35,13 +35,12 @@ public class QuestionController {
     }
 
     @DeleteMapping(path = "/question")
-    public void deleteQuestion(@RequestParam Integer questionId) {
+    public void deleteQuestionLegacy(@RequestParam Integer questionId) {
         questionService.deleteQuestion(questionId);
     }
 
     @PutMapping(path = "/question/{questionId}")
-    public void updateQuestion(@PathVariable Integer questionId,
-                               @RequestBody Question body) {
+    public void updateQuestion(@PathVariable Integer questionId, @RequestBody Question body) {
         questionService.updateQuestion(questionId, body);
     }
 
@@ -87,21 +86,26 @@ public class QuestionController {
         return ResponseEntity.noContent().build();
     }
 
-    /** ΝΕΟ: Reorder ερωτήσεων ΜΕΣΑ στο ίδιο step */
+    /** Reorder ερωτήσεων ΜΕΣΑ στο ίδιο step */
     @PatchMapping("/api/v1/step/{stepId}/questions/reorder")
-    public ResponseEntity<Void> reorderQuestionsInStep(
-            @PathVariable Integer stepId,
-            @RequestBody QuestionReorderRequest body) {
+    public ResponseEntity<Void> reorderQuestionsInStep(@PathVariable Integer stepId,
+                                                       @RequestBody QuestionReorderRequest body) {
         questionService.reorderInStep(stepId, body.getQuestionIds());
         return ResponseEntity.noContent().build();
     }
 
-    /** ΝΕΟ: Μετακίνηση ερώτησης σε άλλο step (και σε θέση μέσα σε αυτό) */
+    /** Μετακίνηση ερώτησης σε άλλο step (και θέση) */
     @PatchMapping("/api/v1/question/{questionId}/move")
-    public ResponseEntity<Void> moveQuestion(
-            @PathVariable Integer questionId,
-            @RequestBody QuestionMoveRequest body) {
+    public ResponseEntity<Void> moveQuestion(@PathVariable Integer questionId,
+                                             @RequestBody QuestionMoveRequest body) {
         questionService.moveQuestion(questionId, body.getToStepId(), body.getToIndex());
+        return ResponseEntity.noContent().build();
+    }
+
+    /** DELETE endpoint που χρησιμοποιεί το UI (StepsTree) */
+    @DeleteMapping("/api/v1/question/{questionId}")
+    public ResponseEntity<Void> deleteQuestionV1(@PathVariable Integer questionId) {
+        questionService.deleteQuestion(questionId);
         return ResponseEntity.noContent().build();
     }
 }

@@ -1,4 +1,3 @@
-// src/main/java/com/example/hiringProcess/Question/QuestionService.java
 package com.example.hiringProcess.Question;
 
 import com.example.hiringProcess.Skill.Skill;
@@ -10,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class QuestionService {
@@ -30,7 +28,7 @@ public class QuestionService {
         this.skillRepository = skillRepository;
     }
 
-    // ============ legacy ============
+    // ===== Legacy =====
     public List<Question> getQuestions() {
         return questionRepository.findAll();
     }
@@ -39,18 +37,29 @@ public class QuestionService {
         return questionRepository.findById(questionId);
     }
 
+    @Transactional
     public void addNewQuestion(Question question) {
-        if (question.getId() != 0 && questionRepository.findById(question.getId()).isPresent()) {
+        if (question.getId() != null && questionRepository.findById(question.getId()).isPresent()) {
             throw new IllegalStateException("ID already exists");
         }
-        // Αν δεν έχει οριστεί position, βάλε την στο τέλος του step (αν έχει step)
-        if (question.getStep() != null && question.getPosition() == null) {
-            long count = questionRepository.countByStep_Id(question.getStep().getId());
-            question.setPosition((int) count);
+
+        if (question.getStep() == null) {
+            throw new IllegalArgumentException("Question must belong to a step");
         }
+
+        // Step.id είναι primitive int
+        final int stepId = question.getStep().getId();
+        if (stepId <= 0) {
+            throw new IllegalArgumentException("Question must belong to a persisted step");
+        }
+
+        long count = questionRepository.countByStep_Id(stepId);
+        question.setPosition((int) count);
         questionRepository.save(question);
     }
 
+
+    @Transactional
     public void deleteQuestion(Integer questionId) {
         if (!questionRepository.existsById(questionId)) {
             throw new IllegalStateException("Question with id " + questionId + " does not exist");
@@ -59,25 +68,25 @@ public class QuestionService {
     }
 
     @Transactional
-    public void updateQuestion(Integer questionId, Question updatedQuestion) {
+    public void updateQuestion(Integer questionId, Question updated) {
         Question existing = questionRepository.findById(questionId)
                 .orElseThrow(() -> new IllegalStateException("Question with id " + questionId + " does not exist"));
 
-        if (updatedQuestion.getTitle() != null) existing.setTitle(updatedQuestion.getTitle());
-        if (updatedQuestion.getDescription() != null) existing.setDescription(updatedQuestion.getDescription());
-        if (updatedQuestion.getStep() != null) existing.setStep(updatedQuestion.getStep());
+        if (updated.getTitle() != null) existing.setTitle(updated.getTitle());
+        if (updated.getDescription() != null) existing.setDescription(updated.getDescription());
+        if (updated.getStep() != null) existing.setStep(updated.getStep());
 
-        if (updatedQuestion.getSkills() != null) {
+        if (updated.getSkills() != null) {
             existing.getSkills().clear();
-            existing.getSkills().addAll(updatedQuestion.getSkills());
+            existing.getSkills().addAll(updated.getSkills());
         }
-        if (updatedQuestion.getQuestionScore() != null) {
+        if (updated.getQuestionScore() != null) {
             existing.getQuestionScore().clear();
-            existing.getQuestionScore().addAll(updatedQuestion.getQuestionScore());
+            existing.getQuestionScore().addAll(updated.getQuestionScore());
         }
     }
 
-    // ============ UI helpers ============
+    // ===== Νέα helpers για UI =====
     public List<QuestionLiteDTO> getQuestionsForStep(Integer stepId) {
         var list = questionRepository.findByStep_IdOrderByPositionAsc(stepId);
         return questionMapper.toLite(list);
@@ -90,10 +99,9 @@ public class QuestionService {
 
         Question q = new Question();
         q.setStep(step);
-        q.setTitle(name);
-        q.setDescription(description);
+        q.setTitle(name == null ? "" : name.trim());
+        q.setDescription(description == null ? null : description.trim());
 
-        // set position στο τέλος
         long count = questionRepository.countByStep_Id(stepId);
         q.setPosition((int) count);
 
@@ -118,15 +126,21 @@ public class QuestionService {
             return;
         }
 
-        var wanted = skillNames.stream()
+        // Καθαρισμός input
+        List<String> wanted = skillNames.stream()
                 .filter(s -> s != null && !s.isBlank())
                 .map(String::trim)
                 .distinct()
                 .toList();
 
-        var existing = skillRepository.findByTitleIn(wanted);
+        // Υπάρχοντα skills με αυτά τα titles
+        List<Skill> existing = new ArrayList<>(skillRepository.findByTitleIn(wanted));
+        Set<String> existingTitles = new HashSet<>();
+        for (Skill s : existing) {
+            if (s != null && s.getTitle() != null) existingTitles.add(s.getTitle());
+        }
 
-        var existingTitles = existing.stream().map(Skill::getTitle).toList();
+        // Δημιούργησε όσα λείπουν
         for (String title : wanted) {
             if (!existingTitles.contains(title)) {
                 Skill s = new Skill();
@@ -139,33 +153,28 @@ public class QuestionService {
         q.getSkills().addAll(existing);
     }
 
-    /* ========= ΝΕΟ: Reorder μέσα στο ίδιο step ========= */
+    /** Reorder μέσα στο ίδιο step */
     @Transactional
     public void reorderInStep(Integer stepId, List<Integer> questionIdsInNewOrder) {
         if (questionIdsInNewOrder == null) return;
 
-        // Τωρινές ερωτήσεις του step ταξινομημένες
         List<Question> current = questionRepository.findByStep_IdOrderByPositionAsc(stepId);
+        Map<Integer, Question> byId = new HashMap<>();
+        for (Question q : current) byId.put(q.getId(), q);
 
-        // id -> Question
-        Map<Integer, Question> byId = current.stream()
-                .collect(Collectors.toMap(Question::getId, q -> q));
-
-        // Θέσε position με βάση το νέο Order
         int pos = 0;
         for (Integer qid : questionIdsInNewOrder) {
             Question q = byId.get(qid);
             if (q != null) q.setPosition(pos++);
         }
 
-        // Όποιες δεν μπήκαν (π.χ. λάθος client), πάνε στο τέλος
+        // Ό,τι δεν δόθηκε από client πάει στο τέλος
         for (Question q : current) {
             if (q.getPosition() == null) q.setPosition(pos++);
         }
-        // @Transactional -> flush αυτόματα
     }
 
-    /* ========= ΝΕΟ: Μετακίνηση ερώτησης σε άλλο step (και θέση) ========= */
+    /** Μετακίνηση σε άλλο step (με θέση) */
     @Transactional
     public void moveQuestion(Integer questionId, Integer toStepId, Integer toIndex) {
         if (toStepId == null) throw new IllegalArgumentException("toStepId is required");
@@ -176,27 +185,22 @@ public class QuestionService {
         Step targetStep = stepRepository.findById(toStepId)
                 .orElseThrow(() -> new EntityNotFoundException("Step " + toStepId + " not found"));
 
-        // Αν αλλάζει step
-        boolean stepChanged = (q.getStep() == null) || (q.getStep().getId() != toStepId);
+        boolean stepChanged = (q.getStep() == null) || !Objects.equals(q.getStep().getId(), toStepId);
         if (stepChanged) {
             q.setStep(targetStep);
         }
 
-        // Φέρε όλες τις ερωτήσεις του target step
-        List<Question> target = questionRepository.findByStep_IdOrderByPositionAsc(toStepId);
+        List<Question> target = new ArrayList<>(questionRepository.findByStep_IdOrderByPositionAsc(toStepId));
 
-        // Αφαίρεσε αν υπάρχει ήδη
+        // αφαίρεσε αν υπάρχει ήδη
         target.removeIf(it -> Objects.equals(it.getId(), q.getId()));
-        // Πρόσθεσε προσωρινά στο τέλος και μετά στο ζητούμενο index
         target.add(q);
 
-        long count = target.size();
-        int safeIndex = Math.max(0, Math.min(toIndex == null ? (int) (count - 1) : toIndex, (int) (count - 1)));
+        int safeIndex = Math.max(0, Math.min(toIndex == null ? target.size() - 1 : toIndex, target.size() - 1));
 
         Question moved = target.remove(target.size() - 1);
         target.add(safeIndex, moved);
 
-        // Επανυπολόγισε positions
         for (int i = 0; i < target.size(); i++) {
             Question qi = target.get(i);
             qi.setPosition(i);
