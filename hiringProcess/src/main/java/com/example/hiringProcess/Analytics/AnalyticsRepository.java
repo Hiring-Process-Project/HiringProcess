@@ -811,5 +811,49 @@ public class AnalyticsRepository {
                 (rs, i) -> new QuestionLiteDto(rs.getInt("id"), rs.getString("title")));
     }
 
+    // Λίστα δεξιοτήτων που είναι συνδεδεμένες με μια ερώτηση
+    public java.util.List<SkillLiteDto> skillsForQuestion(int questionId) {
+        String sql = """
+        SELECT s.id, s.title
+        FROM question_skill qsk
+        JOIN skill s ON s.id = qsk.skill_id
+        WHERE qsk.question_id = :qid
+        ORDER BY s.title
+        """;
+        return jdbc.query(sql, Map.of("qid", questionId),
+                (rs, i) -> new SkillLiteDto(rs.getInt("id"), rs.getString("title")));
+    }
+
+    // Μέσος όρος σκορ της δεξιότητας σε όλο το dataset (όλα τα question scores που την αφορούν)
+    public Double avgScoreForSkill(int skillId) {
+        String sql = """
+        SELECT AVG(qs.score) AS avg_skill
+        FROM question_score qs
+        JOIN question q       ON q.id = qs.question_id
+        JOIN question_skill k ON k.question_id = q.id
+        WHERE k.skill_id = :skillId
+        """;
+        Double v = jdbc.queryForObject(sql, Map.of("skillId", skillId), Double.class);
+        return v == null ? 0.0 : v;
+    }
+
+    // Μέσος όρος δεξιότητας ανά υποψήφιο (για pass rate & histogram)
+    public java.util.List<Double> candidateSkillAverages(int skillId) {
+        String sql = """
+        SELECT AVG(qs.score) AS avg_score
+        FROM candidate c
+        JOIN interview_report ir ON ir.id = c.interview_report_id
+        JOIN step_results sr     ON sr.interview_report_id = ir.id
+        JOIN question_score qs   ON qs.step_results_id = sr.id
+        JOIN question q          ON q.id = qs.question_id
+        JOIN question_skill k    ON k.question_id = q.id
+        WHERE k.skill_id = :skillId
+        GROUP BY c.id
+        """;
+        return jdbc.query(sql, Map.of("skillId", skillId),
+                (rs, i) -> rs.getDouble("avg_score"));
+    }
+
+
 
 }

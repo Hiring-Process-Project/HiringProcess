@@ -328,6 +328,39 @@ public class AnalyticsService {
         return repo.questionsForJobAdStep(jobAdId, stepId);
     }
 
+    public java.util.List<SkillLiteDto> getSkillsForQuestion(int questionId) {
+        return repo.skillsForQuestion(questionId);
+    }
+
+    public SkillStatsDto getSkillStats(int skillId) {
+        // 1) Avg skill score (0..10)
+        double avg = round1(repo.avgScoreForSkill(skillId));
+
+        // 2) Candidate averages για pass rate + histogram
+        var avgs = repo.candidateSkillAverages(skillId);
+        long total = avgs.size();
+        long passes = avgs.stream().filter(a -> a != null && a >= 5.0).count();
+        double passRate = percent(passes, total);
+
+        // 3) Histogram 0..100 από 0..10 (deciles)
+        long[] buckets = new long[10];
+        for (Double a : avgs) {
+            if (a == null) continue;
+            double v = Math.max(0.0, Math.min(10.0, a));
+            int idx = (int) Math.floor(v);
+            if (idx < 0) idx = 0;
+            if (idx > 9) idx = 9;
+            buckets[idx]++;
+        }
+        java.util.List<ScoreBucketDto> distribution = new java.util.ArrayList<>(10);
+        for (int b = 0; b < 10; b++) {
+            int from = b * 10;
+            int to   = (b == 9) ? 100 : (b + 1) * 10;
+            distribution.add(new ScoreBucketDto(from, to, buckets[b]));
+        }
+
+        return new SkillStatsDto(avg, round1(passRate), distribution);
+    }
 
 
 

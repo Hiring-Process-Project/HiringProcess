@@ -91,5 +91,17 @@ public class AnalyticsController {
         return service.getQuestionsForJobAdStep(jobAdId, stepId);
     }
 
+    // Λίστα δεξιοτήτων μιας ερώτησης
+    @GetMapping("/question/{questionId}/skills")
+    public java.util.List<SkillLiteDto> questionSkills(@PathVariable int questionId) {
+        return service.getSkillsForQuestion(questionId);
+    }
+
+    // Στατιστικά δεξιότητας (global, σε όλο το dataset)
+    @GetMapping("/skill/{skillId}")
+    public SkillStatsDto skillStats(@PathVariable int skillId) {
+        return service.getSkillStats(skillId);
+    }
+
 
 }
