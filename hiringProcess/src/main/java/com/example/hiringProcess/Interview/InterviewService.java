@@ -2,7 +2,6 @@ package com.example.hiringProcess.Interview;
 
 import com.example.hiringProcess.JobAd.JobAd;
 import com.example.hiringProcess.JobAd.JobAdRepository;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,16 +11,18 @@ import java.util.Optional;
 
 @Service
 public class InterviewService {
+
     private final InterviewRepository interviewRepository;
-    private final JobAdRepository jobAdRepository;   // <-- inject αυτό
-
-
+    private final JobAdRepository jobAdRepository;
+    private final InterviewMapper interviewMapper; // <-- inject mapper
 
     @Autowired
-    public InterviewService(InterviewRepository interviewRepository,  JobAdRepository jobAdRepository) {
+    public InterviewService(InterviewRepository interviewRepository,
+                            JobAdRepository jobAdRepository,
+                            InterviewMapper interviewMapper) {
         this.interviewRepository = interviewRepository;
         this.jobAdRepository = jobAdRepository;
-
+        this.interviewMapper = interviewMapper;
     }
 
     public List<Interview> getInterviews() {
@@ -74,7 +75,7 @@ public class InterviewService {
     }
 
     public InterviewDetailsDTO getInterviewDetailsByJobAd(Integer jobAdId) {
-        JobAd jobAd = jobAdRepository.findById(jobAdId)   // <-- instance call
+        JobAd jobAd = jobAdRepository.findById(jobAdId)
                 .orElseThrow(() -> new RuntimeException("JobAd not found with id: " + jobAdId));
 
         var interview = jobAd.getInterview();
@@ -82,7 +83,7 @@ public class InterviewService {
             throw new RuntimeException("No interview found for JobAd with id: " + jobAdId);
         }
 
-        return InterviewMapper.toDetailsDTO(interview);
+        return interviewMapper.toDetailsDTO(interview); // <-- instance call
     }
 
     @Transactional
@@ -90,10 +91,5 @@ public class InterviewService {
         Interview interview = interviewRepository.findById(interviewId)
                 .orElseThrow(() -> new IllegalStateException("Interview " + interviewId + " not found"));
         interview.setDescription(description);
-
     }
-
-
-
-
 }

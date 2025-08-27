@@ -19,21 +19,15 @@ public class StepController {
         this.stepService = stepService;
     }
 
-    /* ======= Υπάρχοντα ======= */
-    @GetMapping(path = "/steps")
-    public List<Step> getSteps() {
-        return stepService.getSteps();
-    }
+    // (προϋπάρχοντα – αν τα χρειάζεσαι)
+    @GetMapping("/steps")
+    public List<Step> getSteps() { return stepService.getSteps(); }
 
-    @GetMapping(path = "/step")
-    public Optional<Step> getStep(@RequestParam Integer stepId) {
-        return stepService.getStep(stepId);
-    }
+    @GetMapping("/step")
+    public Optional<Step> getStep(@RequestParam Integer stepId) { return stepService.getStep(stepId); }
 
-    @PostMapping(path = "/newstep")
-    public void addNewStep(@RequestBody Step step) {
-        stepService.addNewStep(step);
-    }
+    @PostMapping("/newstep")
+    public void addNewStep(@RequestBody Step step) { stepService.addNewStep(step); }
 
     @DeleteMapping("/{stepId}")
     public ResponseEntity<Void> deleteStep(@PathVariable("stepId") Integer stepId) {
@@ -41,28 +35,28 @@ public class StepController {
         return ResponseEntity.noContent().build();
     }
 
-    /* ======= Skills για step ======= */
+    /* ======= Skills για step (για το δεξί panel Questions) ======= */
     @GetMapping("/{stepId}/skills")
     public List<StepSkillDTO> getStepSkills(@PathVariable Integer stepId) {
         return stepService.getSkillsForStep(stepId);
     }
 
-    /* ======= Λίστα/δημιουργία βημάτων ανά interview ======= */
+    /* ======= Λίστα/δημιουργία βημάτων ανά interview (DTOs) ======= */
     @GetMapping("/interviews/{interviewId}/steps")
-    public List<Step> listByInterview(@PathVariable Integer interviewId) {
+    public List<StepResponseDTO> listByInterview(@PathVariable Integer interviewId) {
         return stepService.getStepsByInterviewSorted(interviewId);
     }
 
     @PostMapping("/interviews/{interviewId}/steps")
-    public Step createAtEnd(@PathVariable Integer interviewId,
-                            @RequestBody StepCreateRequest req) {
+    public StepResponseDTO createAtEnd(@PathVariable Integer interviewId,
+                                       @RequestBody StepCreateRequest req) {
         String title = req.getTitle() == null ? "" : req.getTitle().trim();
         String desc  = req.getDescription() == null ? "" : req.getDescription().trim();
         if (title.isBlank()) throw new IllegalStateException("title required");
         return stepService.createAtEnd(interviewId, title, desc);
     }
 
-    /* ======= Ενημέρωση περιγραφής (route που καλεί το front) ======= */
+    /* ======= Ενημέρωση περιγραφής/τίτλου step ======= */
     @PutMapping("/{stepId}/description")
     public ResponseEntity<Void> updateDescription(@PathVariable int stepId,
                                                   @RequestBody StepUpdateDTO dto) {
@@ -70,7 +64,6 @@ public class StepController {
         return ResponseEntity.noContent().build();
     }
 
-    /* ======= Ενημέρωση Step μέσω DTO (compat) ======= */
     @PutMapping("/steps/{id}")
     public ResponseEntity<Void> updateStep(@PathVariable int id,
                                            @RequestBody StepUpdateDTO dto) {
@@ -80,8 +73,7 @@ public class StepController {
 
     /* ======= Μετακίνηση/αναδιάταξη ======= */
     @PatchMapping("/{stepId}/move")
-    public void move(@PathVariable Integer stepId,
-                     @RequestParam String direction) {
+    public void move(@PathVariable Integer stepId, @RequestParam String direction) {
         stepService.move(stepId, direction);
     }
 
@@ -94,18 +86,5 @@ public class StepController {
         } catch (Exception ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
         }
-    }
-
-    /* ======= Fallback δημιουργίας (compat) ======= */
-    @PostMapping
-    public StepResponseDTO createStepFallback(@RequestBody StepCreateRequest req) {
-        if (req.getInterviewId() == null || req.getTitle() == null || req.getTitle().isBlank())
-            throw new IllegalStateException("interviewId and title required");
-        var created = stepService.createAtEnd(
-                req.getInterviewId(),
-                req.getTitle().trim(),
-                req.getDescription() == null ? "" : req.getDescription().trim()
-        );
-        return new StepResponseDTO(created.getId(), created.getTitle());
     }
 }

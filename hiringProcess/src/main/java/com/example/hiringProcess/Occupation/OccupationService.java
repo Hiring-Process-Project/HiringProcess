@@ -5,15 +5,19 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class OccupationService {
 
     private final OccupationRepository occupationRepository;
+    private final OccupationMapper occupationMapper;
 
     @Autowired
-    public OccupationService(OccupationRepository occupationRepository) {
+    public OccupationService(OccupationRepository occupationRepository,
+                             OccupationMapper occupationMapper) {
         this.occupationRepository = occupationRepository;
+        this.occupationMapper = occupationMapper;
     }
 
     public List<Occupation> getOccupations() {
@@ -40,7 +44,7 @@ public class OccupationService {
     public List<OccupationNameDTO> getOccupationNamesByDepartment(Integer deptId) {
         return occupationRepository.findAllByDepartmentIdViaJobAds(deptId)
                 .stream()
-                .map(o -> new OccupationNameDTO(o.getId(), o.getTitle()))
-                .toList();
+                .map(occupationMapper::toNameDTO)   // ✅ χρήση του mapper
+                .collect(Collectors.toList());
     }
 }

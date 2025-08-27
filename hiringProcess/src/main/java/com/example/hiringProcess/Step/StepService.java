@@ -3,7 +3,6 @@ package com.example.hiringProcess.Step;
 import com.example.hiringProcess.Interview.Interview;
 import com.example.hiringProcess.Interview.InterviewRepository;
 import com.example.hiringProcess.Question.QuestionRepository;
-import com.example.hiringProcess.Skill.Skill;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,15 +19,23 @@ public class StepService {
     private final StepRepository stepRepository;
     private final QuestionRepository questionRepository;
     private final InterviewRepository interviewRepository;
+    private final StepMapper stepMapper;
 
-    /* ===== order helpers ===== */
-
-    public List<Step> getStepsByInterviewSorted(int interviewId) {
-        return stepRepository.findByInterviewIdOrderByPositionAsc(interviewId);
+    /* =========================================================
+     * Read (DTO) – Steps ανά Interview, ταξινομημένα
+     * ========================================================= */
+    public List<StepResponseDTO> getStepsByInterviewSorted(int interviewId) {
+        return stepRepository.findByInterviewIdOrderByPositionAsc(interviewId)
+                .stream()
+                .map(stepMapper::toResponseDTO)
+                .toList();
     }
 
+    /* =========================================================
+     * Create – στο τέλος της λίστας (επιστρέφει DTO)
+     * ========================================================= */
     @Transactional
-    public Step createAtEnd(int interviewId, String title, String description) {
+    public StepResponseDTO createAtEnd(int interviewId, String title, String description) {
         Interview interview = interviewRepository.findById(interviewId)
                 .orElseThrow(() -> new IllegalStateException("Interview " + interviewId + " not found"));
 
@@ -36,16 +43,92 @@ public class StepService {
 
         Step s = new Step();
         s.setTitle(title);
-        s.setDescription(description);
+        s.setDescription(description == null ? "" : description);
         s.setInterview(interview);
         s.setPosition(max + 1);   // στο τέλος
-        s.setScore(0);            // primitive -> δίνουμε ρητά default
+        s.setScore(0);            // default
 
-        return stepRepository.save(s);
+        Step saved = stepRepository.save(s);
+        return stepMapper.toResponseDTO(saved);
     }
 
+    /** Convenience για δημιουργία με κενή περιγραφή. */
     @Transactional
-    public void move(int stepId, String direction) {
+    public StepResponseDTO createStep(int interviewId, String title) {
+        return createAtEnd(interviewId, title, "");
+    }
+
+    /* =========================================================
+     * Delete – και «συμπίεση» (reindex) των υπολοίπων
+     * ========================================================= */
+    @Transactional
+    public void deleteStep(Integer stepId) {
+        Step s = stepRepository.findById(stepId)
+                .orElseThrow(() -> new IllegalStateException("Step " + stepId + " not found"));
+
+        int interviewId = s.getInterview().getId();
+        int deletedPos = s.getPosition();
+
+        // Διαγραφή (με orphanRemoval για ερωτήσεις)
+        stepRepository.delete(s);
+
+        // Reindex 0..N-1
+        List<Step> rest = stepRepository.findByInterviewIdOrderByPositionAsc(interviewId);
+        for (Step st : rest) {
+            if (st.getPosition() > deletedPos) {
+                st.setPosition(st.getPosition() - 1);
+            }
+        }
+        stepRepository.saveAll(rest);
+    }
+
+    /* =========================================================
+     * Update – τίτλος/περιγραφή/score/μεταφορά σε άλλο interview
+     * ========================================================= */
+    @Transactional
+    public void updateStep(Integer stepId, StepUpdateDTO dto) {
+        Step existing = stepRepository.findById(stepId)
+                .orElseThrow(() -> new IllegalStateException("Step with id " + stepId + " does not exist"));
+
+        if (dto.getTitle() != null)       existing.setTitle(dto.getTitle());
+        if (dto.getDescription() != null) existing.setDescription(dto.getDescription());
+        if (dto.getScore() != null)       existing.setScore(dto.getScore());
+
+        // Μεταφορά σε άλλο interview → τοποθέτηση στο τέλος εκείνης της λίστας
+        if (dto.getInterviewId() != null) {
+            int newInterviewId = dto.getInterviewId();
+            int currentInterviewId = existing.getInterview() != null ? existing.getInterview().getId() : -1;
+            if (newInterviewId != currentInterviewId) {
+                Interview newInterview = interviewRepository.findById(newInterviewId)
+                        .orElseThrow(() -> new IllegalStateException("Interview " + newInterviewId + " not found"));
+                existing.setInterview(newInterview);
+                int max = stepRepository.findMaxPositionByInterviewId(newInterviewId);
+                existing.setPosition(max + 1);
+            }
+        }
+
+        stepRepository.save(existing);
+    }
+
+    /* =========================================================
+     * Skills του step (από τις ερωτήσεις του)
+     * ========================================================= */
+    public List<StepSkillDTO> getSkillsForStep(Integer stepId) {
+        // Validate ότι υπάρχει το step
+        stepRepository.findById(stepId).orElseThrow(() ->
+                new EntityNotFoundException("Step " + stepId + " not found"));
+
+        return questionRepository.findDistinctSkillsByStepId(stepId)
+                .stream()
+                .map(s -> new StepSkillDTO(stepId, s.getId(), s.getTitle()))
+                .toList();
+    }
+
+    /* =========================================================
+     * Μετακίνηση ενός step (up/down) μέσα στο ίδιο interview
+     * ========================================================= */
+    @Transactional
+    public void move(Integer stepId, String direction) {
         Step step = stepRepository.findById(stepId)
                 .orElseThrow(() -> new IllegalStateException("Step " + stepId + " not found"));
 
@@ -58,7 +141,7 @@ public class StepService {
         if (otherOpt.isEmpty()) return;
 
         Step other = otherOpt.get();
-        if (other.getId() == step.getId()) return;
+        if (Objects.equals(other.getId(), step.getId())) return;
 
         step.setPosition(to);
         other.setPosition(from);
@@ -66,36 +149,9 @@ public class StepService {
         stepRepository.save(other);
     }
 
-    /** Προσοχή: ΔΕΝ βάζουμε @Transactional μόνο στο private,
-     *  πρέπει να υπάρχει στο public που το καλεί ο controller. */
-    @Transactional
-    public void deleteStep(Integer stepId) {
-        deleteAndCompact(stepId);
-    }
-
-    /** Κάνει την πραγματική δουλειά διαγραφής + reindex */
-    void deleteAndCompact(int stepId) {
-        Step s = stepRepository.findById(stepId)
-                .orElseThrow(() -> new IllegalStateException("Step " + stepId + " not found"));
-
-        int interviewId = s.getInterview().getId();
-        int deletedPos = s.getPosition();
-
-        // Λόγω cascade = ALL & orphanRemoval = true στο Step.questions,
-        // θα διαγραφούν αυτόματα όλα τα questions του step.
-        stepRepository.delete(s);
-
-        // Reindex 0..N-1 στα υπόλοιπα βήματα του interview
-        List<Step> rest = stepRepository.findByInterviewIdOrderByPositionAsc(interviewId);
-        for (Step st : rest) {
-            if (st.getPosition() > deletedPos) {
-                st.setPosition(st.getPosition() - 1);
-            }
-        }
-        stepRepository.saveAll(rest);
-    }
-
-    /** Batch reorder με δύο φάσεις για αποφυγή unique conflicts */
+    /* =========================================================
+     * Batch reorder (0..N-1) με 2 φάσεις για αποφυγή unique conflicts
+     * ========================================================= */
     @Transactional
     public void reorder(int interviewId, List<Integer> orderedIds) {
         if (orderedIds == null || orderedIds.isEmpty()) {
@@ -106,7 +162,6 @@ public class StepService {
         if (steps.isEmpty()) {
             throw new IllegalStateException("no steps for interview " + interviewId);
         }
-
         if (steps.size() != orderedIds.size()) {
             throw new IllegalStateException("mismatch size: db=" + steps.size() + " req=" + orderedIds.size());
         }
@@ -120,7 +175,7 @@ public class StepService {
         Map<Integer, Step> byId = steps.stream()
                 .collect(Collectors.toMap(Step::getId, Function.identity()));
 
-        // 1η φάση: προσωρινές θέσεις (αρνητικές)
+        // 1η φάση: προσωρινές θέσεις (αρνητικές) για να αποφύγουμε μοναδικούς περιορισμούς
         int tempPos = -orderedIds.size();
         for (Step s : steps) {
             s.setPosition(tempPos++);
@@ -136,11 +191,16 @@ public class StepService {
         stepRepository.saveAll(steps);
     }
 
-    /* ===== existing ===== */
+    /* =========================================================
+     * Legacy helpers (για συμβατότητα με υπάρχον front όπου χρειάζεται)
+     * ========================================================= */
+    public List<Step> getSteps() {
+        return stepRepository.findAll();
+    }
 
-    public List<Step> getSteps() { return stepRepository.findAll(); }
-
-    public Optional<Step> getStep(Integer stepId) { return stepRepository.findById(stepId); }
+    public Optional<Step> getStep(Integer stepId) {
+        return stepRepository.findById(stepId);
+    }
 
     @Transactional
     public void addNewStep(Step step) {
@@ -151,46 +211,5 @@ public class StepService {
         }
         step.setScore(0); // default
         stepRepository.save(step);
-    }
-
-    @Transactional
-    public void updateStep(Integer stepId, StepUpdateDTO dto) {
-        Step existing = stepRepository.findById(stepId)
-                .orElseThrow(() -> new IllegalStateException("Step with id " + stepId + " does not exist"));
-
-        if (dto.getTitle() != null) existing.setTitle(dto.getTitle());
-        if (dto.getDescription() != null) existing.setDescription(dto.getDescription());
-
-        if (dto.getInterviewId() != null) {
-            int newInterviewId = dto.getInterviewId();
-            int currentInterviewId = existing.getInterview() != null ? existing.getInterview().getId() : 0;
-            if (newInterviewId != currentInterviewId) {
-                Interview newInterview = interviewRepository.findById(newInterviewId)
-                        .orElseThrow(() -> new IllegalStateException("Interview " + newInterviewId + " not found"));
-                existing.setInterview(newInterview);
-                int max = stepRepository.findMaxPositionByInterviewId(newInterviewId);
-                existing.setPosition(max + 1);
-            }
-        }
-
-        if (dto.getScore() != null) {
-            existing.setScore(dto.getScore());
-        }
-
-        stepRepository.save(existing);
-    }
-
-    public List<StepSkillDTO> getSkillsForStep(Integer stepId) {
-        stepRepository.findById(stepId).orElseThrow(() ->
-                new EntityNotFoundException("Step " + stepId + " not found"));
-        List<com.example.hiringProcess.Skill.Skill> skills = questionRepository.findDistinctSkillsByStepId(stepId);
-        return skills.stream()
-                .map(s -> new StepSkillDTO(stepId, s.getId(), s.getTitle()))
-                .collect(Collectors.toList());
-    }
-
-    @Transactional
-    public Step createStep(Integer interviewId, String title) {
-        return createAtEnd(interviewId, title, "");
     }
 }

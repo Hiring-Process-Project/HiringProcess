@@ -18,17 +18,15 @@ public class DepartmentController {
     private final OccupationService occupationService;
 
     @Autowired
-    public DepartmentController(DepartmentService departmentService, OccupationService occupationService) {
+    public DepartmentController(DepartmentService departmentService,
+                                OccupationService occupationService) {
         this.departmentService = departmentService;
         this.occupationService = occupationService;
     }
 
     @GetMapping("/names")
     public List<DepartmentNameDTO> getDepartmentNames() {
-        return departmentService.getDepartments()
-                .stream()
-                .map(dept -> new DepartmentNameDTO(dept.getId(), dept.getName()))
-                .toList();
+        return departmentService.getDepartmentNames();
     }
 
     @GetMapping("/{id}")

@@ -1,12 +1,8 @@
 package com.example.hiringProcess.SkillScore;
 
-import com.example.hiringProcess.Candidate.Candidate;
 import com.example.hiringProcess.Candidate.CandidateRepository;
-import com.example.hiringProcess.Question.Question;
 import com.example.hiringProcess.Question.QuestionRepository;
-import com.example.hiringProcess.Skill.Skill;
 import com.example.hiringProcess.Skill.SkillRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,71 +10,60 @@ import java.time.Instant;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class SkillScoreService {
 
     private final SkillScoreRepository skillScoreRepository;
     private final CandidateRepository candidateRepository;
     private final QuestionRepository questionRepository;
     private final SkillRepository skillRepository;
+    private final SkillScoreMapper mapper;
 
-    /**
-     * Upsert βαθμολογίας για (candidate, question, skill).
-     * Επιστρέφει DTO με flag created=true όταν έγινε insert, αλλιώς false (update).
-     */
-    @Transactional
-    public SkillScoreResponseDTO upsert(SkillScoreUpsertRequestDTO req) {
-        // validations / lookups
-        Candidate cand = candidateRepository.findById(req.candidateId())
-                .orElseThrow(() -> new IllegalStateException("Candidate " + req.candidateId() + " not found"));
-        Question q = questionRepository.findById(req.questionId())
-                .orElseThrow(() -> new IllegalStateException("Question " + req.questionId() + " not found"));
-        Skill sk = skillRepository.findById(req.skillId())
-                .orElseThrow(() -> new IllegalStateException("Skill " + req.skillId() + " not found"));
-
-        if (req.score() == null)
-            throw new IllegalArgumentException("score is required");
-        if (req.score() < 0 || req.score() > 100)
-            throw new IllegalArgumentException("score must be between 0 and 100");
-
-        // find existing
-        SkillScore entity = skillScoreRepository
-                .findByCandidateAndQuestionAndSkill(cand, q, sk)
-                .orElse(null);
-
-        boolean created = false;
-        if (entity == null) {
-            entity = new SkillScore();
-            entity.setCandidate(cand);
-            entity.setQuestion(q);
-            entity.setSkill(sk);
-            created = true;
-        }
-
-        // set values
-        entity.setScore(req.score());
-        entity.setComment(req.comment());
-        entity.setRatedBy(req.ratedBy());
-        entity.setRatedAt(Instant.now());
-
-        // save
-        SkillScore saved = skillScoreRepository.save(entity);
-
-        // map response
-        return new SkillScoreResponseDTO(
-                saved.getId(),
-                saved.getCandidate().getId(),
-                saved.getQuestion().getId(),
-                saved.getSkill().getId(),
-                saved.getScore(),
-                saved.getComment(),
-                saved.getRatedAt(),
-                saved.getRatedBy(),
-                created
-        );
+    public SkillScoreService(SkillScoreRepository skillScoreRepository,
+                             CandidateRepository candidateRepository,
+                             QuestionRepository questionRepository,
+                             SkillRepository skillRepository,
+                             SkillScoreMapper mapper) {
+        this.skillScoreRepository = skillScoreRepository;
+        this.candidateRepository = candidateRepository;
+        this.questionRepository = questionRepository;
+        this.skillRepository = skillRepository;
+        this.mapper = mapper;
     }
 
-    /** Διαγραφή μίας εγγραφής με id. */
+    /* ========= LIST για συγκεκριμένο candidate+question ========= */
+    public List<SkillScoreResponseDTO> listForCandidateQuestion(int candidateId, int questionId) {
+        return skillScoreRepository
+                .findByCandidateIdAndQuestionId(candidateId, questionId)
+                .stream()
+                .map(mapper::toResponseDTO)
+                .toList();
+    }
+
+    /* ========= UPSERT ========= */
+    @Transactional
+    public SkillScoreResponseDTO upsert(SkillScoreUpsertRequestDTO dto) {
+        var existingOpt = skillScoreRepository
+                .findByCandidateIdAndQuestionIdAndSkillId(dto.candidateId(), dto.questionId(), dto.skillId());
+
+        if (existingOpt.isPresent()) {
+            SkillScore existing = existingOpt.get();
+            existing.setScore(dto.score());
+            existing.setComment(dto.comment());
+            existing.setRatedBy(dto.ratedBy());
+            existing.setRatedAt(Instant.now());
+            SkillScore saved = skillScoreRepository.save(existing);
+            return mapper.withCreated(mapper.toResponseDTO(saved), false);
+        }
+
+        SkillScore entity = mapper.toNewEntity(dto);
+        entity.setCandidate(candidateRepository.getReferenceById(dto.candidateId()));
+        entity.setQuestion(questionRepository.getReferenceById(dto.questionId()));
+        entity.setSkill(skillRepository.getReferenceById(dto.skillId()));
+        SkillScore saved = skillScoreRepository.save(entity);
+        return mapper.withCreated(mapper.toResponseDTO(saved), true);
+    }
+
+    /* ========= DELETE by id ========= */
     @Transactional
     public void deleteById(long id) {
         if (skillScoreRepository.existsById(id)) {
@@ -86,32 +71,9 @@ public class SkillScoreService {
         }
     }
 
-    /** Διαγραφή βάσει tuple (candidate, question, skill). */
+    /* ========= DELETE tuple (candidate, question, skill) ========= */
     @Transactional
     public void deleteTuple(int candidateId, int questionId, int skillId) {
-        List<SkillScore> list =
-                skillScoreRepository.findByCandidateIdAndQuestionIdAndSkillId(candidateId, questionId, skillId);
-        if (!list.isEmpty()) {
-            skillScoreRepository.deleteAll(list);
-        }
-    }
-
-    /** Λίστα βαθμολογιών για όλα τα skills μιας ερώτησης για συγκεκριμένο υποψήφιο. */
-    @Transactional(readOnly = true)
-    public List<SkillScoreResponseDTO> listForCandidateQuestion(int candidateId, int questionId) {
-        return skillScoreRepository.findByCandidateIdAndQuestionId(candidateId, questionId)
-                .stream()
-                .map(s -> new SkillScoreResponseDTO(
-                        s.getId(),
-                        s.getCandidate().getId(),
-                        s.getQuestion().getId(),
-                        s.getSkill().getId(),
-                        s.getScore(),
-                        s.getComment(),
-                        s.getRatedAt(),
-                        s.getRatedBy(),
-                        false   // για λίστα δεν μας νοιάζει το created flag
-                ))
-                .toList();
+        skillScoreRepository.deleteByCandidateIdAndQuestionIdAndSkillId(candidateId, questionId, skillId);
     }
 }

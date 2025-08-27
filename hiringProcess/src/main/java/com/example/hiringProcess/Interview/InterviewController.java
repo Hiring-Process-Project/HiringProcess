@@ -1,6 +1,5 @@
 package com.example.hiringProcess.Interview;
 
-import com.example.hiringProcess.Step.Step;
 import com.example.hiringProcess.Step.StepResponseDTO;
 import com.example.hiringProcess.Step.StepService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,46 +23,40 @@ public class InterviewController {
         this.stepService = stepService;
     }
 
-    // Λίστα όλων των interviews
-    @GetMapping(path = "/interviews")
+    @GetMapping("/interviews")
     public List<Interview> getInterviews() {
         return interviewService.getInterviews();
     }
 
-    // Λεπτομέρειες interview για συγκεκριμένο JobAd (το χρησιμοποιεί ήδη το front)
-    @GetMapping(path = "/jobAds/{jobAdId}/interview-details")
-    public InterviewDetailsDTO getInterviewDetailsByJobAd(@PathVariable Integer jobAdId) {
-        return interviewService.getInterviewDetailsByJobAd(jobAdId);
+    @GetMapping("/jobAds/{jobAdId}/interview-details")
+    public ResponseEntity<InterviewDetailsDTO> getInterviewDetailsByJobAd(@PathVariable Integer jobAdId) {
+        InterviewDetailsDTO dto = interviewService.getInterviewDetailsByJobAd(jobAdId);
+        return (dto != null) ? ResponseEntity.ok(dto) : ResponseEntity.notFound().build();
     }
 
-    // Λήψη interview με id (path version)
-    @GetMapping(path = "/interviews/{interviewId}")
+    @GetMapping("/interviews/{interviewId}")
     public ResponseEntity<Interview> getInterviewByPath(@PathVariable Integer interviewId) {
         Optional<Interview> it = interviewService.getInterview(interviewId);
         return it.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // (Προαιρετικά, αν κάπου χρησιμοποιείται) Λήψη interview με id (query param version)
-    @GetMapping(path = "/interview")
+    @GetMapping("/interview")
     public Optional<Interview> getInterview(@RequestParam Integer interviewId) {
         return interviewService.getInterview(interviewId);
     }
 
-    // Δημιουργία νέου interview (RESTful)
-    @PostMapping(path = "/interviews")
+    @PostMapping("/interviews")
     public void addInterview(@RequestBody Interview interview) {
         interviewService.addNewInterview(interview);
     }
 
-    // Συμβατότητα με το παλιό endpoint σου
-    @PostMapping(path = "/newinterview")
+    @PostMapping("/newinterview")
     public void addNewInterview(@RequestBody Interview interview) {
         interviewService.addNewInterview(interview);
     }
 
-    // === ΝΕΟ: Δημιουργία Step μέσα σε συγκεκριμένο Interview ===
-    // Primary endpoint που καλεί το modal: POST /interviews/{interviewId}/steps
-    @PostMapping(path = "/interviews/{interviewId}/steps")
+    // ✅ Δημιουργία Step και επιστροφή DTO
+    @PostMapping("/interviews/{interviewId}/steps")
     public ResponseEntity<StepResponseDTO> addStepToInterview(
             @PathVariable Integer interviewId,
             @RequestBody StepResponseDTO body   // περιμένουμε { "title": "Technical" }
@@ -71,10 +64,11 @@ public class InterviewController {
         if (body == null || body.getTitle() == null || body.getTitle().isBlank()) {
             return ResponseEntity.badRequest().build();
         }
-        Step created = stepService.createStep(interviewId, body.getTitle().trim());
-        return ResponseEntity.ok(new StepResponseDTO(created.getId(), created.getTitle()));
+        StepResponseDTO created = stepService.createAtEnd(interviewId, body.getTitle().trim(), "");
+        return ResponseEntity.ok(created);
     }
 
+    // ✅ Save interview description
     @PutMapping("/interviews/{interviewId}/description")
     public ResponseEntity<Void> updateInterviewDescription(
             @PathVariable Integer interviewId,
@@ -86,5 +80,4 @@ public class InterviewController {
         interviewService.updateDescription(interviewId, body.description());
         return ResponseEntity.ok().build();
     }
-
 }

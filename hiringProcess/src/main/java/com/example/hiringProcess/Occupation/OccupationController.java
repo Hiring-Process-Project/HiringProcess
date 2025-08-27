@@ -12,10 +12,13 @@ import java.util.List;
 public class OccupationController {
 
     private final OccupationService occupationService;
+    private final OccupationMapper occupationMapper;
 
     @Autowired
-    public OccupationController(OccupationService occupationService) {
+    public OccupationController(OccupationService occupationService,
+                                OccupationMapper occupationMapper) {
         this.occupationService = occupationService;
+        this.occupationMapper = occupationMapper;
     }
 
     @GetMapping
@@ -27,7 +30,7 @@ public class OccupationController {
     public List<OccupationNameDTO> getOccupationNames() {
         return occupationService.getOccupations()
                 .stream()
-                .map(o -> new OccupationNameDTO(o.getId(), o.getTitle()))
+                .map(occupationMapper::toNameDTO)   // ✅ mapper εδώ
                 .toList();
     }
 

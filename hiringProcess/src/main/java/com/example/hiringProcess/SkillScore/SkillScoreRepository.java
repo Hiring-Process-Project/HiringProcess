@@ -12,21 +12,31 @@ import java.util.Optional;
 
 public interface SkillScoreRepository extends JpaRepository<SkillScore, Long> {
 
+    /* === by entity refs (DRY αλλά σπάνια χρήσιμο από το service) === */
     Optional<SkillScore> findByCandidateAndQuestionAndSkill(
-            Candidate candidate, Question question, Skill skill);
+            Candidate candidate, Question question, Skill skill
+    );
 
+    /* === by ids (συνήθως αυτό χρησιμοποιούμε) === */
+
+    // παλαιότερη χρήση: όλα τα skill scores μιας ερώτησης για υποψήφιο
     List<SkillScore> findByCandidateIdAndQuestionId(int candidateId, int questionId);
 
-    // 👇 προσθήκες για το πρόβλημά σου
-    List<SkillScore> findByCandidateIdAndQuestionIdAndSkillId(
-            int candidateId, int questionId, int skillId);
+    // PREFERRED: μοναδικός συνδυασμός candidate+question+skill → μία εγγραφή
+    Optional<SkillScore> findByCandidateIdAndQuestionIdAndSkillId(
+            int candidateId, int questionId, int skillId
+    );
 
-    Optional<SkillScore> findFirstByCandidateIdAndQuestionIdAndSkillId(
-            int candidateId, int questionId, int skillId);
+    // Συμβατότητα αν υπάρχει legacy κώδικας που περιμένει λίστα
+    List<SkillScore> findAllByCandidateIdAndQuestionIdAndSkillId(
+            int candidateId, int questionId, int skillId
+    );
 
     void deleteByCandidateIdAndQuestionIdAndSkillId(
-            int candidateId, int questionId, int skillId);
+            int candidateId, int questionId, int skillId
+    );
 
+    /* === Aggregations για analytics/assessment === */
     @Query("""
        select ss.question.id as questionId,
               avg(ss.score)  as avgScore,

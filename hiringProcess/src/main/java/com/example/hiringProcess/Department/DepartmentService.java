@@ -12,14 +12,24 @@ import java.util.Optional;
 public class DepartmentService {
 
     private final DepartmentRepository departmentRepository;
+    private final DepartmentMapper departmentMapper;
 
     @Autowired
-    public DepartmentService(DepartmentRepository departmentRepository) {
+    public DepartmentService(DepartmentRepository departmentRepository,
+                             DepartmentMapper departmentMapper) {
         this.departmentRepository = departmentRepository;
+        this.departmentMapper = departmentMapper;
     }
 
     public List<Department> getDepartments() {
         return departmentRepository.findAll();
+    }
+
+    public List<DepartmentNameDTO> getDepartmentNames() {
+        return departmentRepository.findAll()
+                .stream()
+                .map(departmentMapper::toNameDTO)
+                .toList();
     }
 
     public Optional<Department> getDepartment(Integer departmentId) {
@@ -27,7 +37,7 @@ public class DepartmentService {
     }
 
     public Department addNewDepartment(Department department) {
-        department.setId(0); // just in case, to force JPA to treat it as new
+        department.setId(0); // force insert
         return departmentRepository.save(department);
     }
 
@@ -36,13 +46,12 @@ public class DepartmentService {
         Department department = departmentRepository.findById(departmentId)
                 .orElseThrow(() -> new IllegalStateException("Department with id " + departmentId + " does not exist"));
 
-        // Αποσύνδεσε τις σχέσεις (ώστε να μην έχουμε constraint violations)
+        // Αποσύνδεση σχέσεων
         department.getJobAds().forEach(jobAd -> jobAd.getDepartments().remove(department));
         department.setOrganisation(null);
 
         departmentRepository.delete(department);
     }
-
 
     @Transactional
     public Department updateDepartment(Integer departmentId, Department updatedFields) {
