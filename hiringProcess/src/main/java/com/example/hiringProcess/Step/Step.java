@@ -2,7 +2,7 @@ package com.example.hiringProcess.Step;
 
 import com.example.hiringProcess.Interview.Interview;
 import com.example.hiringProcess.Question.Question;
-import com.example.hiringProcess.StepResults.StepResults;
+import com.example.hiringProcess.StepScore.StepScore;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.util.ArrayList;
@@ -48,7 +48,7 @@ public class Step {
     // Σχέση Step με StepResults
     @OneToMany(mappedBy = "step", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private List<StepResults> stepResults = new ArrayList<>();
+    private List<StepScore> stepResults = new ArrayList<>();
 
 
 
@@ -106,8 +106,8 @@ public class Step {
     public List<Question> getQuestions() { return questions; }
     public void setQuestions(List<Question> questions) { this.questions = questions; }
 
-    public List<StepResults> getStepResults() { return stepResults; }
-    public void setStepResults(List<StepResults> stepResults) { this.stepResults = stepResults; }
+    public List<StepScore> getStepResults() { return stepResults; }
+    public void setStepResults(List<StepScore> stepResults) { this.stepResults = stepResults; }
 
     public double getScore() {
         return score;

@@ -25,6 +25,7 @@ public interface CandidateMapper {
     @Mapping(source = "email",     target = "email")
     @Mapping(source = "status",    target = "status")
     @Mapping(source = "cvPath",    target = "cvPath")
+    @Mapping(source = "interviewReport.id", target = "interviewReportId")
     CandidateDTO toListDto(Candidate candidate);
 
     // Entity -> Comment DTO (διαφορετικό όνομα πεδίου)
@@ -38,4 +39,9 @@ public interface CandidateMapper {
     @BeanMapping(ignoreByDefault = true)
     @Mapping(source = "comments", target = "comments")
     void updateCommentsFromDto(CandidateCommentDTO dto, @MappingTarget Candidate candidate);
+
+    // ========= DTO -> Entity (update μόνο status) =========
+    @BeanMapping(ignoreByDefault = true)
+    @Mapping(source = "status", target = "status")
+    void updateStatusFromDto(CandidateStatusDTO dto, @MappingTarget Candidate candidate);
 }

@@ -1,4 +1,4 @@
-package com.example.hiringProcess.StepResults;
+package com.example.hiringProcess.StepScore;
 
 import com.example.hiringProcess.InterviewReport.InterviewReport;
 import com.example.hiringProcess.QuestionScore.QuestionScore;
@@ -10,16 +10,16 @@ import java.util.List;
 
 @Entity
 @Table
-public class StepResults {
+public class StepScore {
     @Id
     @SequenceGenerator(
-            name = "stepResults_sequence",
-            sequenceName = "stepResults_sequence",
+            name = "stepScore_sequence",
+            sequenceName = "stepScore_sequence",
             allocationSize = 1
     )
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "stepResults_sequence"
+            generator = "stepScore_sequence"
     )
     private int id;
 
@@ -36,7 +36,7 @@ public class StepResults {
     private InterviewReport interviewReport;
 
     // Σχέση StepResults με QuestionScore
-    @OneToMany(mappedBy = "stepResults", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "stepScore", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<QuestionScore> questionScores = new ArrayList<>();
 
     public int getId() {
@@ -71,6 +71,6 @@ public class StepResults {
         this.questionScores = questionScores;
     }
 
-    public StepResults() {
+    public StepScore() {
     }
 }

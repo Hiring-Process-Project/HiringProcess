@@ -1,7 +1,7 @@
 package com.example.hiringProcess.QuestionScore;
 
 import com.example.hiringProcess.Question.Question;
-import com.example.hiringProcess.StepResults.StepResults;
+import com.example.hiringProcess.StepScore.StepScore;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
@@ -21,8 +21,6 @@ public class QuestionScore {
     private int id;
     private double score;
 
-
-
     // Σχέση QuestionScore με Question
     @ManyToOne
     @JsonIgnore
@@ -31,25 +29,16 @@ public class QuestionScore {
 
     // Σχέση QuestionScore με StepResults
     @ManyToOne
-    @JoinColumn(name = "stepResults_id", referencedColumnName = "id")
+    @JoinColumn(name = "stepScore_id", referencedColumnName = "id")
     @JsonIgnore
-    private StepResults stepResults;
-
-    public QuestionScore() {
-        // Required by JPA
-    }
-
-
-    public double getScore() {
-        return score;
-    }
+    private StepScore stepScore;
 
     public QuestionScore(double score){
         this.score=score;
     }
 
-    public void setQuestion(Question question) {
-        this.question = question;
+    public QuestionScore() {
+        // Required by JPA
     }
 
     public int getId() {
@@ -64,15 +53,23 @@ public class QuestionScore {
         this.score = score;
     }
 
+    public double getScore() {
+        return score;
+    }
+
     public Question getQuestion() {
         return question;
     }
 
-    public StepResults getStepResults() {
-        return stepResults;
+    public void setQuestion(Question question) {
+        this.question = question;
     }
 
-    public void setStepResults(StepResults stepResults) {
-        this.stepResults = stepResults;
+    public StepScore getStepScore() {
+        return stepScore;
+    }
+
+    public void setStepScore(StepScore stepScore) {
+        this.stepScore = stepScore;
     }
 }

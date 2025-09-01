@@ -71,83 +71,120 @@ INSERT INTO jobad_department (jobad_id, department_id) VALUES
 (23, 4), (24, 5), (25, 6);
 
 -- === INTERVIEW_REPORT ===
-INSERT INTO interview_report (id, interview_id) VALUES (9, 7);
+INSERT INTO interview_report (id, interview_id) VALUES
+(9, 7),
+(10, 7),
+(11, 7),
+(12, 8),
+(13, 8),
+(14, 9),
+(15, 9),
+(16, 10),
+(17, 10),
+(18, 11),
+(19, 11),
+(20, 12),
+(21, 12),
+(22, 13),
+(23, 13),
+(24, 14),
+(25, 14),
+(26, 15),
+(27, 15),
+(28, 16),
+(29, 16),
+(30, 17),
+(31, 17),
+(32, 18),
+(33, 18),
+(34, 19),
+(35, 19),
+(36, 20),
+(37, 20),
+(38, 21),
+(39, 21),
+(40, 22),
+(42, 22),
+(43, 23),
+(44, 23),
+(45, 24),
+(46, 24);
 
 -- === CANDIDATE ===
 INSERT INTO candidate (id, first_name, last_name, email, info, status, comments, job_ad_id, interview_report_id)
 VALUES
 (10, 'John', 'Doe', 'john@example.com', 'Experienced dev', 'Approved', 'Strong coding skills', 8, 9),
 -- JobAd 8: Backend Developer
-(11, 'Alice', 'Smith', 'alice.smith@example.com', 'Backend dev with 3y exp', 'Pending', 'Good Spring Boot knowledge', 8, NULL),
-(12, 'Bob', 'Johnson', 'bob.j@example.com', 'Fullstack dev, prefers backend', 'Rejected', 'Weak in SQL', 8, NULL),
+(11, 'Alice', 'Smith', 'alice.smith@example.com', 'Backend dev with 3y exp', 'Pending', 'Good Spring Boot knowledge', 8, 10),
+(12, 'Bob', 'Johnson', 'bob.j@example.com', 'Fullstack dev, prefers backend', 'Rejected', 'Weak in SQL', 8, 11),
 
 -- JobAd 9: HR Specialist
-(13, 'Maria', 'Papadopoulou', 'maria.p@example.com', 'HR MSc, 2y exp', 'Approved', 'Strong interpersonal skills', 9, NULL),
-(14, 'Nikos', 'Karas', 'nikos.kara@example.com', 'Recent HR graduate', 'Pending', 'Enthusiastic but junior', 9, NULL),
+(13, 'Maria', 'Papadopoulou', 'maria.p@example.com', 'HR MSc, 2y exp', 'Approved', 'Strong interpersonal skills', 9, 12),
+(14, 'Nikos', 'Karas', 'nikos.kara@example.com', 'Recent HR graduate', 'Pending', 'Enthusiastic but junior', 9, 13),
 
 -- JobAd 10: Data Analyst
-(15, 'Elena', 'Kostas', 'elena.k@example.com', 'Data analyst, 4y exp in finance', 'Approved', 'SQL expert', 10, NULL),
-(16, 'George', 'Liakos', 'george.l@example.com', 'Statistician, 1y exp', 'Rejected', 'Struggled in Python', 10, NULL),
+(15, 'Elena', 'Kostas', 'elena.k@example.com', 'Data analyst, 4y exp in finance', 'Approved', 'SQL expert', 10, 14),
+(16, 'George', 'Liakos', 'george.l@example.com', 'Statistician, 1y exp', 'Rejected', 'Struggled in Python', 10, 15),
 
 -- JobAd 11: Frontend Developer
-(17, 'Sophia', 'Andreou', 'sophia.a@example.com', 'Frontend dev, 2y React', 'Pending', 'Good UI eye', 11, NULL),
-(18, 'Panagiotis', 'Dimitriou', 'panos.d@example.com', 'Frontend intern', 'Rejected', 'Weak JavaScript fundamentals', 11, NULL),
+(17, 'Sophia', 'Andreou', 'sophia.a@example.com', 'Frontend dev, 2y React', 'Pending', 'Good UI eye', 11, 16),
+(18, 'Panagiotis', 'Dimitriou', 'panos.d@example.com', 'Frontend intern', 'Rejected', 'Weak JavaScript fundamentals', 11,17),
 
 -- JobAd 12: Recruiter
-(19, 'Helen', 'Markou', 'helen.m@example.com', 'Recruiter, 5y exp', 'Approved', 'Great sourcing track record', 12, NULL),
-(20, 'Christos', 'Zafeiris', 'christos.z@example.com', 'HR recruiter, 1y exp', 'Pending', 'Needs mentoring', 12, NULL),
+(19, 'Helen', 'Markou', 'helen.m@example.com', 'Recruiter, 5y exp', 'Approved', 'Great sourcing track record', 12, 18),
+(20, 'Christos', 'Zafeiris', 'christos.z@example.com', 'HR recruiter, 1y exp', 'Pending', 'Needs mentoring', 12, 19),
 
 -- JobAd 13: Data Engineer
-(21, 'Ioanna', 'Petrou', 'ioanna.p@example.com', 'Data engineer, 3y ETL exp', 'Approved', 'Strong in pipelines', 13, NULL),
-(22, 'Dimitris', 'Alexiou', 'dimitris.a@example.com', 'DBA turned data engineer', 'Rejected', 'Weak in Spark', 13, NULL),
+(21, 'Ioanna', 'Petrou', 'ioanna.p@example.com', 'Data engineer, 3y ETL exp', 'Approved', 'Strong in pipelines', 13, 20),
+(22, 'Dimitris', 'Alexiou', 'dimitris.a@example.com', 'DBA turned data engineer', 'Rejected', 'Weak in Spark', 13, 21),
 
 -- JobAd 14: DevOps Engineer
-(23, 'Giannis', 'Rallis', 'giannis.r@example.com', 'DevOps 4y exp', 'Approved', 'Solid Kubernetes skills', 14, NULL),
-(24, 'Katerina', 'Sotiropoulou', 'katerina.s@example.com', 'Sysadmin migrating to DevOps', 'Pending', 'Good CI/CD basics', 14, NULL),
+(23, 'Giannis', 'Rallis', 'giannis.r@example.com', 'DevOps 4y exp', 'Approved', 'Solid Kubernetes skills', 14, 22),
+(24, 'Katerina', 'Sotiropoulou', 'katerina.s@example.com', 'Sysadmin migrating to DevOps', 'Pending', 'Good CI/CD basics', 14, 23),
 
 -- JobAd 15: Training Coordinator
-(25, 'Anna', 'Georgiou', 'anna.g@example.com', 'Trainer, 6y exp', 'Approved', 'Strong coordination skills', 15, NULL),
-(26, 'Vasileios', 'Nikou', 'vasilis.n@example.com', 'Training assistant, 1y exp', 'Pending', 'Shows potential', 15, NULL),
+(25, 'Anna', 'Georgiou', 'anna.g@example.com', 'Trainer, 6y exp', 'Approved', 'Strong coordination skills', 15, 24),
+(26, 'Vasileios', 'Nikou', 'vasilis.n@example.com', 'Training assistant, 1y exp', 'Pending', 'Shows potential', 15, 25),
 
 -- JobAd 16: ML Engineer
-(27, 'Eleni', 'Pappa', 'eleni.p@example.com', 'ML engineer, 2y exp', 'Approved', 'Good ML model deployment', 16, NULL),
-(28, 'Stavros', 'Michailidis', 'stavros.m@example.com', 'Data scientist transitioning to ML', 'Rejected', 'Weak coding practices', 16, NULL),
+(27, 'Eleni', 'Pappa', 'eleni.p@example.com', 'ML engineer, 2y exp', 'Approved', 'Good ML model deployment', 16, 26),
+(28, 'Stavros', 'Michailidis', 'stavros.m@example.com', 'Data scientist transitioning to ML', 'Rejected', 'Weak coding practices', 16, 27),
 
 -- JobAd 17: Senior Backend Engineer
-(29, 'Petros', 'Anagnostou', 'petros.a@example.com', 'Senior Java dev, 10y exp', 'Approved', 'Architectural mindset', 17, NULL),
-(30, 'Despina', 'Lazarou', 'despina.l@example.com', 'Backend lead, 7y exp', 'Pending', 'Strong but prefers Python', 17, NULL),
+(29, 'Petros', 'Anagnostou', 'petros.a@example.com', 'Senior Java dev, 10y exp', 'Pending', 'Architectural mindset', 17, 28),
+(30, 'Despina', 'Lazarou', 'despina.l@example.com', 'Backend lead, 7y exp', 'Pending', 'Strong but prefers Python', 17, 29),
 
 -- JobAd 18: HR Operations Assistant
-(31, 'Olga', 'Mantzou', 'olga.m@example.com', 'HR ops assistant, 2y exp', 'Approved', 'Process oriented', 18, NULL),
-(32, 'Thanasis', 'Vergis', 'thanasis.v@example.com', 'Business admin graduate', 'Rejected', 'Limited HR knowledge', 18, NULL),
+(31, 'Olga', 'Mantzou', 'olga.m@example.com', 'HR ops assistant, 2y exp', 'Approved', 'Process oriented', 18, 30),
+(32, 'Thanasis', 'Vergis', 'thanasis.v@example.com', 'Business admin graduate', 'Rejected', 'Limited HR knowledge', 18, 31),
 
 -- JobAd 19: Junior Data Analyst
-(33, 'Kalliopi', 'Xenou', 'kalliopi.x@example.com', 'Math graduate', 'Pending', 'Strong statistics, weak SQL', 19, NULL),
-(34, 'Leonidas', 'Fotiou', 'leonidas.f@example.com', 'Economics graduate', 'Approved', 'Excel wizard', 19, NULL),
+(33, 'Kalliopi', 'Xenou', 'kalliopi.x@example.com', 'Math graduate', 'Pending', 'Strong statistics, weak SQL', 19, 32),
+(34, 'Leonidas', 'Fotiou', 'leonidas.f@example.com', 'Economics graduate', 'Approved', 'Excel wizard', 19, 33),
 
 -- JobAd 20: React Developer (Intern)
-(35, 'Georgia', 'Alexi', 'georgia.a@example.com', 'CS student', 'Pending', 'React basics covered', 20, NULL),
-(36, 'Marios', 'Spanos', 'marios.s@example.com', 'Self-taught React dev', 'Rejected', 'Needs mentoring in Git', 20, NULL),
+(35, 'Georgia', 'Alexi', 'georgia.a@example.com', 'CS student', 'Pending', 'React basics covered', 20, 34),
+(36, 'Marios', 'Spanos', 'marios.s@example.com', 'Self-taught React dev', 'Rejected', 'Needs mentoring in Git', 20, 35),
 
 -- JobAd 21: Recruiter (Freelance)
-(37, 'Eftychia', 'Marinou', 'eftychia.m@example.com', 'Freelance recruiter, 3y exp', 'Approved', 'Independent worker', 21, NULL),
-(38, 'Kostas', 'Chatzis', 'kostas.c@example.com', 'Remote HR recruiter', 'Pending', 'Needs better sourcing tools', 21, NULL),
+(37, 'Eftychia', 'Marinou', 'eftychia.m@example.com', 'Freelance recruiter, 3y exp', 'Approved', 'Independent worker', 21, 36),
+(38, 'Kostas', 'Chatzis', 'kostas.c@example.com', 'Remote HR recruiter', 'Pending', 'Needs better sourcing tools', 21, 37),
 
 -- JobAd 22: ETL Specialist
-(39, 'Natalia', 'Karagianni', 'natalia.k@example.com', 'ETL specialist, 4y exp', 'Approved', 'Excellent SQL pipelines', 22, NULL),
-(40, 'Michalis', 'Arvanitis', 'michalis.a@example.com', 'Data analyst moving to ETL', 'Rejected', 'Struggled in automation', 22, NULL),
+(39, 'Natalia', 'Karagianni', 'natalia.k@example.com', 'ETL specialist, 4y exp', 'Approved', 'Excellent SQL pipelines', 22, 38),
+(40, 'Michalis', 'Arvanitis', 'michalis.a@example.com', 'Data analyst moving to ETL', 'Rejected', 'Struggled in automation', 22, 39),
 
 -- JobAd 23: Site Reliability Engineer
-(41, 'Christina', 'Drosou', 'christina.d@example.com', 'SRE 5y exp', 'Approved', 'Solid incident management', 23, NULL),
-(42, 'Dionysis', 'Panou', 'dionysis.p@example.com', 'Junior DevOps', 'Pending', 'Needs on-call experience', 23, NULL),
+(41, 'Christina', 'Drosou', 'christina.d@example.com', 'SRE 5y exp', 'Approved', 'Solid incident management', 23, 40),
+(42, 'Dionysis', 'Panou', 'dionysis.p@example.com', 'Junior DevOps', 'Pending', 'Needs on-call experience', 23, 42),
 
 -- JobAd 24: L&D Coordinator
-(43, 'Ioannis', 'Tzanos', 'ioannis.t@example.com', 'Trainer, 3y exp', 'Pending', 'Good program design', 24, NULL),
-(44, 'Sofia', 'Ntouka', 'sofia.n@example.com', 'L&D admin', 'Approved', 'Strong organization skills', 24, NULL),
+(43, 'Ioannis', 'Tzanos', 'ioannis.t@example.com', 'Trainer, 3y exp', 'Pending', 'Good program design', 24, 43),
+(44, 'Sofia', 'Ntouka', 'sofia.n@example.com', 'L&D admin', 'Approved', 'Strong organization skills', 24, 44),
 
 -- JobAd 25: AI Research Engineer
-(45, 'Markos', 'Filippou', 'markos.f@example.com', 'PhD ML researcher', 'Approved', 'Deep learning expert', 25, NULL),
-(46, 'Irini', 'Kallergi', 'irini.k@example.com', 'AI MSc student', 'Rejected', 'Too junior for role', 25, NULL);
+(45, 'Markos', 'Filippou', 'markos.f@example.com', 'PhD ML researcher', 'Approved', 'Deep learning expert', 25, 45),
+(46, 'Irini', 'Kallergi', 'irini.k@example.com', 'AI MSc student', 'Rejected', 'Too junior for role', 25, 46);
 
 
 -- === STEP ===
@@ -310,9 +347,7 @@ INSERT INTO skill (id, title, esco_id, score) VALUES
 -- === question_skill ===
 INSERT INTO question_skill (question_id, skill_id) VALUES
 (13, 16),
-(14, 17),
-(15, 28),
-(15, 30),
+(14,17),(15,28),(15,30),
 (16,16),(16,17),(17,16),
 (18,24),(18,25),(19,24),
 (20,18),(20,26),(21,18),
@@ -356,14 +391,17 @@ INSERT INTO question_skill (question_id, skill_id) VALUES
 (96,27),(97,27);
 
 
--- === STEP_RESULTS ===
-INSERT INTO step_results (id, step_id, interview_report_id) VALUES
+-- === STEP_SCORE ===
+INSERT INTO step_score (id, step_id, interview_report_id) VALUES
 (18, 11, 9),
-(19, 12, 9);
+(19, 12, 9),
+(20, 17, 9);
 
 -- === QUESTION_SCORE ===
-INSERT INTO question_score (id, question_id, step_results_id, score) VALUES
+INSERT INTO question_score (id, question_id, step_score_id, score) VALUES
 (20, 13, 18, 9.0),
 (21, 14, 18, 8.5),
-(22, 15, 19, 7.0);
+(22, 15, 19, 7.0),
+(23, 16, 20, 8.0),
+(24, 17, 20, 7.5);
 
