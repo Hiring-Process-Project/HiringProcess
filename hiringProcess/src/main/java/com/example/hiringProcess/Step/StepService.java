@@ -21,19 +21,15 @@ public class StepService {
     private final InterviewRepository interviewRepository;
     private final StepMapper stepMapper;
 
-    /* =========================================================
-     * Read (DTO) – Steps ανά Interview, ταξινομημένα
-     * ========================================================= */
+    /* ================= READ: Steps ανά Interview (sorted) ================= */
     public List<StepResponseDTO> getStepsByInterviewSorted(int interviewId) {
         return stepRepository.findByInterviewIdOrderByPositionAsc(interviewId)
                 .stream()
-                .map(stepMapper::toResponseDTO)
+                .map(stepMapper::toResponseDTO)   // περιλαμβάνει id, title, description
                 .toList();
     }
 
-    /* =========================================================
-     * Create – στο τέλος της λίστας (επιστρέφει DTO)
-     * ========================================================= */
+    /* ================= CREATE: στο τέλος της λίστας ================= */
     @Transactional
     public StepResponseDTO createAtEnd(int interviewId, String title, String description) {
         Interview interview = interviewRepository.findById(interviewId)
@@ -48,8 +44,7 @@ public class StepService {
         s.setPosition(max + 1);   // στο τέλος
         s.setScore(0);            // default
 
-        Step saved = stepRepository.save(s);
-        return stepMapper.toResponseDTO(saved);
+        return stepMapper.toResponseDTO(stepRepository.save(s));
     }
 
     /** Convenience για δημιουργία με κενή περιγραφή. */
@@ -58,21 +53,18 @@ public class StepService {
         return createAtEnd(interviewId, title, "");
     }
 
-    /* =========================================================
-     * Delete – και «συμπίεση» (reindex) των υπολοίπων
-     * ========================================================= */
+    /* ================= DELETE: διαγραφή & reindex ================= */
     @Transactional
     public void deleteStep(Integer stepId) {
         Step s = stepRepository.findById(stepId)
                 .orElseThrow(() -> new IllegalStateException("Step " + stepId + " not found"));
 
         int interviewId = s.getInterview().getId();
-        int deletedPos = s.getPosition();
+        int deletedPos  = s.getPosition();
 
-        // Διαγραφή (με orphanRemoval για ερωτήσεις)
         stepRepository.delete(s);
 
-        // Reindex 0..N-1
+        // Reindex 0..N-1 για τα υπόλοιπα
         List<Step> rest = stepRepository.findByInterviewIdOrderByPositionAsc(interviewId);
         for (Step st : rest) {
             if (st.getPosition() > deletedPos) {
@@ -82,39 +74,22 @@ public class StepService {
         stepRepository.saveAll(rest);
     }
 
-    /* =========================================================
-     * Update – τίτλος/περιγραφή/score/μεταφορά σε άλλο interview
-     * ========================================================= */
+    /* ================= UPDATE: title/description/score/μεταφορά ================= */
     @Transactional
-    public void updateStep(Integer stepId, StepUpdateDTO dto) {
-        Step existing = stepRepository.findById(stepId)
+    public void updateStep(int stepId, StepUpdateDTO dto) {
+        Step step = stepRepository.findById(stepId)
                 .orElseThrow(() -> new IllegalStateException("Step with id " + stepId + " does not exist"));
 
-        if (dto.getTitle() != null)       existing.setTitle(dto.getTitle());
-        if (dto.getDescription() != null) existing.setDescription(dto.getDescription());
-        if (dto.getScore() != null)       existing.setScore(dto.getScore());
-
-        // Μεταφορά σε άλλο interview → τοποθέτηση στο τέλος εκείνης της λίστας
-        if (dto.getInterviewId() != null) {
-            int newInterviewId = dto.getInterviewId();
-            int currentInterviewId = existing.getInterview() != null ? existing.getInterview().getId() : -1;
-            if (newInterviewId != currentInterviewId) {
-                Interview newInterview = interviewRepository.findById(newInterviewId)
-                        .orElseThrow(() -> new IllegalStateException("Interview " + newInterviewId + " not found"));
-                existing.setInterview(newInterview);
-                int max = stepRepository.findMaxPositionByInterviewId(newInterviewId);
-                existing.setPosition(max + 1);
-            }
+        // ΜΟΝΟ description
+        if (dto.getDescription() != null) {
+            step.setDescription(dto.getDescription());
         }
-
-        stepRepository.save(existing);
+        stepRepository.save(step);
     }
 
-    /* =========================================================
-     * Skills του step (από τις ερωτήσεις του)
-     * ========================================================= */
+
+    /* ================= Skills του step (από τις ερωτήσεις του) ================= */
     public List<StepSkillDTO> getSkillsForStep(Integer stepId) {
-        // Validate ότι υπάρχει το step
         stepRepository.findById(stepId).orElseThrow(() ->
                 new EntityNotFoundException("Step " + stepId + " not found"));
 
@@ -124,9 +99,7 @@ public class StepService {
                 .toList();
     }
 
-    /* =========================================================
-     * Μετακίνηση ενός step (up/down) μέσα στο ίδιο interview
-     * ========================================================= */
+    /* ================= Move (up/down) μέσα στο ίδιο interview ================= */
     @Transactional
     public void move(Integer stepId, String direction) {
         Step step = stepRepository.findById(stepId)
@@ -134,7 +107,7 @@ public class StepService {
 
         int interviewId = step.getInterview().getId();
         int from = step.getPosition();
-        int to = "up".equalsIgnoreCase(direction) ? from - 1 : from + 1;
+        int to   = "up".equalsIgnoreCase(direction) ? from - 1 : from + 1;
         if (to < 0) return;
 
         Optional<Step> otherOpt = stepRepository.findByInterviewIdAndPosition(interviewId, to);
@@ -149,9 +122,7 @@ public class StepService {
         stepRepository.save(other);
     }
 
-    /* =========================================================
-     * Batch reorder (0..N-1) με 2 φάσεις για αποφυγή unique conflicts
-     * ========================================================= */
+    /* ================= Reorder (batch) με 2 φάσεις ================= */
     @Transactional
     public void reorder(int interviewId, List<Integer> orderedIds) {
         if (orderedIds == null || orderedIds.isEmpty()) {
@@ -166,7 +137,7 @@ public class StepService {
             throw new IllegalStateException("mismatch size: db=" + steps.size() + " req=" + orderedIds.size());
         }
 
-        Set<Integer> current = steps.stream().map(Step::getId).collect(Collectors.toSet());
+        Set<Integer> current  = steps.stream().map(Step::getId).collect(Collectors.toSet());
         Set<Integer> incoming = new HashSet<>(orderedIds);
         if (!current.equals(incoming)) {
             throw new IllegalStateException("ids don't match interview steps: db=" + current + " req=" + incoming);
@@ -175,11 +146,9 @@ public class StepService {
         Map<Integer, Step> byId = steps.stream()
                 .collect(Collectors.toMap(Step::getId, Function.identity()));
 
-        // 1η φάση: προσωρινές θέσεις (αρνητικές) για να αποφύγουμε μοναδικούς περιορισμούς
+        // 1η φάση: προσωρινές αρνητικές θέσεις
         int tempPos = -orderedIds.size();
-        for (Step s : steps) {
-            s.setPosition(tempPos++);
-        }
+        for (Step s : steps) s.setPosition(tempPos++);
         stepRepository.saveAll(steps);
         stepRepository.flush();
 
@@ -191,16 +160,10 @@ public class StepService {
         stepRepository.saveAll(steps);
     }
 
-    /* =========================================================
-     * Legacy helpers (για συμβατότητα με υπάρχον front όπου χρειάζεται)
-     * ========================================================= */
-    public List<Step> getSteps() {
-        return stepRepository.findAll();
-    }
+    /* ================= Legacy helpers (αν χρειάζονται αλλού) ================= */
+    public List<Step> getSteps() { return stepRepository.findAll(); }
 
-    public Optional<Step> getStep(Integer stepId) {
-        return stepRepository.findById(stepId);
-    }
+    public Optional<Step> getStep(Integer stepId) { return stepRepository.findById(stepId); }
 
     @Transactional
     public void addNewStep(Step step) {
@@ -209,7 +172,7 @@ public class StepService {
             int max = stepRepository.findMaxPositionByInterviewId(interviewId);
             step.setPosition(max + 1);
         }
-        step.setScore(0); // default
+        step.setScore(0);
         stepRepository.save(step);
     }
 }

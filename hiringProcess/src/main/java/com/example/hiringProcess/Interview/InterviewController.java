@@ -1,5 +1,6 @@
 package com.example.hiringProcess.Interview;
 
+import com.example.hiringProcess.Step.StepCreateRequest;
 import com.example.hiringProcess.Step.StepResponseDTO;
 import com.example.hiringProcess.Step.StepService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,14 +60,21 @@ public class InterviewController {
     @PostMapping("/interviews/{interviewId}/steps")
     public ResponseEntity<StepResponseDTO> addStepToInterview(
             @PathVariable Integer interviewId,
-            @RequestBody StepResponseDTO body   // περιμένουμε { "title": "Technical" }
-    ) {
+            @RequestBody StepCreateRequest body) {
+
         if (body == null || body.getTitle() == null || body.getTitle().isBlank()) {
             return ResponseEntity.badRequest().build();
         }
-        StepResponseDTO created = stepService.createAtEnd(interviewId, body.getTitle().trim(), "");
+
+        StepResponseDTO created = stepService.createAtEnd(
+                interviewId,
+                body.getTitle().trim(),
+                body.getDescription() == null ? "" : body.getDescription().trim()
+        );
         return ResponseEntity.ok(created);
     }
+
+
 
     // ✅ Save interview description
     @PutMapping("/interviews/{interviewId}/description")

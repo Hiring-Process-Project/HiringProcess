@@ -60,9 +60,10 @@ public class StepController {
     @PutMapping("/{stepId}/description")
     public ResponseEntity<Void> updateDescription(@PathVariable int stepId,
                                                   @RequestBody StepUpdateDTO dto) {
-        stepService.updateStep(stepId, dto);
+        stepService.updateStep(stepId, dto);   // ή stepService.updateStepDescription(stepId, dto.getDescription())
         return ResponseEntity.noContent().build();
     }
+
 
     @PutMapping("/steps/{id}")
     public ResponseEntity<Void> updateStep(@PathVariable int id,
