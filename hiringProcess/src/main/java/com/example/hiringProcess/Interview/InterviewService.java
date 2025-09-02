@@ -56,8 +56,8 @@ public class InterviewService {
         }
 
         // InterviewReport: αντικαθιστούμε μόνο αν δόθηκε νέο
-        if (updatedInterview.getInterviewReport() != null) {
-            existing.setInterviewReport(updatedInterview.getInterviewReport());
+        if (updatedInterview.getInterviewReports() != null) {
+            existing.setInterviewReports(updatedInterview.getInterviewReports());
         }
 
         // Σημείωση: το jobAd δεν το αλλάζουμε εδώ. Αν θες να το αλλάξεις,

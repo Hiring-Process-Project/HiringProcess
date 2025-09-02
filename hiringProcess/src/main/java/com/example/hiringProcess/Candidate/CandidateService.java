@@ -1,6 +1,6 @@
 package com.example.hiringProcess.Candidate;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -141,4 +141,38 @@ public class CandidateService {
         }
         // @Transactional -> no explicit save() needed
     }
+
+    @Transactional
+    public void updateStatus(Integer candidateId, CandidateStatusDTO dto) {
+        Candidate candidate = candidateRepository.findById(candidateId)
+                .orElseThrow(() -> new IllegalStateException(
+                        "Candidate with id " + candidateId + " does not exist"));
+
+        if (dto != null) {
+            candidateMapper.updateStatusFromDto(dto, candidate); // μόνο status
+        }
+        // @Transactional -> δεν χρειάζεται ρητό save()
+    }
+
+
+    /**
+     * Επιστρέφει όλους τους υποψηφίους του jobAd μαζί με την τελική τους βαθμολογία,
+     * ταξινομημένους από τον καλύτερο προς τον χειρότερο.
+     * Το repository query μπορεί ήδη να έχει ORDER BY· αν όχι, υπάρχει fallback ταξινόμηση εδώ.
+     */
+    @Transactional(readOnly = true)
+    public List<CandidateFinalScoreDTO> getCandidateFinalScoresForJobAd(Integer jobAdId) {
+        List<CandidateFinalScoreDTO> list = candidateRepository.findFinalScoresByJobAd(jobAdId);
+
+        // --- Fallback ταξινόμηση στο service (αν το SQL ΔΕΝ έχει ORDER BY):
+        // list.sort(
+        //     Comparator.comparing(
+        //         CandidateFinalScoreDTO::getAverageScore,   // ή getAvgScore(), ανάλογα με το DTO σου
+        //         Comparator.nullsLast(Comparator.naturalOrder())
+        //     ).reversed()
+        // );
+
+        return list;
+    }
+
 }
