@@ -98,7 +98,7 @@ public final class AnalyticsMapper {
                     s(rs, "title")
             );
 
-    /* -------- local helpers (ίδιοι με αυτούς που είχες) -------- */
+    /* -------- local helpers -------- */
     private static String firstNonBlank(String... vals) {
         if (vals == null) return null;
         for (String v : vals) if (v != null && !v.isBlank()) return v;

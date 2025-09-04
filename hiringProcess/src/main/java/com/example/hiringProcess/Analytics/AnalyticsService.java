@@ -5,9 +5,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
-import java.util.Map;
 import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 @Service
 public class AnalyticsService {
@@ -51,7 +49,6 @@ public class AnalyticsService {
         List<SkillAvgDto> top5  = repo.topSkillsByOrg(orgId, 5);
         List<SkillAvgDto> weak5 = repo.weakestSkillsByOrg(orgId, 5);
 
-        // ΝΕΟ: score distribution 0–100 από 0..10 averages ανά candidate
         List<Double> scores = repo.candidateAvgScoresByOrg(orgId);
         long[] buckets = new long[10];
         for (Double s : scores) {
@@ -112,7 +109,6 @@ public class AnalyticsService {
             int to   = (i == 9) ? 100 : (i * 10 + 9);
             distribution.add(new BucketDto(from, to, buckets[i]));
         }
-        // === Τέλος bucketing ===
 
         List<OccupationAvgDto> occDiff = repo.occupationDifficultyByDept(deptId);
 
@@ -139,7 +135,7 @@ public class AnalyticsService {
 
         double approvalRate  = percent(approved, total);
         double rejectionRate = percent(rejected, total);
-        double hireRate      = percent(hires, total);            // ΝΕΟ
+        double hireRate      = percent(hires, total);
 
         double candPerJobAd  = repo.avgCandidatesPerJobAdDeptOcc(deptId, occId);
 
@@ -266,6 +262,8 @@ public class AnalyticsService {
         return repo.candidatesByJobAd(jobAdId);
     }
 
+    /* ------------------------ Step scope ------------------------ */
+
     public StepStatsDto getStepStats(int jobAdId, int stepId) {
         // 1) Avg step score (όλων των ερωτήσεων στο step, σε όλους τους υποψήφιους)
         double avgStepScore = round1(repo.avgStepScoreForJobAdStep(jobAdId, stepId));
@@ -295,7 +293,6 @@ public class AnalyticsService {
             distribution.add(new ScoreBucketDto(from, to, buckets[b]));
         }
 
-        // 3) Rankings (ευκολότερα = υψηλότερα avg)
         var questionRanking = repo.questionRankingByStep(jobAdId, stepId);
         var skillRanking    = repo.skillRankingByStep(jobAdId, stepId);
 
@@ -312,7 +309,7 @@ public class AnalyticsService {
         return repo.stepsForJobAd(jobAdId);
     }
 
-    // AnalyticsService.java  (πρόσθεσε τα παρακάτω)
+    /* ------------------------ Question scope ------------------------ */
 
     public QuestionStatsDto getQuestionStats(int jobAdId, int questionId) {
         double avg = round1(repo.avgScoreForQuestionInJobAd(jobAdId, questionId));
@@ -357,6 +354,8 @@ public class AnalyticsService {
         return repo.skillsForQuestion(questionId);
     }
 
+    /* ------------------------ Skill scope ------------------------ */
+
     public SkillStatsDto getSkillStats(int skillId) {
         // 1) Avg skill score (0..10)
         double avg = round1(repo.avgScoreForSkill(skillId));
@@ -386,5 +385,4 @@ public class AnalyticsService {
 
         return new SkillStatsDto(avg, round1(passRate), distribution);
     }
-
 }

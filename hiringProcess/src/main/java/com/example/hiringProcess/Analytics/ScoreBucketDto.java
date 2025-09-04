@@ -19,7 +19,4 @@ public class ScoreBucketDto {
     public long getCount() { return count; }
     public void setCount(long count) { this.count = count; }
 
-//    // alias για συμβατότητα με UI που κοιτά και 'cnt'
-//    @JsonProperty("cnt")
-//    public long getCntAlias() { return count; }
 }

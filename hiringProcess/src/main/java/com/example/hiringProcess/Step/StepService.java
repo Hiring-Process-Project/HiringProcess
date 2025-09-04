@@ -81,8 +81,8 @@ public class StepService {
                 .orElseThrow(() -> new IllegalStateException("Step with id " + stepId + " does not exist"));
 
         // ΜΟΝΟ description
-        if (dto.getDescription() != null) {
-            step.setDescription(dto.getDescription());
+        if (dto.description() != null && !dto.description().isBlank()) {
+            step.setDescription(dto.description());
         }
         stepRepository.save(step);
     }

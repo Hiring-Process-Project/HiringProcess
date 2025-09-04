@@ -1,8 +1,9 @@
 package com.example.hiringProcess.Step;
 
-import lombok.Data;
-
-@Data
-public class StepUpdateDTO {
-    private String description;  // optional
-}
+/**
+ * DTO για ενημέρωση ενός Step.
+ * Χρησιμοποιείται σε PATCH/UPDATE requests.
+ */
+public record StepUpdateDTO(
+        String description  // optional
+) {}
