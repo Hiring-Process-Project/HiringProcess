@@ -1,17 +1,18 @@
 package com.example.hiringProcess.Analytics;
 
-public class StepAvgDto {
-    private String step;
+public class JobAdAvgDto {
+    private String jobAd;
     private Double averageScore;
 
-    public StepAvgDto() {}
-    public StepAvgDto(String step, Double averageScore) {
-        this.step = step;
+    public JobAdAvgDto() {}
+
+    public JobAdAvgDto(String jobAd, Double averageScore) {
+        this.jobAd = jobAd;
         this.averageScore = averageScore;
     }
 
-    public String getStep() { return step; }
-    public void setStep(String step) { this.step = step; }
+    public String getJobAd() { return jobAd; }
+    public void setJobAd(String jobAd) { this.jobAd = jobAd; }
 
     public Double getAverageScore() { return averageScore; }
     public void setAverageScore(Double averageScore) { this.averageScore = averageScore; }

@@ -5,10 +5,12 @@ public class QuestionScoreDto {
     private Double score;
 
     public QuestionScoreDto() {}
+
     public QuestionScoreDto(String question, Double score) {
         this.question = question;
         this.score = score;
     }
+
     public String getQuestion() { return question; }
     public void setQuestion(String question) { this.question = question; }
     public Double getScore() { return score; }

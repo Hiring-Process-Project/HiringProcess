@@ -36,11 +36,6 @@ public class AnalyticsController {
         return service.getJobAdStats(jobAdId);
     }
 
-    @GetMapping("/jobad/{jobAdId}/candidates/summary")
-    public CandidateSummaryDto candidateSummaryByJobAd(@PathVariable int jobAdId) {
-        return service.getCandidateSummaryByJobAd(jobAdId);
-    }
-
     @GetMapping("/candidate/{candidateId}")
     public CandidateStatsDto candidateStats(@PathVariable int candidateId) {
         return service.getCandidateStats(candidateId);
@@ -50,12 +45,6 @@ public class AnalyticsController {
     @GetMapping("/jobad/{jobAdId}/candidates")
     public List<CandidateLiteDto> jobAdCandidates(@PathVariable int jobAdId) {
         return service.getJobAdCandidates(jobAdId);
-    }
-
-    // Summary Approved vs Pending για Job Ad
-    @GetMapping("/jobad/{jobAdId}/candidateSummary")
-    public CandidateSummaryDto jobAdCandidateSummary(@PathVariable int jobAdId) {
-        return service.getCandidateSummaryForJobAd(jobAdId);
     }
 
     // AnalyticsController.java
@@ -75,8 +64,6 @@ public class AnalyticsController {
     public java.util.List<StepLiteDto> jobAdSteps(@PathVariable int jobAdId) {
         return service.getStepsForJobAd(jobAdId);
     }
-
-    // AnalyticsController.java  (πρόσθεσε το παρακάτω)
 
     // Question analytics για συγκεκριμένη ερώτηση μέσα σε συγκεκριμένο job ad
     @GetMapping("/jobad/{jobAdId}/question/{questionId}")

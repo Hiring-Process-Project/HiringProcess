@@ -7,19 +7,34 @@ public class OrganizationStatsDto {
     private double rejectionRate;
     private double hireRate;
     private long hireCount;
+    public long totalCandidates;
     private List<SkillAvgDto> top5Skills;
     private List<SkillAvgDto> weakest5Skills;
+    private List<ScoreBucketDto> scoreDistribution;
+    private double avgCandidatesPerJobAd;
 
     public OrganizationStatsDto() {}
 
-    public OrganizationStatsDto(double approvalRate, double rejectionRate, double hireRate, long hireCount,
-                                List<SkillAvgDto> top5Skills, List<SkillAvgDto> weakest5Skills) {
+    public OrganizationStatsDto(
+            double approvalRate,
+            double rejectionRate,
+            double hireRate,
+            long hireCount,
+            long totalCandidates,
+            List<SkillAvgDto> top5Skills,
+            List<SkillAvgDto> weakest5Skills,
+            List<ScoreBucketDto> scoreDistribution,
+            double avgCandidatesPerJobAd
+    ) {
         this.approvalRate = approvalRate;
         this.rejectionRate = rejectionRate;
         this.hireRate = hireRate;
         this.hireCount = hireCount;
+        this.totalCandidates = totalCandidates;
         this.top5Skills = top5Skills;
         this.weakest5Skills = weakest5Skills;
+        this.scoreDistribution = scoreDistribution;
+        this.avgCandidatesPerJobAd = avgCandidatesPerJobAd;
     }
 
     public double getApprovalRate() { return approvalRate; }
@@ -39,4 +54,13 @@ public class OrganizationStatsDto {
 
     public List<SkillAvgDto> getWeakest5Skills() { return weakest5Skills; }
     public void setWeakest5Skills(List<SkillAvgDto> v) { this.weakest5Skills = v; }
+
+    public long getTotalCandidates() { return totalCandidates; }
+    public void setTotalCandidates(long v) { this.totalCandidates = v; }
+
+    public List<ScoreBucketDto> getScoreDistribution() { return scoreDistribution; }
+    public void setScoreDistribution(List<ScoreBucketDto> scoreDistribution) { this.scoreDistribution = scoreDistribution; }
+
+    public double getAvgCandidatesPerJobAd() { return avgCandidatesPerJobAd; }
+    public void setAvgCandidatesPerJobAd(double v) { this.avgCandidatesPerJobAd = v; }
 }

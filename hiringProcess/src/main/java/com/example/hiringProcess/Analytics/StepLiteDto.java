@@ -5,6 +5,7 @@ public class StepLiteDto {
     private String title;
 
     public StepLiteDto() {}
+
     public StepLiteDto(Integer id, String title) {
         this.id = id;
         this.title = title;

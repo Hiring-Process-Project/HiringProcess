@@ -40,7 +40,7 @@ public class Candidate {
 
     // Σχέση Candidate με InterviewReport
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "interviewReport_id", referencedColumnName = "id")
+    @JoinColumn(name = "interview_report_id", referencedColumnName = "id")
     @JsonIgnore
     private InterviewReport interviewReport;
 

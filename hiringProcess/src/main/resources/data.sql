@@ -390,7 +390,6 @@ INSERT INTO question_skill (question_id, skill_id) VALUES
 (94,27),(95,27),
 (96,27),(97,27);
 
-
 -- === STEP_SCORE ===
 INSERT INTO step_score (id, step_id, interview_report_id) VALUES
 (18, 11, 9),
@@ -398,10 +397,10 @@ INSERT INTO step_score (id, step_id, interview_report_id) VALUES
 (20, 17, 9);
 
 -- === QUESTION_SCORE ===
-INSERT INTO question_score (id, question_id, step_score_id, score) VALUES
-(20, 13, 18, 9.0),
-(21, 14, 18, 8.5),
-(22, 15, 19, 7.0),
-(23, 16, 20, 8.0),
-(24, 17, 20, 7.5);
+--INSERT INTO question_score (id, question_id, step_score_id, score) VALUES
+--(20, 13, 18, 9.0),
+--(21, 14, 18, 8.5),
+--(22, 15, 19, 7.0),
+--(23, 16, 20, 8.0),
+--(24, 17, 20, 7.5);
 

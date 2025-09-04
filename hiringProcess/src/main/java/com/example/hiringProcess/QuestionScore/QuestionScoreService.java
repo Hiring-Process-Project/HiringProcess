@@ -1,5 +1,7 @@
 package com.example.hiringProcess.QuestionScore;
 
+import com.example.hiringProcess.Candidate.Candidate;
+import com.example.hiringProcess.Candidate.CandidateRepository;
 import com.example.hiringProcess.Question.QuestionRepository;
 import com.example.hiringProcess.SkillScore.SkillScoreRepository;
 import jakarta.transaction.Transactional;
@@ -14,17 +16,22 @@ public class QuestionScoreService {
     private final QuestionScoreRepository questionScoreRepository;
     private final QuestionRepository questionRepository;
     private final SkillScoreRepository skillScoreRepository;
-    private final QuestionScoreMapper questionScoreMapper; // <-- προστέθηκε
+    private final QuestionScoreMapper questionScoreMapper;
+
+    // + CandidateRepository μόνο για convenience method (bridge από candidateId)
+    private final CandidateRepository candidateRepository;
 
     @Autowired
     public QuestionScoreService(QuestionScoreRepository questionScoreRepository,
                                 QuestionRepository questionRepository,
                                 SkillScoreRepository skillScoreRepository,
-                                QuestionScoreMapper questionMetricsItemMapper) { // <-- προστέθηκε
+                                QuestionScoreMapper questionMetricsItemMapper,
+                                CandidateRepository candidateRepository) {
         this.questionScoreRepository = questionScoreRepository;
         this.questionRepository = questionRepository;
         this.skillScoreRepository = skillScoreRepository;
-        this.questionScoreMapper = questionMetricsItemMapper; // <-- προστέθηκε
+        this.questionScoreMapper = questionMetricsItemMapper;
+        this.candidateRepository = candidateRepository;
     }
 
     /* ======= CRUD ======= */
@@ -63,18 +70,21 @@ public class QuestionScoreService {
         questionScoreRepository.delete(existing);
     }
 
-    /* ======= METRICS by interviewReportId ======= */
+    /* ======= METRICS ======= */
+
     /**
      * Για κάθε questionId επιστρέφει:
-     *  - totalSkills   : πλήθος distinct skills της ερώτησης (Question->skills)
-     *  - ratedSkills   : πλήθος βαθμολογημένων skills στο συγκεκριμένο interviewReport
-     *  - averageScore  : μέσος όρος score (0..100) ή null
+     *  - totalSkills   : πλήθος DISTINCT skills της ερώτησης (Question -> question_skill)
+     *  - ratedSkills   : πλήθος βαθμολογημένων skills για το συγκεκριμένο interviewReport
+     *  - averageScore  : μέσος όρος score (0..100) ή null αν δεν υπάρχει καμία βαθμολογία
+     *
+     * ΠΗΓΗ δεδομένων: skill_score (ΟΧΙ question_score), ώστε τα analytics να “βλέπουν” ό,τι βαθμολογείς στα skills.
      */
     public List<QuestionMetricsItemDTO> getQuestionMetricsByReport(Integer interviewReportId,
                                                                    List<Integer> questionIds) {
         if (questionIds == null || questionIds.isEmpty()) return List.of();
 
-        // 1) total skills ανά question (distinct) από το QuestionRepository
+        // 1) total skills ανά ερώτηση (distinct) από το QuestionRepository
         Map<Integer, Integer> totalByQ = new HashMap<>();
         for (Object[] row : questionRepository.countSkillsForQuestions(questionIds)) {
             Integer qid = ((Number) row[0]).intValue();
@@ -82,7 +92,7 @@ public class QuestionScoreService {
             totalByQ.put(qid, cnt);
         }
 
-        // 2) ratedSkills & average από SkillScore
+        // 2) ratedSkills & average από SkillScoreRepository (aggregate σε skill_score)
         Map<Integer, Integer> ratedByQ = new HashMap<>();
         Map<Integer, Double>  avgByQ   = new HashMap<>();
         if (interviewReportId != null) {
@@ -96,7 +106,7 @@ public class QuestionScoreService {
             }
         }
 
-        // 3) χρήση mapper (όχι manual new)
+        // 3) mapping σε DTO (με τον MapStruct mapper)
         List<QuestionMetricsItemDTO> out = new ArrayList<>(questionIds.size());
         for (Integer qid : questionIds) {
             int total = totalByQ.getOrDefault(qid, 0);
@@ -106,9 +116,26 @@ public class QuestionScoreService {
             Double avg = avgByQ.get(qid);
             if (avg != null) avgRounded = (int) Math.round(avg);
 
-            out.add(questionScoreMapper.toDto(qid, total, rated, avgRounded)); // <-- μόνο αυτό αλλάζει
+            out.add(questionScoreMapper.toDto(qid, total, rated, avgRounded));
         }
         return out;
     }
-}
 
+    /**
+     * Convenience: ίδια με το παραπάνω αλλά δέχεται candidateId.
+     * Βρίσκουμε εδώ το interviewReportId και ξαναχρησιμοποιούμε το getQuestionMetricsByReport.
+     * (Δεν αλλάζει τίποτα στη συμπεριφορά του controller σου—είναι απλώς βοηθητικό.)
+     */
+    public List<QuestionMetricsItemDTO> getQuestionMetricsByCandidate(Integer candidateId,
+                                                                      List<Integer> questionIds) {
+        if (candidateId == null) return List.of();
+        Candidate cand = candidateRepository.findById(candidateId)
+                .orElseThrow(() -> new IllegalStateException("Candidate " + candidateId + " does not exist"));
+
+        Integer interviewReportId = (cand.getInterviewReport() != null)
+                ? cand.getInterviewReport().getId()
+                : null;
+
+        return getQuestionMetricsByReport(interviewReportId, questionIds);
+    }
+}

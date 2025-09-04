@@ -5,10 +5,12 @@ public class OccupationAvgDto {
     private Double averageScore;
 
     public OccupationAvgDto() {}
+
     public OccupationAvgDto(String occupation, Double averageScore) {
         this.occupation = occupation;
         this.averageScore = averageScore;
     }
+
     public String getOccupation() { return occupation; }
     public void setOccupation(String occupation) { this.occupation = occupation; }
     public Double getAverageScore() { return averageScore; }

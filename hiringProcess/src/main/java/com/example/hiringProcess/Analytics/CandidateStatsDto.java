@@ -8,10 +8,6 @@ public class CandidateStatsDto {
     private List<StepAvgDto>      stepScores;      // per step
     private List<QuestionScoreDto> questionScores; // per question
     private List<SkillAvgDto>     skillScores;     // per skill
-
-    private double requiredSkillCoverage; // %
-    private double questionCoverage;      // %
-
     private List<SkillAvgDto> strengthProfile; // top 3 skills
     private List<SkillAvgDto> weaknessProfile; // bottom 3 skills
 
@@ -21,16 +17,12 @@ public class CandidateStatsDto {
                              List<StepAvgDto> stepScores,
                              List<QuestionScoreDto> questionScores,
                              List<SkillAvgDto> skillScores,
-                             double requiredSkillCoverage,
-                             double questionCoverage,
                              List<SkillAvgDto> strengthProfile,
                              List<SkillAvgDto> weaknessProfile) {
         this.overallScore = overallScore;
         this.stepScores = stepScores;
         this.questionScores = questionScores;
         this.skillScores = skillScores;
-        this.requiredSkillCoverage = requiredSkillCoverage;
-        this.questionCoverage = questionCoverage;
         this.strengthProfile = strengthProfile;
         this.weaknessProfile = weaknessProfile;
     }
@@ -46,12 +38,6 @@ public class CandidateStatsDto {
 
     public List<SkillAvgDto> getSkillScores() { return skillScores; }
     public void setSkillScores(List<SkillAvgDto> skillScores) { this.skillScores = skillScores; }
-
-    public double getRequiredSkillCoverage() { return requiredSkillCoverage; }
-    public void setRequiredSkillCoverage(double requiredSkillCoverage) { this.requiredSkillCoverage = requiredSkillCoverage; }
-
-    public double getQuestionCoverage() { return questionCoverage; }
-    public void setQuestionCoverage(double questionCoverage) { this.questionCoverage = questionCoverage; }
 
     public List<SkillAvgDto> getStrengthProfile() { return strengthProfile; }
     public void setStrengthProfile(List<SkillAvgDto> strengthProfile) { this.strengthProfile = strengthProfile; }
