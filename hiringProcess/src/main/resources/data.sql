@@ -51,7 +51,7 @@ INSERT INTO job_ad (id, title, description, publish_date, status, occupation_id,
 (14, 'DevOps Engineer', 'Manage CI/CD pipelines and infrastructure', '2025-08-06', 'Published', 12, 13),
 (15, 'Training Coordinator', 'Plan and manage employee training', '2025-08-06', 'Published', 13, 14),
 (16, 'ML Engineer', 'Develop and deploy machine learning models', '2025-08-06', 'Published', 14, 15),
-(17, 'Senior Backend Engineer', 'Lead our backend team with Java expertise', '2025-06-15', 'Complete', 6, 16),
+(17, 'Senior Backend Engineer', 'Lead our backend team with Java expertise', '2025-06-15', 'Published', 6, 16),
 (18, 'HR Operations Assistant', 'Assist in HR operations and tasks', '2025-07-10', 'Pending', 7, 17),
 (19, 'Junior Data Analyst', 'Assist with data cleansing and reporting', '2025-06-20', 'Complete', 8, 18),
 (20, 'React Developer (Intern)', 'Frontend internship with mentorship', '2025-07-01', 'Pending', 9, 19),
@@ -104,17 +104,19 @@ INSERT INTO interview_report (id, interview_id) VALUES
 (38, 21),
 (39, 21),
 (40, 22),
+(41, 22),
 (42, 22),
 (43, 23),
 (44, 23),
 (45, 24),
-(46, 24);
+(46, 24),
+(47, 24);
 
 -- === CANDIDATE ===
 INSERT INTO candidate (id, first_name, last_name, email, info, status, comments, job_ad_id, interview_report_id)
 VALUES
-(10, 'John', 'Doe', 'john@example.com', 'Experienced dev', 'Approved', 'Strong coding skills', 8, 9),
 -- JobAd 8: Backend Developer
+(10, 'John', 'Doe', 'john@example.com', 'Experienced dev', 'Approved', 'Strong coding skills', 8, 9),
 (11, 'Alice', 'Smith', 'alice.smith@example.com', 'Backend dev with 3y exp', 'Pending', 'Good Spring Boot knowledge', 8, 10),
 (12, 'Bob', 'Johnson', 'bob.j@example.com', 'Fullstack dev, prefers backend', 'Rejected', 'Weak in SQL', 8, 11),
 
@@ -160,7 +162,7 @@ VALUES
 
 -- JobAd 19: Junior Data Analyst
 (33, 'Kalliopi', 'Xenou', 'kalliopi.x@example.com', 'Math graduate', 'Pending', 'Strong statistics, weak SQL', 19, 32),
-(34, 'Leonidas', 'Fotiou', 'leonidas.f@example.com', 'Economics graduate', 'Approved', 'Excel wizard', 19, 33),
+(34, 'Leonidas', 'Fotiou', 'leonidas.f@example.com', 'Economics graduate', 'Hired', 'Excel wizard', 19, 33),
 
 -- JobAd 20: React Developer (Intern)
 (35, 'Georgia', 'Alexi', 'georgia.a@example.com', 'CS student', 'Pending', 'React basics covered', 20, 34),
@@ -168,7 +170,7 @@ VALUES
 
 -- JobAd 21: Recruiter (Freelance)
 (37, 'Eftychia', 'Marinou', 'eftychia.m@example.com', 'Freelance recruiter, 3y exp', 'Approved', 'Independent worker', 21, 36),
-(38, 'Kostas', 'Chatzis', 'kostas.c@example.com', 'Remote HR recruiter', 'Pending', 'Needs better sourcing tools', 21, 37),
+(38, 'Kostas', 'Chatzis', 'kostas.c@example.com', 'Remote HR recruiter', 'Hired', 'Needs better sourcing tools', 21, 37),
 
 -- JobAd 22: ETL Specialist
 (39, 'Natalia', 'Karagianni', 'natalia.k@example.com', 'ETL specialist, 4y exp', 'Approved', 'Excellent SQL pipelines', 22, 38),
@@ -176,6 +178,7 @@ VALUES
 
 -- JobAd 23: Site Reliability Engineer
 (41, 'Christina', 'Drosou', 'christina.d@example.com', 'SRE 5y exp', 'Approved', 'Solid incident management', 23, 40),
+(48, 'Maria', 'Papadopoulou', 'maria.p@example.com', 'Marketing specialist with 3 years experience', 'Hired', 'Insufficient digital marketing skills', 23, 41),
 (42, 'Dionysis', 'Panou', 'dionysis.p@example.com', 'Junior DevOps', 'Pending', 'Needs on-call experience', 23, 42),
 
 -- JobAd 24: L&D Coordinator
@@ -184,7 +187,8 @@ VALUES
 
 -- JobAd 25: AI Research Engineer
 (45, 'Markos', 'Filippou', 'markos.f@example.com', 'PhD ML researcher', 'Approved', 'Deep learning expert', 25, 45),
-(46, 'Irini', 'Kallergi', 'irini.k@example.com', 'AI MSc student', 'Rejected', 'Too junior for role', 25, 46);
+(46, 'Irini', 'Kallergi', 'irini.k@example.com', 'AI MSc student', 'Rejected', 'Too junior for role', 25, 46),
+(47, 'Eleni', 'Papadopoulou', 'eleni.p@example.com', 'Marketing specialist with 3 years experience', 'Hired', 'Insufficient digital marketing skills', 25,47);
 
 
 -- === STEP ===
@@ -325,7 +329,6 @@ INSERT INTO question (id, title, description, step_id, position) VALUES
 (96, 'Reproducibility', 'Replication plan', 57, 0),
 (97, 'Critique', 'Assess assumptions', 57, 1);
 
-
 -- === SKILL ===
 INSERT INTO skill (id, title, esco_id, score) VALUES
 (16, 'Java', 'java001', 0),
@@ -390,17 +393,222 @@ INSERT INTO question_skill (question_id, skill_id) VALUES
 (94,27),(95,27),
 (96,27),(97,27);
 
--- === STEP_SCORE ===
-INSERT INTO step_score (id, step_id, interview_report_id) VALUES
-(18, 11, 9),
-(19, 12, 9),
-(20, 17, 9);
+-- === CANDIDATE_SKILL_SCORE ===
 
--- === QUESTION_SCORE ===
---INSERT INTO question_score (id, question_id, step_score_id, score) VALUES
---(20, 13, 18, 9.0),
---(21, 14, 18, 8.5),
---(22, 15, 19, 7.0),
---(23, 16, 20, 8.0),
---(24, 17, 20, 7.5);
+--INSERT INTO skill_score (candidate_id, question_id, skill_id, score) VALUES
+---- JobAd 8 -> Interview 7
+--(10, 13, 16, 86), (10, 14, 17, 84), (10, 15, 28, 82), (10, 15, 30, 80),
+--(11, 13, 16, 75), (11, 14, 17, 66),
+--(12, 13, 16, 52), (12, 14, 17, 48), (12, 15, 28, 45),
+---- JobAd 9 -> Interview 8
+--(13, 18, 24, 82), (13, 18, 25, 84),
+--(14, 18, 24, 68),
+---- JobAd 10 -> Interview 9
+--(15, 20, 18, 88), (15, 20, 26, 85),
+--(16, 20, 18, 54),
+---- JobAd 11 -> Interview 10
+--(17, 22, 20, 72),
+--(18, 22, 20, 49),
+---- JobAd 12 -> Interview 11
+--(19, 28, 25, 85), (19, 28, 24, 82),
+--(20, 28, 25, 63),
+---- JobAd 13 -> Interview 12
+--(21, 34, 18, 86), (21, 34, 26, 83), (21, 37, 21, 81),
+--(22, 34, 18, 51), (22, 37, 21, 47),
+---- JobAd 14 -> Interview 13
+--(23, 40, 21, 87), (23, 40, 24, 84), (23, 42, 22, 85),
+--(24, 40, 21, 69),
+---- JobAd 15 -> Interview 14
+--(25, 46, 24, 85), (25, 46, 23, 83),
+--(26, 46, 24, 70),
+---- JobAd 16 -> Interview 15
+--(27, 50, 27, 88), (27, 50, 26, 84),
+--(28, 50, 27, 53),
+---- JobAd 17 -> Interview 16
+--(29, 56, 16, 77), (29, 60, 24, 68),
+--(30, 58, 21, 71),
+---- JobAd 18 -> Interview 17
+--(31, 62, 24, 84), (31, 62, 23, 82),
+--(32, 62, 24, 49),
+---- JobAd 19 -> Interview 18
+--(34, 66, 23, 94), (34, 66, 26, 92), (34, 68, 18, 90),
+--(33, 66, 23, 62), (33, 68, 18, 58),
+---- JobAd 20 -> Interview 19
+--(35, 70, 20, 73),
+--(36, 70, 20, 46),
+---- JobAd 21 -> Interview 20
+--(38, 76, 25, 93), (38, 75, 24, 90),
+--(37, 76, 25, 85), (37, 75, 24, 82),
+---- JobAd 22 -> Interview 21
+--(39, 78, 26, 86), (39, 78, 18, 84),
+--(40, 78, 26, 52),
+---- JobAd 23 -> Interview 22
+--(48, 82, 21, 92), (48, 82, 22, 90),
+--(41, 82, 21, 85), (41, 82, 22, 83),
+--(42, 82, 21, 71),
+---- JobAd 24 -> Interview 23
+--(44, 88, 24, 84), (44, 91, 23, 82),
+--(43, 88, 24, 69),
+---- JobAd 25 -> Interview 24
+--(47, 92, 27, 93), (47, 92, 23, 88),
+--(45, 92, 27, 86), (45, 92, 23, 82),
+--(46, 92, 27, 52);
+INSERT INTO skill_score (candidate_id, question_id, skill_id, score) VALUES
+-- JobAd 8 -> Interview 7
+-- Approved 10: συμπλήρωση System Design (Q16, Q17)
+(10, 16, 16, 85), (10, 16, 17, 83), (10, 17, 16, 84),
+-- Rejected 12: περισσότερα & χαμηλά
+(12, 15, 30, 42), (12, 16, 16, 40), (12, 17, 16, 28),
+
+-- JobAd 9 -> Interview 8
+-- Approved 13: Q19 έλειπε
+(13, 19, 24, 81),
+
+-- JobAd 10 -> Interview 9
+-- Approved 15: Q21 έλειπε
+(15, 21, 18, 86),
+-- Rejected 16: περισσότερα & χαμηλά
+(16, 21, 18, 52), (16, 20, 26, 10),
+
+-- JobAd 11 -> Interview 10
+-- Rejected 18: περισσότερα & χαμηλά
+(18, 22, 24, 45), (18, 23, 20, 47),
+
+-- JobAd 12 -> Interview 11
+-- Approved 19: συμπληρώνω όλες τις ερωτήσεις/skills του interview
+(19, 29, 25, 83),
+(19, 30, 25, 84), (19, 30, 24, 82),
+(19, 31, 24, 81),
+(19, 32, 25, 83),
+(19, 33, 24, 82),
+
+-- JobAd 13 -> Interview 12
+-- Approved 21: συμπλήρωση όλων
+(21, 35, 26, 82),
+(21, 36, 18, 83),
+(21, 38, 21, 80),
+(21, 39, 21, 79),
+-- Rejected 22: ένα ακόμη χαμηλό
+(22, 35, 26, 32),
+
+-- JobAd 14 -> Interview 13
+-- Approved 23: συμπλήρωση όλων
+(23, 41, 21, 82),
+(23, 44, 21, 82),
+(23, 45, 21, 81),
+
+-- JobAd 15 -> Interview 14
+-- Approved 25: συμπλήρωση όλων
+(25, 47, 24, 83),
+(25, 48, 24, 82),
+(25, 49, 23, 81),
+
+-- JobAd 16 -> Interview 15
+-- Approved 27: συμπλήρωση όλων
+(27, 51, 27, 86),
+(27, 52, 27, 85), (27, 52, 21, 82),
+(27, 53, 27, 84),
+(27, 54, 26, 83), (27, 54, 27, 85),
+(27, 55, 26, 82),
+-- Rejected 28: ένα ακόμη χαμηλό
+(28, 52, 27, 27),
+
+-- JobAd 17 -> Interview 16
+-- (Pending μόνο – καμία αλλαγή)
+
+-- JobAd 18 -> Interview 17
+-- Approved 31: συμπλήρωση όλων
+(31, 63, 24, 81),
+(31, 64, 24, 80),
+(31, 65, 24, 79),
+-- Rejected 32: ένα ακόμη χαμηλό
+(32, 63, 24, 15),
+
+-- JobAd 19 -> Interview 18
+-- Hired 34: συμπλήρωση Pivot & Aggregation
+(34, 67, 23, 93),
+(34, 69, 18, 91),
+
+-- JobAd 20 -> Interview 19
+-- Rejected 36: λίγο ακόμη, χαμηλά
+(36, 71, 20, 25),
+
+-- JobAd 21 -> Interview 20
+-- Hired 38: όλες οι ερωτήσεις (74 & 77 έλειπαν)
+(38, 74, 25, 92), (38, 74, 24, 90), (38, 77, 25, 91),
+-- Approved 37: όλες με ελαφρώς χαμηλότερα από τον Hired
+(37, 74, 25, 80), (37, 74, 24, 78), (37, 77, 25, 81),
+
+-- JobAd 22 -> Interview 21
+-- Approved 39: συμπλήρωση όλων
+(39, 79, 26, 84),
+(39, 80, 26, 83),
+(39, 81, 26, 82),
+-- Rejected 40: ένα ακόμη χαμηλό
+(40, 79, 26, 10),
+
+-- JobAd 23 -> Interview 22
+-- Hired 48: συμπλήρωση 83–87
+(48, 83, 21, 91),
+(48, 84, 21, 89), (48, 84, 24, 90),
+(48, 85, 24, 88),
+(48, 86, 21, 90),
+(48, 87, 21, 89),
+-- Approved 41: συμπλήρωση 83–87 με καλές τιμές
+(41, 83, 21, 82),
+(41, 84, 21, 81), (41, 84, 24, 80),
+(41, 85, 24, 79),
+(41, 86, 21, 81),
+(41, 87, 21, 80),
+
+-- JobAd 24 -> Interview 23
+-- Approved 44: συμπλήρωση 89 και 90
+(44, 89, 24, 80),
+(44, 90, 24, 79),
+
+-- JobAd 25 -> Interview 24
+-- Hired 47: συμπλήρωση 93–97
+(47, 93, 27, 94),
+(47, 94, 27, 95),
+(47, 95, 27, 94),
+(47, 96, 27, 93),
+(47, 97, 27, 93),
+-- Approved 45: συμπλήρωση 93–97 (λίγο χαμηλότερα)
+(45, 93, 27, 84),
+(45, 94, 27, 85),
+(45, 95, 27, 84),
+(45, 96, 27, 83),
+(45, 97, 27, 83),
+-- Rejected 46: ένα ακόμη χαμηλό
+(46, 93, 27, 20);
+
+-- TOP-UP: συμπλήρωσε Ο,ΤΙ λείπει για Approved/Hired ώστε ΟΛΑ τα skills να είναι rated
+-- (Χωρίς διπλοεγγραφές: εισάγει μόνο όσα δεν υπάρχουν)
+INSERT INTO skill_score (candidate_id, question_id, skill_id, score, rated_at, rated_by, comment)
+SELECT
+    c.id                                        AS candidate_id,
+    q.id                                        AS question_id,
+    qs.skill_id                                 AS skill_id,
+    CASE
+        WHEN c.status = 'Hired'    THEN 90 + MOD(q.id + c.id, 8)      -- 90–97
+        WHEN c.status = 'Approved' THEN 82 + MOD(q.id + c.id, 8)      -- 82–89
+        ELSE 0
+    END                                          AS score,
+    CURRENT_TIMESTAMP                            AS rated_at,
+    'seed'                                       AS rated_by,
+    NULL                                         AS comment
+FROM candidate c
+JOIN job_ad ja         ON c.job_ad_id = ja.id
+JOIN interview i       ON ja.interview_id = i.id
+JOIN step s            ON s.interview_id = i.id
+JOIN question q        ON q.step_id = s.id
+JOIN question_skill qs ON qs.question_id = q.id
+WHERE c.status IN ('Approved','Hired')
+  AND NOT EXISTS (
+        SELECT 1
+        FROM skill_score ss
+        WHERE ss.candidate_id = c.id
+          AND ss.question_id  = q.id
+          AND ss.skill_id     = qs.skill_id
+  );
 

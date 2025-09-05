@@ -1,5 +1,6 @@
 package com.example.hiringProcess.Candidate;
 
+import com.example.hiringProcess.JobAd.JobAd;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -154,6 +155,46 @@ public class CandidateService {
         // @Transactional -> δεν χρειάζεται ρητό save()
     }
 
+    @Transactional
+    public CandidateAndJobAdStatusDTO hireCandidate(Integer candidateId) {
+        Candidate cand = candidateRepository.findById(candidateId)
+                .orElseThrow(() -> new IllegalStateException("Candidate not found"));
+
+        JobAd job = cand.getJobAd();
+        if (job == null) {
+            throw new IllegalStateException("Candidate not linked to a JobAd");
+        }
+
+        // ✅ Idempotent check
+        if ("Hired".equalsIgnoreCase(cand.getStatus()) &&
+                "Complete".equalsIgnoreCase(job.getStatus())) {
+            return new CandidateAndJobAdStatusDTO(
+                    cand.getId(),
+                    cand.getStatus(),
+                    job.getId(),
+                    job.getStatus()
+            );
+        }
+
+        // Validations
+        if ("Complete".equalsIgnoreCase(job.getStatus())) {
+            throw new IllegalStateException("JobAd already complete");
+        }
+        if (!"Approved".equalsIgnoreCase(cand.getStatus())) {
+            throw new IllegalStateException("Only Approved candidates can be hired");
+        }
+
+        // Updates
+        cand.setStatus("Hired");
+        job.setStatus("Complete");
+
+        return new CandidateAndJobAdStatusDTO(
+                cand.getId(),
+                cand.getStatus(),
+                job.getId(),
+                job.getStatus()
+        );
+    }
 
     /**
      * Επιστρέφει όλους τους υποψηφίους του jobAd μαζί με την τελική τους βαθμολογία,

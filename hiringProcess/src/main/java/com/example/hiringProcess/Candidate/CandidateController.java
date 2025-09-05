@@ -400,6 +400,11 @@ public class CandidateController {
         return null;
     }
 
+    @PostMapping("/{id}/hire")
+    public CandidateAndJobAdStatusDTO hireCandidate(@PathVariable Integer id) {
+        return candidateService.hireCandidate(id);
+    }
+
     /** Αφαίρεση “περίεργων” χαρακτήρων από το όνομα αρχείου */
     private String sanitize(String s) {
         return s == null ? "candidate"
