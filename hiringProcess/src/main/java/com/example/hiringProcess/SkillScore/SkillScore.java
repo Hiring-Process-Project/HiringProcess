@@ -4,6 +4,8 @@ import com.example.hiringProcess.Candidate.Candidate;
 import com.example.hiringProcess.Question.Question;
 import com.example.hiringProcess.Skill.Skill;
 import jakarta.persistence.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.Instant;
 
@@ -31,6 +33,8 @@ public class SkillScore {
     private Long id;
 
     @ManyToOne(optional = false) @JoinColumn(name = "candidate_id")
+    @OnDelete(action = OnDeleteAction.CASCADE) // ζητά DB-level cascade
+
     private Candidate candidate;
 
     @ManyToOne(optional = false) @JoinColumn(name = "question_id")
