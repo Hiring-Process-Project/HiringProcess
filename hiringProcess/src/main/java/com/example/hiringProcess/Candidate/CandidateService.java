@@ -101,12 +101,6 @@ public class CandidateService {
             candidate.setCvPath(updatedFields.getCvPath());
         }
 
-        if (updatedFields.getInfo() != null &&
-                !updatedFields.getInfo().isEmpty() &&
-                !Objects.equals(candidate.getInfo(), updatedFields.getInfo())) {
-            candidate.setInfo(updatedFields.getInfo());
-        }
-
         if (updatedFields.getStatus() != null &&
                 !Objects.equals(candidate.getStatus(), updatedFields.getStatus())) {
             candidate.setStatus(updatedFields.getStatus());
@@ -152,7 +146,6 @@ public class CandidateService {
         if (dto != null) {
             candidateMapper.updateStatusFromDto(dto, candidate); // μόνο status
         }
-        // @Transactional -> δεν χρειάζεται ρητό save()
     }
 
     @Transactional
@@ -165,36 +158,40 @@ public class CandidateService {
             throw new IllegalStateException("Candidate not linked to a JobAd");
         }
 
-        // ✅ Idempotent check
-        if ("Hired".equalsIgnoreCase(cand.getStatus()) &&
-                "Complete".equalsIgnoreCase(job.getStatus())) {
+        // Idempotent ανά υποψήφιο
+        if ("Hired".equalsIgnoreCase(cand.getStatus())) {
+            long hiredCountNow = candidateRepository.countByJobAd_IdAndStatusIgnoreCase(job.getId(), "Hired");
             return new CandidateAndJobAdStatusDTO(
                     cand.getId(),
                     cand.getStatus(),
                     job.getId(),
-                    job.getStatus()
+                    job.getStatus(),
+                    hiredCountNow
             );
         }
 
-        // Validations
-        if ("Complete".equalsIgnoreCase(job.getStatus())) {
-            throw new IllegalStateException("JobAd already complete");
-        }
+        // Επιτρέπουμε hire μόνο από Approved
         if (!"Approved".equalsIgnoreCase(cand.getStatus())) {
             throw new IllegalStateException("Only Approved candidates can be hired");
         }
 
-        // Updates
+        // Κάνε hire τον υποψήφιο
         cand.setStatus("Hired");
-        job.setStatus("Complete");
+
+        // ΔΕΝ αλλάζουμε πλέον το job σε Complete εδώ (ώστε να επιτρέπονται πολλαπλά hires)
+        // job.setStatus("Complete");
+
+        long hiredCountAfter = candidateRepository.countByJobAd_IdAndStatusIgnoreCase(job.getId(), "Hired");
 
         return new CandidateAndJobAdStatusDTO(
                 cand.getId(),
                 cand.getStatus(),
                 job.getId(),
-                job.getStatus()
+                job.getStatus(),
+                hiredCountAfter
         );
     }
+
 
     /**
      * Επιστρέφει όλους τους υποψηφίους του jobAd μαζί με την τελική τους βαθμολογία,

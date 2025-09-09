@@ -324,10 +324,11 @@ public class AnalyticsRepository {
     }
 
     // Υπολογίζει τον Μ.Ο. τελικού score υποψηφίου σε ΚΛΙΜΑΚΑ 0–10 για dept+occupation
+    // Μ.Ο. τελικού score υποψηφίου σε ΚΛΙΜΑΚΑ 0–100 για dept+occupation
     public List<Double> candidateAvgScoresByDeptOcc(int deptId, int occId) {
         String sql = """
     WITH q AS (
-      SELECT c.id AS cid, AVG(qs.score) AS avg10      -- question_score 0..10
+      SELECT c.id AS cid, AVG(qs.score) * 10.0 AS avg100      -- question_score 0..10 -> 0..100
       FROM candidate c
       JOIN job_ad ja           ON ja.id = c.job_ad_id
       JOIN jobad_department jd ON jd.jobad_id = ja.id
@@ -338,7 +339,7 @@ public class AnalyticsRepository {
       GROUP BY c.id
     ),
     s AS (
-      SELECT c.id AS cid, AVG(ss.score) / 10.0 AS avg10   -- skill_score 0..100 -> 0..10
+      SELECT c.id AS cid, AVG(ss.score) AS avg100             -- skill_score 0..100 as-is
       FROM candidate c
       JOIN job_ad ja           ON ja.id = c.job_ad_id
       JOIN jobad_department jd ON jd.jobad_id = ja.id
@@ -346,7 +347,7 @@ public class AnalyticsRepository {
       WHERE jd.department_id = :deptId AND ja.occupation_id = :occId
       GROUP BY c.id
     )
-    SELECT COALESCE(q.avg10, s.avg10) AS avg10
+    SELECT COALESCE(q.avg100, s.avg100) AS avg100
     FROM (
       SELECT c.id
       FROM candidate c
@@ -356,29 +357,32 @@ public class AnalyticsRepository {
     ) cands
     LEFT JOIN q ON q.cid = cands.id
     LEFT JOIN s ON s.cid = cands.id
-    WHERE COALESCE(q.avg10, s.avg10) IS NOT NULL
+    WHERE COALESCE(q.avg100, s.avg100) IS NOT NULL
     """;
-        return jdbc.query(sql, Map.of("deptId", deptId, "occId", occId), (rs, i) -> rs.getDouble("avg10"));
+        return jdbc.query(sql, Map.of("deptId", deptId, "occId", occId), (rs, i) -> rs.getDouble("avg100"));
     }
+
 
     // Eπιστρέφει για το συγκεκριμενο occupation λίστα με τον μέσο (κανονικοποιημένο σε 0–10)
     // βαθμό υποψηφίων ανά αγγελία, ταξινομημένη αυξάνουσα.
+    // Λίστα με Μ.Ο. (0–100) υποψηφίων ανά αγγελία, ταξινομημένη αυξ.
     public List<JobAdAvgDto> jobAdDifficultyByDeptOcc(int deptId, int occId) {
         String sql = """
     WITH scale AS (
+      -- Αν τα δεδομένα είναι ήδη 0..100 -> συντελεστής 1.0, αλλιώς (0..10) -> 10.0
       SELECT
-        CASE WHEN (SELECT COALESCE(MAX(score),0) FROM question_score) > 10 THEN 0.1 ELSE 1.0 END AS qf,
-        CASE WHEN (SELECT COALESCE(MAX(score),0) FROM skill_score)    > 10 THEN 0.1 ELSE 1.0 END AS sf
+        CASE WHEN (SELECT COALESCE(MAX(score),0) FROM question_score) > 10 THEN 1.0 ELSE 10.0 END AS qf100,
+        CASE WHEN (SELECT COALESCE(MAX(score),0) FROM skill_score)    > 10 THEN 1.0 ELSE 10.0 END AS sf100
     ),
     cand_avg AS (
       SELECT
         c.id AS cand_id,
         c.job_ad_id,
         CASE
-          WHEN COUNT(qs.score) > 0 THEN AVG(qs.score) * (SELECT qf FROM scale)
-          WHEN COUNT(ss.score) > 0 THEN AVG(ss.score) * (SELECT sf FROM scale)
+          WHEN COUNT(qs.score) > 0 THEN AVG(qs.score) * (SELECT qf100 FROM scale)   -- 0..10 -> 0..100
+          WHEN COUNT(ss.score) > 0 THEN AVG(ss.score) * (SELECT sf100 FROM scale)   -- 0..100 as-is
           ELSE NULL
-        END AS avg10
+        END AS avg100
       FROM candidate c
       JOIN job_ad ja           ON ja.id = c.job_ad_id
       JOIN jobad_department jd ON jd.jobad_id = ja.id
@@ -390,15 +394,16 @@ public class AnalyticsRepository {
       GROUP BY c.id, c.job_ad_id
       HAVING COUNT(qs.score) > 0 OR COUNT(ss.score) > 0
     )
-    SELECT ja.title AS job_ad, AVG(ca.avg10) AS avg_score
+    SELECT ja.title AS job_ad, AVG(ca.avg100) AS avg_score
     FROM cand_avg ca
     JOIN job_ad ja ON ja.id = ca.job_ad_id
-    WHERE ca.avg10 IS NOT NULL
-    GROUP BY ja.title
+    WHERE ca.avg100 IS NOT NULL
+    GROUP BY ja.id, ja.title         -- 🔒 μην ενώσεις αγγελίες με ίδιο title
     ORDER BY avg_score ASC
     """;
         return jdbc.query(sql, Map.of("deptId", deptId, "occId", occId), AnalyticsMapper.JOBAD_AVG);
     }
+
 
     /* ======================  JOB AD  ====================== */
 
@@ -413,16 +418,6 @@ public class AnalyticsRepository {
         return n == null ? 0L : n;
     }
 
-    // Μετρά τους υποψήφιους με συγκεκριμένο status στο συγκεκριμένο job ad
-//    public long countCandidatesByStatusJobAd(int jobAdId, String status) {
-//        String sql = """
-//        SELECT COUNT(c.id)
-//        FROM candidate c
-//        WHERE c.job_ad_id = :jobAdId AND c.status = :status
-//        """;
-//        Long n = jdbc.queryForObject(sql, Map.of("jobAdId", jobAdId, "status", status), Long.class);
-//        return n == null ? 0L : n;
-//    }
     // Κράτα αυτή τη μέθοδο αλλά κάν’ την case-insensitive
     public long countCandidatesByStatusJobAd(int jobAdId, String status) {
         String sql = """
@@ -438,10 +433,11 @@ public class AnalyticsRepository {
 
     // Υπολογίζει την κατανομή (histogram) των μέσων βαθμών υποψηφίων σε buckets 0–9, 10–19, … για συγκεκριμένο Job Ad
     // 0..10 per-candidate averages (QS as-is, SS/10)
+    // Υπολογίζει την κατανομή των μέσων βαθμών υποψηφίων σε 0–100 (QS×10, SS as-is)
     public List<Double> candidateAvgScoresByJobAd(int jobAdId) {
         String sql = """
     WITH q AS (
-      SELECT c.id AS cid, AVG(qs.score) AS avg10           -- question_score 0..10
+      SELECT c.id AS cid, AVG(qs.score) * 10.0 AS avg100      -- question_score 0..10 -> 0..100
       FROM candidate c
       LEFT JOIN interview_report ir ON ir.id = c.interview_report_id
       LEFT JOIN step_score sr       ON sr.interview_report_id = ir.id
@@ -450,118 +446,126 @@ public class AnalyticsRepository {
       GROUP BY c.id
     ),
     s AS (
-      SELECT c.id AS cid, AVG(ss.score) / 10.0 AS avg10    -- skill_score 0..100 -> 0..10
+      SELECT c.id AS cid, AVG(ss.score) AS avg100             -- skill_score 0..100 as-is
       FROM candidate c
       LEFT JOIN skill_score ss ON ss.candidate_id = c.id
       WHERE c.job_ad_id = :jobAdId
       GROUP BY c.id
     )
-    SELECT COALESCE(q.avg10, s.avg10) AS avg10
+    SELECT COALESCE(q.avg100, s.avg100) AS avg100
     FROM candidate c
     LEFT JOIN q ON q.cid = c.id
     LEFT JOIN s ON s.cid = c.id
     WHERE c.job_ad_id = :jobAdId
-      AND COALESCE(q.avg10, s.avg10) IS NOT NULL
+      AND COALESCE(q.avg100, s.avg100) IS NOT NULL
     """;
-        return jdbc.query(sql, Map.of("jobAdId", jobAdId), (rs, i) -> rs.getDouble("avg10"));
+        return jdbc.query(sql, Map.of("jobAdId", jobAdId), (rs, i) -> rs.getDouble("avg100"));
     }
 
     // Υπολογίζει τον μέσο βαθμό ανά step της αγγελίας (χαμηλότερο = δυσκολότερο)
     public List<StepAvgDto> stepDifficultyByJobAd(int jobAdId) {
         String sql = """
-                WITH scale AS (
-                  SELECT CASE WHEN (SELECT COALESCE(MAX(score),0) FROM skill_score) > 10
-                              THEN 0.1 ELSE 1.0 END AS sf
-                ),
-                -- βαθμός ανά ΥΠΟΨΗΦΙΟ + ΕΡΩΤΗΣΗ από τα skill scores των skills της ερώτησης
-                cand_q AS (
-                  SELECT
-                    st.title              AS step,
-                    c.id                  AS cand_id,
-                    q.id                  AS question_id,
-                    AVG(ss.score) * (SELECT sf FROM scale) AS qscore10
-                  FROM candidate c
-                  JOIN job_ad ja            ON ja.id = c.job_ad_id
-                  JOIN step st              ON st.interview_id = ja.interview_id
-                  JOIN question q           ON q.step_id = st.id
-                  JOIN question_skill qsk   ON qsk.question_id = q.id
-                  JOIN skill_score ss       ON ss.candidate_id = c.id
-                                            AND ss.skill_id     = qsk.skill_id
-                  WHERE c.job_ad_id = :jobAdId
-                  GROUP BY st.title, c.id, q.id
-                )
-                SELECT step, AVG(qscore10) AS avg_score
-                FROM cand_q
-                GROUP BY step
-                HAVING COUNT(qscore10) > 0
-                ORDER BY step
-                """;
+        WITH scale AS (
+          -- Αν οι βαθμοί είναι 0..100 -> 1.0, αλλιώς (0..10) -> 10.0
+          SELECT CASE WHEN (SELECT COALESCE(MAX(score),0) FROM skill_score) > 10
+                      THEN 1.0 ELSE 10.0 END AS sf100
+        ),
+        cand_q AS (
+          SELECT
+            st.id                 AS step_id,
+            st.title              AS step,
+            c.id                  AS cand_id,
+            q.id                  AS question_id,
+            AVG(ss.score) * (SELECT sf100 FROM scale) AS qscore100
+          FROM candidate c
+          JOIN job_ad ja            ON ja.id = c.job_ad_id
+          JOIN step st              ON st.interview_id = ja.interview_id
+          JOIN question q           ON q.step_id = st.id
+          JOIN question_skill qsk   ON qsk.question_id = q.id
+          JOIN skill_score ss       ON ss.candidate_id = c.id
+                                   AND ss.skill_id     = qsk.skill_id
+                                   AND ss.question_id  = q.id
+          WHERE c.job_ad_id = :jobAdId
+          GROUP BY st.id, st.title, c.id, q.id
+        )
+        SELECT step, AVG(qscore100) AS avg_score
+        FROM cand_q
+        GROUP BY step
+        HAVING COUNT(qscore100) > 0
+        ORDER BY step
+        """;
         return jdbc.query(sql, Map.of("jobAdId", jobAdId), AnalyticsMapper.STEP_AVG);
     }
+
+
 
     // Υπολογίζει τον μέσο βαθμό ανά question της αγγελίας (χαμηλότερο = δυσκολότερο)
     public List<QuestionAvgDto> questionDifficultyByJobAd(int jobAdId) {
         String sql = """
-                WITH scale AS (
-                  SELECT CASE WHEN (SELECT COALESCE(MAX(score),0) FROM skill_score) > 10
-                              THEN 0.1 ELSE 1.0 END AS sf
-                ),
-                cand_q AS (
-                  SELECT
-                    q.id    AS question_id,
-                    q.title AS question,
-                    c.id    AS cand_id,
-                    AVG(ss.score) * (SELECT sf FROM scale) AS qscore10
-                  FROM candidate c
-                  JOIN job_ad ja            ON ja.id = c.job_ad_id
-                  JOIN step st              ON st.interview_id = ja.interview_id
-                  JOIN question q           ON q.step_id = st.id
-                  JOIN question_skill qsk   ON qsk.question_id = q.id
-                  JOIN skill_score ss       ON ss.candidate_id = c.id
-                                            AND ss.skill_id     = qsk.skill_id
-                  WHERE c.job_ad_id = :jobAdId
-                  GROUP BY q.id, q.title, c.id
-                )
-                SELECT question, AVG(qscore10) AS avg_score
-                FROM cand_q
-                GROUP BY question
-                HAVING COUNT(qscore10) > 0
-                ORDER BY avg_score ASC, question
-                """;
+        WITH scale AS (
+          SELECT CASE WHEN (SELECT COALESCE(MAX(score),0) FROM skill_score) > 10
+                      THEN 1.0 ELSE 10.0 END AS sf100
+        ),
+        cand_q AS (
+          SELECT
+            q.id    AS question_id,
+            q.title AS question,
+            c.id    AS cand_id,
+            AVG(ss.score) * (SELECT sf100 FROM scale) AS qscore100
+          FROM candidate c
+          JOIN job_ad ja            ON ja.id = c.job_ad_id
+          JOIN step st              ON st.interview_id = ja.interview_id
+          JOIN question q           ON q.step_id = st.id
+          JOIN question_skill qsk   ON qsk.question_id = q.id
+          JOIN skill_score ss       ON ss.candidate_id = c.id
+                                   AND ss.skill_id     = qsk.skill_id
+                                   AND ss.question_id  = q.id
+          WHERE c.job_ad_id = :jobAdId
+          GROUP BY q.id, q.title, c.id
+        )
+        SELECT question, AVG(qscore100) AS avg_score
+        FROM cand_q
+        GROUP BY question
+        HAVING COUNT(qscore100) > 0
+        ORDER BY avg_score ASC, question
+        """;
         return jdbc.query(sql, Map.of("jobAdId", jobAdId), AnalyticsMapper.QUESTION_AVG);
     }
 
     // Υπολογίζει τον μέσο βαθμό ανά skill της αγγελίας (χαμηλότερο = δυσκολότερο)
     public List<SkillAvgDto> skillDifficultyByJobAd(int jobAdId) {
         String sql = """
-                WITH scale AS (
-                  SELECT CASE WHEN (SELECT COALESCE(MAX(score),0) FROM skill_score) > 10
-                              THEN 0.1 ELSE 1.0 END AS sf
-                ),
-                -- per-candidate per-skill (για να μην “μετράει διπλά” όταν μια δεξιότητα εμφανίζεται σε πολλές ερωτήσεις)
-                cand_skill AS (
-                  SELECT
-                    qsk.skill_id,
-                    c.id AS cand_id,
-                    AVG(ss.score) * (SELECT sf FROM scale) AS score10
-                  FROM candidate c
-                  JOIN job_ad ja            ON ja.id = c.job_ad_id
-                  JOIN step st              ON st.interview_id = ja.interview_id
-                  JOIN question q           ON q.step_id = st.id
-                  JOIN question_skill qsk   ON qsk.question_id = q.id
-                  JOIN skill_score ss       ON ss.candidate_id = c.id
-                                           AND ss.skill_id     = qsk.skill_id
-                  WHERE c.job_ad_id = :jobAdId
-                  GROUP BY qsk.skill_id, c.id
-                )
-                SELECT sk.title AS skill, AVG(cs.score10) AS avg_score
-                FROM cand_skill cs
-                JOIN skill sk ON sk.id = cs.skill_id
-                GROUP BY sk.title
-                ORDER BY avg_score ASC
-                """;
+        WITH scale AS (
+          SELECT CASE WHEN (SELECT COALESCE(MAX(score),0) FROM skill_score) > 10
+                      THEN 1.0 ELSE 10.0 END AS sf100
+        ),
+        -- per-candidate per-skill (ίσο βάρος ανά υποψήφιο)
+        cand_skill AS (
+          SELECT
+            qsk.skill_id,
+            c.id AS cand_id,
+            AVG(ss.score) * (SELECT sf100 FROM scale) AS score100
+          FROM candidate c
+          JOIN job_ad ja            ON ja.id = c.job_ad_id
+          JOIN step st              ON st.interview_id = ja.interview_id
+          JOIN question q           ON q.step_id = st.id
+          JOIN question_skill qsk   ON qsk.question_id = q.id
+          JOIN skill_score ss       ON ss.candidate_id = c.id
+                                   AND ss.skill_id     = qsk.skill_id
+                                   AND ss.question_id  = q.id
+          WHERE c.job_ad_id = :jobAdId
+          GROUP BY qsk.skill_id, c.id
+        )
+        SELECT sk.title AS skill, AVG(cs.score100) AS avg_score
+        FROM cand_skill cs
+        JOIN skill sk ON sk.id = cs.skill_id
+        GROUP BY sk.id, sk.title
+        ORDER BY avg_score ASC
+        """;
         return jdbc.query(sql, Map.of("jobAdId", jobAdId), AnalyticsMapper.SKILL_AVG);
     }
+
+
 
     /* ======================  CANDIDATE  ====================== */
 
@@ -740,8 +744,8 @@ public class AnalyticsRepository {
       JOIN question q  ON q.step_id = st.id
       WHERE ja.id = :jobAdId
     ),
-    qs AS (          -- σκορ από question_score
-      SELECT c.id AS cand_id, qs.question_id AS qid, AVG(qs.score) AS sc
+    qs AS (          -- από question_score (0–10 -> 0–100)
+      SELECT c.id AS cand_id, qs.question_id AS qid, AVG(qs.score)*10.0 AS sc
       FROM candidate c
       JOIN interview_report ir ON ir.id = c.interview_report_id
       JOIN step_score sr       ON sr.interview_report_id = ir.id AND sr.step_id = :stepId
@@ -749,8 +753,8 @@ public class AnalyticsRepository {
       WHERE c.job_ad_id = :jobAdId
       GROUP BY c.id, qs.question_id
     ),
-    ss AS (          -- σκορ από skill_score (0..100 -> 0..10)
-      SELECT c.id AS cand_id, q.id AS qid, AVG(ss.score)/10.0 AS sc
+    ss AS (          -- από skill_score (ήδη 0–100)
+      SELECT c.id AS cand_id, q.id AS qid, AVG(ss.score) AS sc
       FROM candidate c
       JOIN job_ad ja   ON ja.id = c.job_ad_id
       JOIN interview i ON i.id = ja.interview_id
@@ -773,10 +777,11 @@ public class AnalyticsRepository {
     }
 
     // Επιστρέφει τον μέσο όρο (για το συγκεκριμένο step) ανά υποψήφιο του job ad – για pass rate & histogram.
+    // Επιστρέφει τον μέσο όρο (για το συγκεκριμένο step) ανά υποψήφιο του job ad – 0–100
     public List<Double> candidateStepAverages(int jobAdId, int stepId) {
         String sql = """
         WITH qs AS (
-          SELECT c.id AS cid, AVG(qs.score) AS sc
+          SELECT c.id AS cid, AVG(qs.score)*10.0 AS sc
           FROM candidate c
           JOIN job_ad ja            ON ja.id = c.job_ad_id
           JOIN interview_report ir  ON ir.id = c.interview_report_id
@@ -786,7 +791,7 @@ public class AnalyticsRepository {
           GROUP BY c.id
         ),
         ss AS (
-          SELECT c.id AS cid, AVG(ss.score) / 10.0 AS sc
+          SELECT c.id AS cid, AVG(ss.score) AS sc
           FROM candidate c
           JOIN job_ad ja   ON ja.id = c.job_ad_id
           JOIN interview i ON i.id = ja.interview_id
@@ -809,10 +814,12 @@ public class AnalyticsRepository {
                 (rs, i) -> rs.getObject(1) == null ? null : rs.getDouble(1));
     }
 
+
     // Κατάταξη των questions του step (ευκολότερη -> δυσκολότερη)
+    // Κατάταξη των questions του step (ευκολότερη -> δυσκολότερη) σε 0–100
     public List<QuestionAvgDto> questionRankingByStep(int jobAdId, int stepId) {
         String sqlQs = """
-        SELECT q.title AS question, AVG(qs.score) AS avg_score
+        SELECT q.title AS question, AVG(qs.score)*10.0 AS avg_score
         FROM job_ad ja
         JOIN interview i  ON i.id = ja.interview_id
         JOIN step st      ON st.interview_id = i.id AND st.id = :stepId
@@ -823,13 +830,13 @@ public class AnalyticsRepository {
         JOIN question_score qs ON qs.step_score_id = sr.id AND qs.question_id = q.id
         WHERE ja.id = :jobAdId
         GROUP BY q.title
-        ORDER BY AVG(qs.score) DESC
+        ORDER BY AVG(qs.score)*10.0 DESC
     """;
         var fromQs = jdbc.query(sqlQs, Map.of("jobAdId", jobAdId, "stepId", stepId), AnalyticsMapper.QUESTION_AVG);
         if (!fromQs.isEmpty()) return fromQs;
 
         String sqlSs = """
-        SELECT q.title AS question, AVG(ss.score) / 10.0 AS avg_score
+        SELECT q.title AS question, AVG(ss.score) AS avg_score
         FROM job_ad ja
         JOIN interview i  ON i.id = ja.interview_id
         JOIN step st      ON st.interview_id = i.id AND st.id = :stepId
@@ -841,15 +848,17 @@ public class AnalyticsRepository {
                            AND ss.question_id  = q.id
         WHERE ja.id = :jobAdId
         GROUP BY q.title
-        ORDER BY AVG(ss.score) / 10.0 DESC
+        ORDER BY AVG(ss.score) DESC
     """;
         return jdbc.query(sqlSs, Map.of("jobAdId", jobAdId, "stepId", stepId), AnalyticsMapper.QUESTION_AVG);
     }
 
+
     // Κατάταξη των skills του step (ευκολότερη -> δυσκολότερη)
+    // Κατάταξη των skills του step (ευκολότερη -> δυσκολότερη) σε 0–100
     public List<SkillAvgDto> skillRankingByStep(int jobAdId, int stepId) {
         String sqlQs = """
-        SELECT s.title AS skill, AVG(qs.score) AS avg_score
+        SELECT s.title AS skill, AVG(qs.score)*10.0 AS avg_score
         FROM job_ad ja
         JOIN interview i  ON i.id = ja.interview_id
         JOIN step st      ON st.interview_id = i.id AND st.id = :stepId
@@ -862,13 +871,13 @@ public class AnalyticsRepository {
         JOIN question_score qs ON qs.step_score_id = sr.id AND qs.question_id = q.id
         WHERE ja.id = :jobAdId
         GROUP BY s.title
-        ORDER BY AVG(qs.score) DESC
+        ORDER BY AVG(qs.score)*10.0 DESC
     """;
         var fromQs = jdbc.query(sqlQs, Map.of("jobAdId", jobAdId, "stepId", stepId), AnalyticsMapper.SKILL_AVG);
         if (!fromQs.isEmpty()) return fromQs;
 
         String sqlSs = """
-        SELECT s.title AS skill, AVG(ss.score) / 10.0 AS avg_score
+        SELECT s.title AS skill, AVG(ss.score) AS avg_score
         FROM job_ad ja
         JOIN interview i  ON i.id = ja.interview_id
         JOIN step st      ON st.interview_id = i.id AND st.id = :stepId
@@ -881,26 +890,26 @@ public class AnalyticsRepository {
                            AND ss.question_id  = q.id
         WHERE ja.id = :jobAdId
         GROUP BY s.title
-        ORDER BY AVG(ss.score) / 10.0 DESC
+        ORDER BY AVG(ss.score) DESC
     """;
         return jdbc.query(sqlSs, Map.of("jobAdId", jobAdId, "stepId", stepId), AnalyticsMapper.SKILL_AVG);
     }
 
+
     /* ======================  QUESTIONS  ====================== */
 
     // Επιστρέφει το Avg score της συγκεκριμένης ερώτησης στο context ενός job ad (0..10)
+    // Επιστρέφει το Avg score της συγκεκριμένης ερώτησης στο context ενός job ad (0..100)
     public Double avgScoreForQuestionInJobAd(int jobAdId, int questionId) {
         String sql = """
     WITH pairs AS (
-      -- Όλα τα candidate ids του job ad για την ερώτηση
       SELECT DISTINCT c.id AS cand_id
       FROM job_ad ja
       JOIN candidate c ON c.job_ad_id = ja.id
       WHERE ja.id = :jobAdId
     ),
-    qs AS (
-      -- QS ανά υποψήφιο για τη συγκεκριμένη ερώτηση
-      SELECT c.id AS cand_id, AVG(qs.score) AS sc
+    qs AS (  -- QS ανά υποψήφιο (0..10 -> 0..100)
+      SELECT c.id AS cand_id, AVG(qs.score)*10.0 AS sc
       FROM candidate c
       JOIN interview_report ir ON ir.id = c.interview_report_id
       JOIN step_score sr       ON sr.interview_report_id = ir.id
@@ -908,9 +917,8 @@ public class AnalyticsRepository {
       WHERE c.job_ad_id = :jobAdId AND qs.question_id = :qid
       GROUP BY c.id
     ),
-    ss AS (
-      -- SS ανά υποψήφιο για τη συγκεκριμένη ερώτηση (0..100 -> 0..10)
-      SELECT c.id AS cand_id, AVG(ss.score)/10.0 AS sc
+    ss AS (  -- SS ανά υποψήφιο (0..100 as-is)
+      SELECT c.id AS cand_id, AVG(ss.score) AS sc
       FROM candidate c
       JOIN job_ad ja   ON ja.id = c.job_ad_id
       JOIN question_skill qsk ON qsk.question_id = :qid
@@ -929,7 +937,9 @@ public class AnalyticsRepository {
         return v == null ? 0.0 : v;
     }
 
+
     // Επιστρέφει τον μέσο όρο της ερώτησης ανά υποψήφιο (για pass rate & histogram)
+    // Επιστρέφει τον μέσο όρο της ερώτησης ανά υποψήφιο (0..100)
     public List<Double> candidateQuestionAverages(int jobAdId, int questionId) {
         String sql = """
     WITH pairs AS (
@@ -938,8 +948,8 @@ public class AnalyticsRepository {
       JOIN candidate c ON c.job_ad_id = ja.id
       WHERE ja.id = :jobAdId
     ),
-    qs AS (
-      SELECT c.id AS cand_id, AVG(qs.score) AS sc
+    qs AS (  -- 0..10 -> 0..100
+      SELECT c.id AS cand_id, AVG(qs.score)*10.0 AS sc
       FROM candidate c
       JOIN interview_report ir ON ir.id = c.interview_report_id
       JOIN step_score sr       ON sr.interview_report_id = ir.id
@@ -947,8 +957,8 @@ public class AnalyticsRepository {
       WHERE c.job_ad_id = :jobAdId AND qs.question_id = :qid
       GROUP BY c.id
     ),
-    ss AS (
-      SELECT c.id AS cand_id, AVG(ss.score)/10.0 AS sc
+    ss AS (  -- 0..100 as-is
+      SELECT c.id AS cand_id, AVG(ss.score) AS sc
       FROM candidate c
       JOIN job_ad ja   ON ja.id = c.job_ad_id
       JOIN question_skill qsk ON qsk.question_id = :qid
@@ -967,10 +977,12 @@ public class AnalyticsRepository {
                 (rs, i) -> rs.getObject(1) == null ? null : rs.getDouble(1));
     }
 
+
     // Επιστρέφει τον μέσο όρο ανά skill για τη συγκεκριμένη ερώτηση μέσα στο job ad
+    // Μ.Ο. ανά skill για τη συγκεκριμένη ερώτηση (0..100)
     public List<SkillAvgDto> skillAveragesForQuestion(int jobAdId, int questionId) {
         String sql = """
-    SELECT s.title AS skill, AVG(ss.score)/10.0 AS avg_score
+    SELECT s.title AS skill, AVG(ss.score) AS avg_score
     FROM job_ad ja
     JOIN candidate c        ON c.job_ad_id = ja.id
     JOIN question_skill qsk ON qsk.question_id = :qid
@@ -979,11 +991,12 @@ public class AnalyticsRepository {
                            AND ss.skill_id     = qsk.skill_id
                            AND ss.question_id  = :qid
     WHERE ja.id = :jobAdId
-    GROUP BY s.title
-    ORDER BY AVG(ss.score)/10.0 DESC
+    GROUP BY s.id, s.title
+    ORDER BY AVG(ss.score) DESC
     """;
         return jdbc.query(sql, Map.of("jobAdId", jobAdId, "qid", questionId), AnalyticsMapper.SKILL_AVG);
     }
+
 
     // Επιστρέφει τις ερωτήσεις που βαθμολογήθηκαν για το συγκεκριμένο JobAd+Step
     public List<QuestionLiteDto> questionsForJobAdStep(int jobAdId, int stepId) {

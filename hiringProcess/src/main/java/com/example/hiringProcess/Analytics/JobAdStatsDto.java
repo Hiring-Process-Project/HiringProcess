@@ -5,6 +5,11 @@ import java.util.List;
 public class JobAdStatsDto {
     private double approvalRate;
     private double rejectionRate;
+
+    // ΝΕΑ πεδία
+    private double hireRate;
+    private long   hireCount;
+
     private double avgCandidateScore;
 
     private List<ScoreBucketDto> scoreDistribution;
@@ -13,15 +18,16 @@ public class JobAdStatsDto {
     private List<SkillAvgDto>    skillDifficulty;
 
     private long totalCandidates;
-
-    // NEW: true όταν υπάρχει έστω ένας candidate με status "Hired"
     private boolean complete;
 
     public JobAdStatsDto() {}
 
+    // ΝΕΟΣ constructor (προστέθηκαν hireRate, hireCount)
     public JobAdStatsDto(
             double approvalRate,
             double rejectionRate,
+            double hireRate,
+            long hireCount,
             double avgCandidateScore,
             List<ScoreBucketDto> scoreDistribution,
             List<StepAvgDto> stepAverages,
@@ -32,6 +38,8 @@ public class JobAdStatsDto {
     ) {
         this.approvalRate = approvalRate;
         this.rejectionRate = rejectionRate;
+        this.hireRate = hireRate;
+        this.hireCount = hireCount;
         this.avgCandidateScore = avgCandidateScore;
         this.scoreDistribution = scoreDistribution;
         this.stepAverages = stepAverages;
@@ -46,6 +54,13 @@ public class JobAdStatsDto {
 
     public double getRejectionRate() { return rejectionRate; }
     public void setRejectionRate(double rejectionRate) { this.rejectionRate = rejectionRate; }
+
+    // GETTERS/SETTERS για τα νέα πεδία
+    public double getHireRate() { return hireRate; }
+    public void setHireRate(double hireRate) { this.hireRate = hireRate; }
+
+    public long getHireCount() { return hireCount; }
+    public void setHireCount(long hireCount) { this.hireCount = hireCount; }
 
     public double getAvgCandidateScore() { return avgCandidateScore; }
     public void setAvgCandidateScore(double avgCandidateScore) { this.avgCandidateScore = avgCandidateScore; }
@@ -65,7 +80,6 @@ public class JobAdStatsDto {
     public long getTotalCandidates() { return totalCandidates; }
     public void setTotalCandidates(long totalCandidates) { this.totalCandidates = totalCandidates; }
 
-    // boolean accessor για σωστό JSON ("complete": true/false)
     public boolean isComplete() { return complete; }
     public void setComplete(boolean complete) { this.complete = complete; }
 }

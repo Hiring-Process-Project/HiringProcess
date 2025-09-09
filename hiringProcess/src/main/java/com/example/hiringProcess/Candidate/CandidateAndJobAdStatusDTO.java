@@ -5,15 +5,18 @@ public class CandidateAndJobAdStatusDTO {
     private String candidateStatus;
     private int jobAdId;
     private String jobAdStatus;
+    private long hiredCount; // νέο πεδίο
 
     public CandidateAndJobAdStatusDTO() {}
 
     public CandidateAndJobAdStatusDTO(int candidateId, String candidateStatus,
-                              int jobAdId, String jobAdStatus) {
+                                      int jobAdId, String jobAdStatus,
+                                      long hiredCount) {
         this.candidateId = candidateId;
         this.candidateStatus = candidateStatus;
         this.jobAdId = jobAdId;
         this.jobAdStatus = jobAdStatus;
+        this.hiredCount = hiredCount;
     }
 
     // getters/setters
@@ -28,4 +31,7 @@ public class CandidateAndJobAdStatusDTO {
 
     public String getJobAdStatus() { return jobAdStatus; }
     public void setJobAdStatus(String jobAdStatus) { this.jobAdStatus = jobAdStatus; }
+
+    public long getHiredCount() { return hiredCount; }
+    public void setHiredCount(long hiredCount) { this.hiredCount = hiredCount; }
 }

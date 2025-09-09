@@ -183,49 +183,51 @@ public class AnalyticsService {
         long approved = repo.countCandidatesByStatusJobAd(jobAdId, "Approved");
         long rejected = repo.countCandidatesByStatusJobAd(jobAdId, "Rejected");
 
+        // ΝΕΟ: hires & hireRate
+        long hires    = repo.countCandidatesByStatusJobAd(jobAdId, "Hired");
+        double hireRate = percent(hires, total);
+
         double approvalRate  = percent(approved, total);
         double rejectionRate = percent(rejected, total);
 
-        // complete = υπάρχει έστω ένας Hired για το συγκεκριμένο job ad
-        boolean complete = repo.countCandidatesByStatusJobAd(jobAdId, "Hired") > 0;
+        boolean complete = hires > 0;
 
-        // per-candidate averages (μπορεί να είναι 0..10 ή 0..100 ανά backend)
         List<Double> candAvgs = repo.candidateAvgScoresByJobAd(jobAdId);
 
-        // avg score για το KPI
         double avgCandidateScore = round1(
                 candAvgs.stream().mapToDouble(Double::doubleValue).average().orElse(0.0)
         );
 
-        // --- Uniform bucketing σε 0..100 δεκάδες, ό,τι scale κι αν έρθει (0..10 ή 0..100)
         double maxSeen = candAvgs.stream().filter(v -> v != null).mapToDouble(Double::doubleValue).max().orElse(0.0);
-        boolean isHundredScale = maxSeen > 10.0; // αν βλέπουμε τιμές >10, θεωρούμε ότι είναι ήδη 0..100
+        boolean isHundredScale = maxSeen > 10.0;
 
         long[] bucketsArr = new long[10];
         for (Double s : candAvgs) {
             if (s == null) continue;
-            double v100 = isHundredScale ? s : (s * 10.0);     // μετατροπή σε 0..100 όταν χρειάζεται
+            double v100 = isHundredScale ? s : (s * 10.0);
             double clamped = Math.max(0.0, Math.min(100.0, v100));
-            int idx = (int)(clamped / 10.0);                   // 0–9 -> 0, 10–19 -> 1, ..., 90–100 -> 9
-            if (idx > 9) idx = 9;                              // πιάσε την ακριβώς 100
+            int idx = (int)(clamped / 10.0);
+            if (idx > 9) idx = 9;
             bucketsArr[idx]++;
         }
 
         List<ScoreBucketDto> distribution = new ArrayList<>(10);
         for (int i = 0; i < 10; i++) {
             int from = i * 10;
-            int to   = (i == 9) ? 100 : (i * 10 + 9);          // 0–9, 10–19, …, 90–100
+            int to   = (i == 9) ? 100 : (i * 10 + 9);
             distribution.add(new ScoreBucketDto(from, to, bucketsArr[i]));
         }
 
-        // averages / difficulty sets
         List<StepAvgDto>      stepAvg       = repo.stepDifficultyByJobAd(jobAdId);
         List<QuestionAvgDto>  questionDiff  = repo.questionDifficultyByJobAd(jobAdId);
         List<SkillAvgDto>     skillDiff     = repo.skillDifficultyByJobAd(jobAdId);
 
+        // ΝΕΟΣ constructor με hireRate & hireCount
         return new JobAdStatsDto(
                 approvalRate,
                 rejectionRate,
+                hireRate,
+                hires,
                 avgCandidateScore,
                 distribution,
                 stepAvg,
@@ -235,6 +237,7 @@ public class AnalyticsService {
                 complete
         );
     }
+
 
     /* ------------------------ Candidate scope ------------------------ */
 

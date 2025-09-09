@@ -28,7 +28,6 @@ public class Candidate {
     /** Path/URL προς το αποθηκευμένο CV (π.χ. uploads/cv/nick_smith.pdf) */
     private String cvPath;
 
-    private String info;
     private String status;
     private String comments;
 
@@ -49,23 +48,21 @@ public class Candidate {
 
     // Constructor χωρίς cvPath (για συμβατότητα)
     public Candidate(String firstName, String lastName, String email,
-                     String info, String status, String comments) {
+                     String status, String comments) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
-        this.info = info;
         this.status = status;
         this.comments = comments;
     }
 
     // Νέος constructor ΜΕ cvPath
     public Candidate(String firstName, String lastName, String email,
-                     String cvPath, String info, String status, String comments) {
+                     String cvPath, String status, String comments) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.cvPath = cvPath;
-        this.info = info;
         this.status = status;
         this.comments = comments;
     }
@@ -78,7 +75,6 @@ public class Candidate {
                 ", lastName='" + lastName + '\'' +
                 ", email='" + email + '\'' +
                 ", cvPath='" + cvPath + '\'' +
-                ", info='" + info + '\'' +
                 ", status='" + status + '\'' +
                 ", comments='" + comments + '\'' +
                 ", jobAdId=" + (jobAd != null ? jobAd.getId() : "null") +
@@ -117,13 +113,6 @@ public class Candidate {
     }
     public void setCvPath(String cvPath) {
         this.cvPath = cvPath;
-    }
-
-    public String getInfo() {
-        return info;
-    }
-    public void setInfo(String info) {
-        this.info = info;
     }
 
     public String getStatus() {
