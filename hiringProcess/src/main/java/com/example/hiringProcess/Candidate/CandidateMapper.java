@@ -1,4 +1,3 @@
-// src/main/java/com/example/hiringProcess/Candidate/CandidateMapper.java
 package com.example.hiringProcess.Candidate;
 
 import org.mapstruct.BeanMapping;
@@ -16,31 +15,28 @@ public interface CandidateMapper {
 
     CandidateMapper INSTANCE = Mappers.getMapper(CandidateMapper.class);
 
-    // ========= Entity -> DTOs =========
-
-    // Entity -> List DTO (ρητά mappings όπως ζήτησες)
+    // Entity -> List DTO
     @Mapping(source = "id",        target = "id")
     @Mapping(source = "firstName", target = "firstName")
     @Mapping(source = "lastName",  target = "lastName")
     @Mapping(source = "email",     target = "email")
     @Mapping(source = "status",    target = "status")
     @Mapping(source = "cvPath",    target = "cvPath")
+    @Mapping(source = "cvOriginalName",  target = "cvOriginalName")
     @Mapping(source = "interviewReport.id", target = "interviewReportId")
     CandidateDTO toListDto(Candidate candidate);
 
-    // Entity -> Comment DTO (διαφορετικό όνομα πεδίου)
+    // Entity -> Comment DTO
     @Mapping(source = "id",       target = "candidateId")
     @Mapping(source = "comments", target = "comments")
     CandidateCommentDTO toCommentDto(Candidate candidate);
 
-    // ========= DTO -> Entity (update μόνο comments) =========
-    // Δεν δημιουργούμε νέο Candidate, απλώς ενημερώνουμε το υπάρχον.
-    // Αγνοούμε ΟΛΑ τα άλλα πεδία (άρα και το id), για να μην γίνει write στο id.
+    // DTO -> Entity (update μόνο comments)
     @BeanMapping(ignoreByDefault = true)
     @Mapping(source = "comments", target = "comments")
     void updateCommentsFromDto(CandidateCommentDTO dto, @MappingTarget Candidate candidate);
 
-    // ========= DTO -> Entity (update μόνο status) =========
+    // DTO -> Entity (update μόνο status)
     @BeanMapping(ignoreByDefault = true)
     @Mapping(source = "status", target = "status")
     void updateStatusFromDto(CandidateStatusDTO dto, @MappingTarget Candidate candidate);

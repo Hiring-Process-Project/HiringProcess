@@ -39,10 +39,18 @@ public class StepScore {
     @OneToMany(mappedBy = "stepScore", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<QuestionScore> questionScores = new ArrayList<>();
 
+    public StepScore() { }
+
+    public StepScore(Step step, InterviewReport interviewReport) {
+        this.step = step;
+        this.interviewReport = interviewReport;
+    }
+
+    // Getters & Setters
+
     public int getId() {
         return id;
     }
-
     public void setId(int id) {
         this.id = id;
     }
@@ -50,7 +58,6 @@ public class StepScore {
     public Step getStep() {
         return step;
     }
-
     public void setStep(Step step) {
         this.step = step;
     }
@@ -58,7 +65,6 @@ public class StepScore {
     public InterviewReport getInterviewReport() {
         return interviewReport;
     }
-
     public void setInterviewReport(InterviewReport interviewReport) {
         this.interviewReport = interviewReport;
     }
@@ -66,11 +72,7 @@ public class StepScore {
     public List<QuestionScore> getQuestionScores() {
         return questionScores;
     }
-
     public void setQuestionScores(List<QuestionScore> questionScores) {
         this.questionScores = questionScores;
-    }
-
-    public StepScore() {
     }
 }

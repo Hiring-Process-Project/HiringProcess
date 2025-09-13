@@ -7,8 +7,6 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface StepScoreMapper {
 
-    // Παίρνουμε τα 4 values από το service και φτιάχνουμε το DTO.
-    // Το avg (Double) το στρογγυλεύουμε εδώ σε Integer (ή null).
     @Mapping(target = "stepId",         source = "stepId")
     @Mapping(target = "totalQuestions", source = "totalQ")
     @Mapping(target = "ratedQuestions", source = "ratedQ")

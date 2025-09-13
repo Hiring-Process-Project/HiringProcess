@@ -22,18 +22,12 @@ public class CandidateService {
         this.candidateMapper = candidateMapper;
     }
 
-    /* ===================== READS ===================== */
-
-    /** Επιστρέφει οντότητες (αν χρειάζεται αλλού) */
-    public List<Candidate> getCandidatesEntities() {
-        return candidateRepository.findAll();
-    }
-
+    // Επιστρέφει έναν υποψήφιο
     public Optional<Candidate> getCandidate(Integer candidateId) {
         return candidateRepository.findById(candidateId);
     }
 
-    /** Λίστα για το front (DTOs) — MapStruct mapping */
+    //Επιστρέφει λίστα όλων των υποψηφίων
     public List<CandidateDTO> getCandidateDTOs() {
         return candidateRepository.findAll()
                 .stream()
@@ -41,7 +35,7 @@ public class CandidateService {
                 .toList();
     }
 
-    /** Λίστα υποψηφίων (DTOs) για συγκεκριμένο Job Ad */
+    //Επιστρέφει λίστα όλων των υποψηφίων για ένα συγκεκριμένο job ad
     public List<CandidateDTO> getCandidateDTOsByJobAd(Integer jobAdId) {
         return candidateRepository.findByJobAd_Id(jobAdId)
                 .stream()
@@ -49,16 +43,7 @@ public class CandidateService {
                 .toList();
     }
 
-    /** Read comments (DTO) — MapStruct mapping */
-    public CandidateCommentDTO getCandidateComments(Integer candidateId) {
-        Candidate c = candidateRepository.findById(candidateId)
-                .orElseThrow(() -> new IllegalStateException(
-                        "Candidate with id " + candidateId + " does not exist"));
-        return candidateMapper.toCommentDto(c);
-    }
-
-    /* ===================== WRITES ===================== */
-
+    //Αποθηκεύει νέο candidate στη βάση
     public void addNewCandidate(Candidate candidate) {
         candidateRepository.save(candidate);
     }
@@ -71,6 +56,7 @@ public class CandidateService {
         candidateRepository.deleteById(candidateId);
     }
 
+    // Ενημερώνει πεδία ενός υποψηφίου (firstName, lastName, email, cvPath, status, comments, cvOriginalName)
     @Transactional
     public Candidate updateCandidate(Integer candidateId, Candidate updatedFields) {
         Candidate candidate = candidateRepository.findById(candidateId)
@@ -111,11 +97,16 @@ public class CandidateService {
                 !Objects.equals(candidate.getComments(), updatedFields.getComments())) {
             candidate.setComments(updatedFields.getComments());
         }
+        if (updatedFields.getCvOriginalName() != null &&
+                !updatedFields.getCvOriginalName().isEmpty() &&
+                !Objects.equals(candidate.getCvOriginalName(), updatedFields.getCvOriginalName())) {
+            candidate.setCvOriginalName(updatedFields.getCvOriginalName());
+        }
 
-        return candidate; // managed entity, ενημερώνεται λόγω @Transactional
+        return candidate;
     }
 
-    /** Update μόνο των comments (String) */
+    // Update μόνο των comments
     @Transactional
     public void updateComments(Integer candidateId, String comments) {
         Candidate candidate = candidateRepository.findById(candidateId)
@@ -124,19 +115,7 @@ public class CandidateService {
         candidate.setComments(comments);
     }
 
-    /** Update comments μέσω DTO (Mapper-based) */
-    @Transactional
-    public void updateComments(Integer candidateId, CandidateCommentDTO dto) {
-        Candidate candidate = candidateRepository.findById(candidateId)
-                .orElseThrow(() -> new IllegalStateException(
-                        "Candidate with id " + candidateId + " does not exist"));
-
-        if (dto != null) {
-            candidateMapper.updateCommentsFromDto(dto, candidate);
-        }
-        // @Transactional -> no explicit save() needed
-    }
-
+    // Update μόνο του status
     @Transactional
     public void updateStatus(Integer candidateId, CandidateStatusDTO dto) {
         Candidate candidate = candidateRepository.findById(candidateId)
@@ -148,6 +127,8 @@ public class CandidateService {
         }
     }
 
+    // Κάνει hire έναν υποψήφιο (μόνο αν είναι σε status Approved).
+    // Επιστρέφει DTO με την κατάσταση του υποψηφίου και του job ad.
     @Transactional
     public CandidateAndJobAdStatusDTO hireCandidate(Integer candidateId) {
         Candidate cand = candidateRepository.findById(candidateId)
@@ -175,11 +156,7 @@ public class CandidateService {
             throw new IllegalStateException("Only Approved candidates can be hired");
         }
 
-        // Κάνε hire τον υποψήφιο
         cand.setStatus("Hired");
-
-        // ΔΕΝ αλλάζουμε πλέον το job σε Complete εδώ (ώστε να επιτρέπονται πολλαπλά hires)
-        // job.setStatus("Complete");
 
         long hiredCountAfter = candidateRepository.countByJobAd_IdAndStatusIgnoreCase(job.getId(), "Hired");
 
@@ -192,25 +169,11 @@ public class CandidateService {
         );
     }
 
-
-    /**
-     * Επιστρέφει όλους τους υποψηφίους του jobAd μαζί με την τελική τους βαθμολογία,
-     * ταξινομημένους από τον καλύτερο προς τον χειρότερο.
-     * Το repository query μπορεί ήδη να έχει ORDER BY· αν όχι, υπάρχει fallback ταξινόμηση εδώ.
-     */
+     // Επιστρέφει όλους τους υποψηφίους του jobAd  με την τελική τους βαθμολογία,
+     // ταξινομημένους από τον καλύτερο προς τον χειρότερο.
     @Transactional(readOnly = true)
     public List<CandidateFinalScoreDTO> getCandidateFinalScoresForJobAd(Integer jobAdId) {
         List<CandidateFinalScoreDTO> list = candidateRepository.findFinalScoresByJobAd(jobAdId);
-
-        // --- Fallback ταξινόμηση στο service (αν το SQL ΔΕΝ έχει ORDER BY):
-        // list.sort(
-        //     Comparator.comparing(
-        //         CandidateFinalScoreDTO::getAverageScore,   // ή getAvgScore(), ανάλογα με το DTO σου
-        //         Comparator.nullsLast(Comparator.naturalOrder())
-        //     ).reversed()
-        // );
-
         return list;
     }
-
 }

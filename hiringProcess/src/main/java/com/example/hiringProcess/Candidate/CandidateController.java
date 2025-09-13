@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -15,7 +14,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.example.hiringProcess.JobAd.JobAd;
 import com.example.hiringProcess.JobAd.JobAdRepository;
@@ -37,7 +35,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/candidates")
-@CrossOrigin(origins = "http://localhost:3000") // dev
+@CrossOrigin(origins = "http://localhost:3000")
 public class CandidateController {
 
     private final CandidateService candidateService;
@@ -56,14 +54,14 @@ public class CandidateController {
         this.interviewReportRepository = interviewReportRepository;
     }
 
-    // -------- DETAILS (Entity) --------
+    // Επιστρέφει έναν συγκεκριμένο υποψήφιο (Entity)
     @GetMapping("/{id}")
     public Candidate getCandidate(@PathVariable Integer id) {
         return candidateService.getCandidate(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Candidate not found"));
     }
 
-    // -------- UPDATE (Entity) --------
+    // Ενημερώνει πεδία ενός υποψηφίου (Entity-based update)
     @PutMapping("/{id}")
     public ResponseEntity<Candidate> updateCandidate(
             @PathVariable("id") Integer id,
@@ -72,44 +70,37 @@ public class CandidateController {
         return ResponseEntity.ok(updated);
     }
 
-    // -------- DELETE --------
+    // Διαγράφει έναν υποψήφιο
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCandidate(@PathVariable Integer id) {
         candidateService.deleteCandidate(id);
         return ResponseEntity.noContent().build();
     }
 
-    // -------- LIST (DTO) --------
+    // Επιστρέφει όλους τους υποψήφιους (ως DTO)
     @GetMapping
     public List<CandidateDTO> getCandidates() {
         return candidateService.getCandidateDTOs();
     }
 
-    // -------- LIST BY JOB AD (DTO) --------
+    // Επιστρέφει όλους τους υποψήφιους ενός συγκεκριμένου JobAd (ως DTO)
     @GetMapping("/jobad/{jobAdId}")
     public List<CandidateDTO> getCandidatesByJobAd(@PathVariable Integer jobAdId) {
         return candidateService.getCandidateDTOsByJobAd(jobAdId);
     }
 
-    // -------- COMMENTS (write) --------
-    @PatchMapping("/{id}/comments")
-    public ResponseEntity<Void> saveCandidateComment(@PathVariable Integer id,
-                                                     @RequestBody CandidateCommentDTO dto) {
-        if (dto == null || dto.getComments() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "comments is required");
-        }
-        candidateService.updateComments(id, dto.getComments());
-        return ResponseEntity.noContent().build();
-    }
+//    // COMMENTS (write)
+//    @PatchMapping("/{id}/comments")
+//    public ResponseEntity<Void> saveCandidateComment(@PathVariable Integer id,
+//                                                     @RequestBody CandidateCommentDTO dto) {
+//        if (dto == null || dto.getComments() == null) {
+//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "comments is required");
+//        }
+//        candidateService.updateComments(id, dto.getComments());
+//        return ResponseEntity.noContent().build();
+//    }
 
-    // -------- EVALUATIONS (compat wrapper -> SkillScore upsert) --------
-    /**
-     * Συμβατότητα με παλιό front:
-     * POST /api/v1/candidates/{id}/evaluations
-     * Body: SkillEvaluationDTO { questionId, skillId, rating, comments }
-     *
-     * Μετατρέπουμε σε SkillScoreUpsertRequestDTO και κάνουμε upsert στη skill_score.
-     */
+    // Αποθηκεύει ή ενημερώνει αξιολόγηση δεξιοτήτων για έναν υποψήφιο
     @PostMapping("/{id}/evaluations")
     public ResponseEntity<SkillScoreResponseDTO> saveSkillEvaluation(
             @PathVariable int id,
@@ -139,7 +130,7 @@ public class CandidateController {
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
-    // ---------- CV DOWNLOAD (flexible + fallback) ----------
+    // Κατεβάζει το CV ενός υποψηφίου (αν δεν υπάρχει, επιστρέφει SampleCV)
     @GetMapping("/{id}/cv")
     public ResponseEntity<Resource> downloadCv(@PathVariable("id") int id) throws Exception {
         var cand = candidateService.getCandidate(id)
@@ -153,10 +144,16 @@ public class CandidateController {
             res = new ClassPathResource("cv/SampleCV.pdf");
         }
 
-        // Όνομα αρχείου για το download
-        String first = Optional.ofNullable(cand.getFirstName()).orElse("Candidate");
-        String last  = Optional.ofNullable(cand.getLastName()).orElse(String.valueOf(id));
-        String fileName = sanitize(first + "_" + last) + "_CV.pdf";
+        // Κρατάμε το αρχικό όνομα του αρχείου όπως το ανέβασε ο χρήστης
+        String original = cand.getCvOriginalName();
+        String fileName;
+        if (original != null && !original.isBlank()) {
+            fileName = original;
+        } else {
+            String first = Optional.ofNullable(cand.getFirstName()).orElse("Candidate");
+            String last  = Optional.ofNullable(cand.getLastName()).orElse(String.valueOf(id));
+            fileName = sanitize(first + "_" + last) + "_CV.pdf";
+        }
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
@@ -171,7 +168,7 @@ public class CandidateController {
                 .body(res);
     }
 
-    @PatchMapping("/{id}/status")
+    // Ενημερώνει το status ενός υποψηφίου
     public ResponseEntity<Void> updateCandidateStatus(
             @PathVariable Integer id,
             @RequestBody CandidateStatusDTO dto) {
@@ -180,11 +177,11 @@ public class CandidateController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "status is required");
         }
 
-        candidateService.updateStatus(id, dto); // mapper-based partial update
+        candidateService.updateStatus(id, dto);
         return ResponseEntity.noContent().build();
     }
 
-    // ---------- CREATE CANDIDATE ----------
+    // Δημιουργεί νέο υποψήφιο και τον συνδέει με JobAd + InterviewReport
     @PostMapping
     public ResponseEntity<Candidate> createCandidate(
             @RequestParam("jobAdId") Integer jobAdId,
@@ -207,15 +204,13 @@ public class CandidateController {
 
         body.setJobAd(jobAd);
 
-        // Defaults
         if (body.getStatus() == null || body.getStatus().isBlank()) {
             body.setStatus("Pending");
         }
         if (body.getComments() == null) {
-            body.setComments(""); // κενά σχόλια
+            body.setComments("");
         }
 
-        // Δημιούργησε InterviewReport δεμένο με το Interview του JobAd
         InterviewReport newIr = new InterviewReport();
         newIr.setInterview(jobAd.getInterview());
         body.setInterviewReport(newIr);
@@ -228,52 +223,47 @@ public class CandidateController {
     }
 
 
-    /**
-     * Επιστρέφει ΟΛΟΥΣ τους υποψηφίους ενός jobAd μαζί με το τελικό σκορ τους
-     * (ή null αν δεν έχουν καμία βαθμολογία), ταξινομημένους φθίνουσα.
-     */
+    // Επιστρέφει ΟΛΟΥΣ τους υποψηφίους ενός jobAd μαζί με το τελικό σκορ τους ταξινομημένους φθίνουσα.
     @GetMapping("/jobad/{jobAdId}/final-scores")
     public List<CandidateFinalScoreDTO> getFinalScoresForJobAd(@PathVariable Integer jobAdId) {
         return candidateService.getCandidateFinalScoresForJobAd(jobAdId);
     }
 
-    /** Δοκιμάζει: classpath:, http/https, file:, απόλυτο path, ή σχετικό path κάτω από uploads/cv */
+    // Επιστρέφει το CV του υποψηφίου είτε από classpath (SampleCV.pdf) είτε από τον φάκελο uploads/cv
     private Resource resolveResource(String path) {
         if (path == null || path.isBlank()) return null;
         try {
             if (path.startsWith("classpath:")) {
                 return new ClassPathResource(path.substring("classpath:".length()));
             }
-            if (path.startsWith("http://") || path.startsWith("https://")) {
-                return new UrlResource(URI.create(path));
-            }
-            if (path.startsWith("file:")) {
-                return new UrlResource(path);
+
+            Path base = Paths.get("uploads", "cv").normalize();
+            Path p = Paths.get(path).normalize();
+
+            if (p.isAbsolute()) {
+                return null;
             }
 
-            Path p = Paths.get(path);
-            if (!p.isAbsolute()) {
-                // σχετικό: προσπάθησε πρώτα σε resources, μετά σε uploads/cv
-                Resource cp = new ClassPathResource(path);
-                if (cp.exists()) return cp;
-
-                Path base = Paths.get("uploads", "cv").normalize();
-                p = base.resolve(path).normalize();
-                if (!p.startsWith(base)) return null; // ασφάλεια
+            if (!p.startsWith("uploads")) {
+                p = base.resolve(p).normalize();
             }
-            if (Files.exists(p)) {
+
+            if (!p.startsWith(base)) return null;
+
+            if (Files.exists(p) && Files.isReadable(p)) {
                 return new FileSystemResource(p);
             }
         } catch (Exception ignored) { }
         return null;
     }
 
+    // Κάνει hire έναν υποψήφιο και επιστρέφει ενημερωμένα στατιστικά JobAd
     @PostMapping("/{id}/hire")
     public CandidateAndJobAdStatusDTO hireCandidate(@PathVariable Integer id) {
         return candidateService.hireCandidate(id);
     }
 
-    // ===== NEW: Upload CV (PDF) =====
+    // Upload CV (PDF) και αποθήκευση τοπικά στο uploads/cv
     @PostMapping(value = "/upload-cv", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Map<String, String> uploadCv(@RequestParam("file") MultipartFile file) {
         try {
@@ -284,12 +274,12 @@ public class CandidateController {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Only PDF allowed");
             }
 
-            // φάκελος αποθήκευσης
             Path base = Paths.get("uploads", "cv").normalize();
             Files.createDirectories(base);
 
             String ts = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss_SSS").format(LocalDateTime.now());
-            String safe = file.getOriginalFilename() == null ? "cv" : file.getOriginalFilename().replaceAll("[^A-Za-z0-9._-]", "_");
+            String original = file.getOriginalFilename();
+            String safe = (original == null ? "cv.pdf" : original.replaceAll("[^A-Za-z0-9._-]", "_"));
             if (!safe.toLowerCase().endsWith(".pdf")) safe = safe + ".pdf";
 
             Path out = base.resolve(ts + "_" + safe).normalize();
@@ -297,9 +287,12 @@ public class CandidateController {
 
             Files.copy(file.getInputStream(), out);
 
-            // επιστρέφουμε σχετική διαδρομή ώστε να μπορεί να χρησιμοποιηθεί ως cvPath
             String rel = base.resolve(out.getFileName()).toString().replace('\\', '/');
-            return Map.of("path", rel);
+
+            return Map.of(
+                    "path", rel,
+                    "originalName", (original != null && !original.isBlank()) ? original : "cv.pdf"
+            );
         } catch (ResponseStatusException e) {
             throw e;
         } catch (Exception e) {
@@ -307,9 +300,8 @@ public class CandidateController {
         }
     }
 
-    /** Αφαίρεση “περίεργων” χαρακτήρων από το όνομα αρχείου */
+    // Αφαίρεση “περίεργων” χαρακτήρων από το όνομα αρχείου
     private String sanitize(String s) {
-        return s == null ? "candidate"
-                : s.replaceAll("[^A-Za-z0-9._-]", "_");
+        return s == null ? "candidate" : s.replaceAll("[^A-Za-z0-9._-]", "_");
     }
 }

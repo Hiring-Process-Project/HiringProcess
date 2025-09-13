@@ -18,11 +18,13 @@ public class InterviewReportController {
         this.interviewReportService = interviewReportService;
     }
 
+    // Επιστρέφει όλα τα InterviewReports
     @GetMapping
     public List<InterviewReport> getAll() {
         return interviewReportService.getAll();
     }
 
+    // Επιστρέφει InterviewReport με βάση το id
     @GetMapping("/{id}")
     public ResponseEntity<InterviewReport> getById(@PathVariable("id") Integer id) {
         return interviewReportService.getById(id)
@@ -30,6 +32,7 @@ public class InterviewReportController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    // Δημιουργεί νέο InterviewReport
     @PostMapping
     public ResponseEntity<InterviewReport> create(@RequestBody InterviewReport report) {
         InterviewReport saved = interviewReportService.create(report);
@@ -37,6 +40,7 @@ public class InterviewReportController {
         return ResponseEntity.created(location).body(saved);
     }
 
+    // Κάνει update σε υπάρχον InterviewReport
     @PutMapping("/{id}")
     public ResponseEntity<InterviewReport> update(
             @PathVariable("id") Integer id,
@@ -46,6 +50,7 @@ public class InterviewReportController {
         return ResponseEntity.ok(updated);
     }
 
+    // Διαγράφει InterviewReport με βάση το id
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable("id") Integer id) {
         interviewReportService.delete(id);

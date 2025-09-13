@@ -30,7 +30,7 @@ public class SkillScoreService {
         this.mapper = mapper;
     }
 
-    /* ========= LIST για συγκεκριμένο candidate+question ========= */
+    // LIST για συγκεκριμένο candidate+question
     public List<SkillScoreResponseDTO> listForCandidateQuestion(int candidateId, int questionId) {
         return skillScoreRepository
                 .findByCandidateIdAndQuestionId(candidateId, questionId)
@@ -39,7 +39,7 @@ public class SkillScoreService {
                 .toList();
     }
 
-    /* ========= UPSERT ========= */
+    // UPSERT
     @Transactional
     public SkillScoreResponseDTO upsert(SkillScoreUpsertRequestDTO dto) {
         var existingOpt = skillScoreRepository
@@ -63,7 +63,7 @@ public class SkillScoreService {
         return mapper.withCreated(mapper.toResponseDTO(saved), true);
     }
 
-    /* ========= DELETE by id ========= */
+    // DELETE by id
     @Transactional
     public void deleteById(long id) {
         if (skillScoreRepository.existsById(id)) {
@@ -71,7 +71,7 @@ public class SkillScoreService {
         }
     }
 
-    /* ========= DELETE tuple (candidate, question, skill) ========= */
+    // DELETE tuple (candidate, question, skill)
     @Transactional
     public void deleteTuple(int candidateId, int questionId, int skillId) {
         skillScoreRepository.deleteByCandidateIdAndQuestionIdAndSkillId(candidateId, questionId, skillId);

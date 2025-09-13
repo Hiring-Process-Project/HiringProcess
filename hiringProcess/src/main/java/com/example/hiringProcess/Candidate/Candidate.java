@@ -2,8 +2,12 @@ package com.example.hiringProcess.Candidate;
 
 import com.example.hiringProcess.InterviewReport.InterviewReport;
 import com.example.hiringProcess.JobAd.JobAd;
+import com.example.hiringProcess.SkillScore.SkillScore;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table
@@ -24,10 +28,8 @@ public class Candidate {
     private String firstName;
     private String lastName;
     private String email;
-
-    /** Path/URL προς το αποθηκευμένο CV (π.χ. uploads/cv/nick_smith.pdf) */
     private String cvPath;
-
+    private String cvOriginalName;
     private String status;
     private String comments;
 
@@ -43,42 +45,22 @@ public class Candidate {
     @JsonIgnore
     private InterviewReport interviewReport;
 
-    // Required by JPA
+    // Σχέση Candidate με SkillScore
+    @OneToMany(mappedBy = "candidate")
+    @JsonIgnore
+    private List<SkillScore> skillScores = new ArrayList<>();
+
     public Candidate() {}
 
-    // Constructor χωρίς cvPath (για συμβατότητα)
     public Candidate(String firstName, String lastName, String email,
-                     String status, String comments) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.status = status;
-        this.comments = comments;
-    }
-
-    // Νέος constructor ΜΕ cvPath
-    public Candidate(String firstName, String lastName, String email,
-                     String cvPath, String status, String comments) {
+                     String cvPath, String cvOriginalName, String status, String comments) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.cvPath = cvPath;
+        this.cvOriginalName = cvOriginalName;
         this.status = status;
         this.comments = comments;
-    }
-
-    @Override
-    public String toString() {
-        return "Candidate{" +
-                "id=" + id +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", email='" + email + '\'' +
-                ", cvPath='" + cvPath + '\'' +
-                ", status='" + status + '\'' +
-                ", comments='" + comments + '\'' +
-                ", jobAdId=" + (jobAd != null ? jobAd.getId() : "null") +
-                '}';
     }
 
     // Getters & Setters
@@ -86,6 +68,7 @@ public class Candidate {
     public int getId() {
         return id;
     }
+    public void setId(int id) {this.id = id;}
 
     public String getFirstName() {
         return firstName;
@@ -111,9 +94,10 @@ public class Candidate {
     public String getCvPath() {
         return cvPath;
     }
-    public void setCvPath(String cvPath) {
-        this.cvPath = cvPath;
-    }
+    public void setCvPath(String cvPath) {this.cvPath = cvPath;}
+
+    public String getCvOriginalName() { return cvOriginalName; }
+    public void setCvOriginalName(String cvOriginalName) { this.cvOriginalName = cvOriginalName; }
 
     public String getStatus() {
         return status;
@@ -142,4 +126,7 @@ public class Candidate {
     public void setJobAd(JobAd jobAd) {
         this.jobAd = jobAd;
     }
+
+    public List<SkillScore> getSkillScores() {return skillScores;}
+    public void setSkillScores(List<SkillScore> skillScores) {this.skillScores = skillScores;}
 }

@@ -31,7 +31,7 @@ public interface SkillScoreRepository extends JpaRepository<SkillScore, Long> {
             int candidateId, int questionId, int skillId
     );
 
-    /* === Aggregations === */
+    // Aggregations
 
     @Query("""
        select ss.question.id as questionId,
@@ -65,7 +65,6 @@ public interface SkillScoreRepository extends JpaRepository<SkillScore, Long> {
             @Param("qids") Collection<Integer> qids
     );
 
-    // SkillScoreRepository.java
     @Query("""
    SELECT ss.question.id, COUNT(ss.score), AVG(ss.score)
    FROM SkillScore ss

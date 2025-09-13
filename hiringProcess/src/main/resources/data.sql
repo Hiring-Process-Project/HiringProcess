@@ -612,3 +612,9 @@ WHERE c.status IN ('Approved','Hired')
           AND ss.skill_id     = qs.skill_id
   );
 
+-- === H2: bump sequences so new rows won't collide ===
+-- (ΠΡΕΠΕΙ να είναι στο τέλος του αρχείου)
+
+ALTER SEQUENCE IF EXISTS candidate_sequence        RESTART WITH 1000;
+ALTER SEQUENCE IF EXISTS interview_report_sequence RESTART WITH 1000;
+

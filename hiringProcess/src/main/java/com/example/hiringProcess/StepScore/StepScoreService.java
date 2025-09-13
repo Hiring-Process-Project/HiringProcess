@@ -1,7 +1,6 @@
 package com.example.hiringProcess.StepScore;
 
 import com.example.hiringProcess.Question.QuestionRepository;
-import com.example.hiringProcess.QuestionScore.QuestionScoreRepository;
 import com.example.hiringProcess.SkillScore.SkillScoreRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,12 +13,12 @@ public class StepScoreService {
     private final QuestionRepository questionRepository;
     private final SkillScoreRepository skillScoreRepository;
 
-
     public StepScoreService(QuestionRepository questionRepository,SkillScoreRepository skillScoreRepository) {
         this.questionRepository = questionRepository;
         this.skillScoreRepository = skillScoreRepository;
     }
 
+    // Υπολογίζει metrics (στατιστικά) για συγκεκριμένα βήματα (steps) ενός job ad για έναν υποψήφιο
     @Transactional(readOnly = true)
     public List<StepMetricsItemDTO> getStepMetricsByCandidate(Integer candidateId, List<Integer> stepIds) {
         if (stepIds == null || stepIds.isEmpty()) return List.of();

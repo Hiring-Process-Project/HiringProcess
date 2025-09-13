@@ -1,4 +1,3 @@
-// src/main/java/com/example/hiringProcess/Candidate/CandidateRepository.java
 package com.example.hiringProcess.Candidate;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,7 +11,7 @@ import java.util.List;
 public interface CandidateRepository extends JpaRepository<Candidate, Integer> {
     List<Candidate> findByJobAd_Id(Integer jobAdId);
 
-    long countByJobAd_IdAndStatusIgnoreCase(Integer jobAdId, String status); // <-- ΝΕΟ
+    long countByJobAd_IdAndStatusIgnoreCase(Integer jobAdId, String status);
 
     @Query("""
 SELECT new com.example.hiringProcess.Candidate.CandidateFinalScoreDTO(

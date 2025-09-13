@@ -9,10 +9,6 @@ import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.Instant;
 
-/**
- * ΜΟΝΑΔΙΚΗ πηγή αλήθειας για βαθμολογίες:
- * κάθε εγγραφή = (candidate, question, skill) με score & comment.
- */
 @Entity
 @Table(
         name = "skill_score",
@@ -32,29 +28,32 @@ public class SkillScore {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(optional = false) @JoinColumn(name = "candidate_id")
-    @OnDelete(action = OnDeleteAction.CASCADE) // ζητά DB-level cascade
-
-    private Candidate candidate;
-
-    @ManyToOne(optional = false) @JoinColumn(name = "question_id")
-    private Question question;
-
-    @ManyToOne(optional = false) @JoinColumn(name = "skill_id")
-    private Skill skill;
-
-    /** Κλίμακα 0..100 (άλλαξε τύπο/κλίμακα αν χρειάζεται) */
-    @Column(nullable = false)
-    private Integer score;
-
-    /** Σχόλιο για αυτό το skill πάνω σε αυτή την ερώτηση για τον συγκεκριμένο υποψήφιο */
-    @Column(length = 2000)
-    private String comment;
-
     private Instant ratedAt;
     private String ratedBy;
 
-    /* ===== Getters / Setters ===== */
+    // Σχέση SkillScore με Candidate
+    @ManyToOne(optional = false) @JoinColumn(name = "candidate_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Candidate candidate;
+
+    // Σχέση SkillScore με Candidate
+    @ManyToOne(optional = false) @JoinColumn(name = "question_id")
+    private Question question;
+
+    // Σχέση SkillScore με Skill
+    @ManyToOne(optional = false) @JoinColumn(name = "skill_id")
+    private Skill skill;
+
+    // Κλίμακα 0..100
+    @Column(nullable = false)
+    private Integer score;
+
+    // Σχόλιο για αυτό το skill πάνω σε αυτή την ερώτηση για τον συγκεκριμένο υποψήφιο
+    @Column(length = 2000)
+    private String comment;
+
+    // Getters & Setters
+
     public Long getId() { return id; }
 
     public Candidate getCandidate() { return candidate; }

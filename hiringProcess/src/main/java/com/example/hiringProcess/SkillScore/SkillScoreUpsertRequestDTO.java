@@ -4,7 +4,7 @@ public record SkillScoreUpsertRequestDTO(
         int candidateId,
         int questionId,
         int skillId,
-        Integer score,   // 0..100
+        Integer score,
         String comment,
-        String ratedBy   // <-- 6ο πεδίο
+        String ratedBy
 ) {}

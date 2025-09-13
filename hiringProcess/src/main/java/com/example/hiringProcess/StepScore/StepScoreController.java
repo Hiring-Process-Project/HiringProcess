@@ -1,4 +1,3 @@
-// src/main/java/com/example/hiringProcess/StepScore/StepScoreController.java
 package com.example.hiringProcess.StepScore;
 
 import org.springframework.http.ResponseEntity;
@@ -19,6 +18,8 @@ public class StepScoreController {
         this.service = service;
     }
 
+    // Επιστρέφει τα metrics (στατιστικά/αποτελέσματα) για έναν υποψήφιο,
+    // φιλτραρισμένα με βάση μια λίστα από stepIds
     @GetMapping("/metrics")
     public ResponseEntity<List<StepMetricsItemDTO>> getMetricsByCandidate(
             @RequestParam Integer candidateId,

@@ -17,8 +17,6 @@ public class QuestionScoreService {
     private final QuestionRepository questionRepository;
     private final SkillScoreRepository skillScoreRepository;
     private final QuestionScoreMapper questionScoreMapper;
-
-    // + CandidateRepository μόνο για convenience method (bridge από candidateId)
     private final CandidateRepository candidateRepository;
 
     @Autowired
@@ -34,21 +32,23 @@ public class QuestionScoreService {
         this.candidateRepository = candidateRepository;
     }
 
-    /* ======= CRUD ======= */
-
+    // Επιστρέφει όλα τα QuestionScore records από τη βάση
     public List<QuestionScore> getAll() {
         return questionScoreRepository.findAll();
     }
 
+    // Επιστρέφει ένα QuestionScore με βάση το id
     public Optional<QuestionScore> getById(Integer id) {
         return questionScoreRepository.findById(id);
     }
 
+    //Δημιουργεί νέο QuestionScore
     public QuestionScore create(QuestionScore questionScore) {
         questionScore.setId(0); // force insert
         return questionScoreRepository.save(questionScore);
     }
 
+    // Ενημερώνει τα πεδία ενός QuestionScore (μόνο το score)
     @Transactional
     public QuestionScore update(Integer id, QuestionScore updatedFields) {
         QuestionScore existing = questionScoreRepository.findById(id)
@@ -70,16 +70,7 @@ public class QuestionScoreService {
         questionScoreRepository.delete(existing);
     }
 
-    /* ======= METRICS ======= */
-
-    /**
-     * Για κάθε questionId επιστρέφει:
-     *  - totalSkills   : πλήθος DISTINCT skills της ερώτησης (Question -> question_skill)
-     *  - ratedSkills   : πλήθος βαθμολογημένων skills για το συγκεκριμένο interviewReport
-     *  - averageScore  : μέσος όρος score (0..100) ή null αν δεν υπάρχει καμία βαθμολογία
-     *
-     * ΠΗΓΗ δεδομένων: skill_score (ΟΧΙ question_score), ώστε τα analytics να “βλέπουν” ό,τι βαθμολογείς στα skills.
-     */
+    // Διαγράφει ένα QuestionScore
     public List<QuestionMetricsItemDTO> getQuestionMetricsByReport(Integer interviewReportId,
                                                                    List<Integer> questionIds) {
         if (questionIds == null || questionIds.isEmpty()) return List.of();
@@ -121,11 +112,7 @@ public class QuestionScoreService {
         return out;
     }
 
-    /**
-     * Convenience: ίδια με το παραπάνω αλλά δέχεται candidateId.
-     * Βρίσκουμε εδώ το interviewReportId και ξαναχρησιμοποιούμε το getQuestionMetricsByReport.
-     * (Δεν αλλάζει τίποτα στη συμπεριφορά του controller σου—είναι απλώς βοηθητικό.)
-     */
+    // Επιστρέφει metrics για συγκεκριμένες ερωτήσεις ενός υποψηφίου
     public List<QuestionMetricsItemDTO> getQuestionMetricsByCandidate(Integer candidateId,
                                                                       List<Integer> questionIds) {
         if (candidateId == null) return List.of();

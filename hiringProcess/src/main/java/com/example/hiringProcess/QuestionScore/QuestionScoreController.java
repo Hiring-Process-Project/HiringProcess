@@ -1,7 +1,5 @@
 package com.example.hiringProcess.QuestionScore;
 
-import com.example.hiringProcess.Candidate.Candidate;
-import com.example.hiringProcess.Candidate.CandidateRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,22 +14,19 @@ import java.util.List;
 public class QuestionScoreController {
 
     private final QuestionScoreService questionScoreService;
-    private final CandidateRepository candidateRepository; // για το bridge endpoint με candidateId
 
     @Autowired
-    public QuestionScoreController(QuestionScoreService questionScoreService,
-                                   CandidateRepository candidateRepository) {
+    public QuestionScoreController(QuestionScoreService questionScoreService) {
         this.questionScoreService = questionScoreService;
-        this.candidateRepository = candidateRepository;
     }
 
-    // ===== CRUD =====
-
+    // Επιστρέφει όλα τα QuestionScores
     @GetMapping
     public List<QuestionScore> getAll() {
         return questionScoreService.getAll();
     }
 
+    // Επιστρέφει ένα QuestionScore με βάση το id
     @GetMapping("/{id}")
     public ResponseEntity<QuestionScore> getById(@PathVariable("id") Integer id) {
         return questionScoreService.getById(id)
@@ -39,6 +34,7 @@ public class QuestionScoreController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    // Δημιουργεί νέο QuestionScore
     @PostMapping
     public ResponseEntity<QuestionScore> create(@RequestBody QuestionScore questionScore) {
         QuestionScore saved = questionScoreService.create(questionScore);
@@ -46,6 +42,7 @@ public class QuestionScoreController {
         return ResponseEntity.created(location).body(saved);
     }
 
+    // Κάνει update σε υπάρχον QuestionScore
     @PutMapping("/{id}")
     public ResponseEntity<QuestionScore> update(
             @PathVariable("id") Integer id,
@@ -55,15 +52,14 @@ public class QuestionScoreController {
         return ResponseEntity.ok(updated);
     }
 
+    // Διαγράφει QuestionScore με βάση το id
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable("id") Integer id) {
         questionScoreService.delete(id);
         return ResponseEntity.noContent().build();
     }
 
-    // ===== Metrics (1) με interviewReportId =====
-    // Παράδειγμα:
-    // GET /api/v1/question-scores/metrics-by-report?interviewReportId=9&questionIds=13,14,15
+    // Επιστρέφει metrics (σύνολο skills, rated skills, average score) για ερωτήσεις ενός interviewReport
     @GetMapping("/metrics-by-report")
     public ResponseEntity<List<QuestionMetricsItemDTO>> getMetricsByReport(
             @RequestParam Integer interviewReportId,
@@ -80,9 +76,7 @@ public class QuestionScoreController {
         );
     }
 
-    // ===== Metrics (2) bridge με candidateId -> βρίσκουμε εδώ το interviewReportId και καλούμε την ίδια service =====
-    // Παράδειγμα:
-    // GET /api/v1/question-scores/metrics?candidateId=10&questionIds=13,14,15
+    // Επιστρέφει metrics για ερωτήσεις συγκεκριμένου candidate (μέσω του interviewReport του)
     @GetMapping("/metrics")
     public ResponseEntity<List<QuestionMetricsItemDTO>> getMetricsByCandidate(
             @RequestParam Integer candidateId,
@@ -94,13 +88,8 @@ public class QuestionScoreController {
                 .map(Integer::valueOf)
                 .toList();
 
-        Candidate cand = candidateRepository.findById(candidateId)
-                .orElseThrow(() -> new IllegalStateException("Candidate " + candidateId + " does not exist"));
-
-        Integer interviewReportId = (cand.getInterviewReport() != null) ? cand.getInterviewReport().getId() : null;
-
         return ResponseEntity.ok(
-                questionScoreService.getQuestionMetricsByReport(interviewReportId, qids)
+                questionScoreService.getQuestionMetricsByCandidate(candidateId, qids)
         );
     }
 }

@@ -5,7 +5,7 @@ public class CandidateAndJobAdStatusDTO {
     private String candidateStatus;
     private int jobAdId;
     private String jobAdStatus;
-    private long hiredCount; // νέο πεδίο
+    private long hiredCount;
 
     public CandidateAndJobAdStatusDTO() {}
 
@@ -19,7 +19,8 @@ public class CandidateAndJobAdStatusDTO {
         this.hiredCount = hiredCount;
     }
 
-    // getters/setters
+    // Getters & Setters
+
     public int getCandidateId() { return candidateId; }
     public void setCandidateId(int candidateId) { this.candidateId = candidateId; }
 

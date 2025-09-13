@@ -17,28 +17,32 @@ public class InterviewReportService {
         this.interviewReportRepository = interviewReportRepository;
     }
 
+    // Επιστρέφει όλα τα InterviewReports
     public List<InterviewReport> getAll() {
         return interviewReportRepository.findAll();
     }
 
+    // Επιστρέφει InterviewReport με βάση το id
     public Optional<InterviewReport> getById(Integer id) {
         return interviewReportRepository.findById(id);
     }
 
+    // Δημιουργεί νέο InterviewReport
     public InterviewReport create(InterviewReport report) {
-        report.setId(0); // Force insert
+        report.setId(0); // Force insert (να μην γίνει update)
         return interviewReportRepository.save(report);
     }
 
+    // Ενημερώνει υπάρχον InterviewReport
     @Transactional
     public InterviewReport update(Integer id, InterviewReport updatedFields) {
         InterviewReport existing = interviewReportRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("InterviewReport with id " + id + " does not exist"));
 
-        // Εδώ μπορείς να προσθέσεις updates αν προστεθούν editable fields
         return existing;
     }
 
+    // Διαγράφει InterviewReport και αποσυνδέει Candidate/Interview
     @Transactional
     public void delete(Integer id) {
         InterviewReport existing = interviewReportRepository.findById(id)

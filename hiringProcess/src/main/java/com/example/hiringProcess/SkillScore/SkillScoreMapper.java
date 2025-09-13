@@ -7,16 +7,13 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface SkillScoreMapper {
 
-    /* ---------- Entity -> ResponseDTO ---------- */
+    // Entity -> ResponseDTO
     @Mapping(source = "candidate.id", target = "candidateId")
     @Mapping(source = "question.id",  target = "questionId")
     @Mapping(source = "skill.id",     target = "skillId")
     SkillScoreResponseDTO toResponseDTO(SkillScore entity);
 
-    /* ---------- RequestDTO -> Entity (για NEW) ----------
-       Θα δώσουμε εμείς στο service τα proper references (getReferenceById)
-       για candidate/question/skill. Εδώ απλώς χαρτογραφούμε score/comment/ratedBy.
-    */
+    // RequestDTO -> Entity (για NEW)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "candidate", ignore = true)
     @Mapping(target = "question",  ignore = true)
@@ -24,7 +21,7 @@ public interface SkillScoreMapper {
     @Mapping(target = "ratedAt",   expression = "java(Instant.now())")
     SkillScore toNewEntity(SkillScoreUpsertRequestDTO dto);
 
-    /* Helper: πάρε ένα base DTO και γράψε το created flag */
+    // Helper: πάρε ένα base DTO και γράψε το created flag
     default SkillScoreResponseDTO withCreated(SkillScoreResponseDTO base, boolean created) {
         return new SkillScoreResponseDTO(
                 base.id(),

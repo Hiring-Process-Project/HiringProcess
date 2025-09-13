@@ -13,20 +13,18 @@ public class CandidateCommentDTO {
         this.comments = comments;
     }
 
-    // Getters
+    // Getters & Setters
+
     public int getCandidateId() {
         return candidateId;
     }
-
     public String getComments() {
         return comments;
     }
 
-    // Setters (και για mapper, και για PATCH update)
     public void setCandidateId(int candidateId) {
         this.candidateId = candidateId;
     }
-
     public void setComments(String comments) {
         this.comments = comments;
     }

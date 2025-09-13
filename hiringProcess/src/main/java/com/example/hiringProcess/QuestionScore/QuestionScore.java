@@ -33,18 +33,17 @@ public class QuestionScore {
     @JsonIgnore
     private StepScore stepScore;
 
+    public QuestionScore() { }
+
     public QuestionScore(double score){
         this.score=score;
     }
 
-    public QuestionScore() {
-        // Required by JPA
-    }
+    // Getters & Setters
 
     public int getId() {
         return id;
     }
-
     public void setId(int id) {
         this.id = id;
     }
@@ -52,7 +51,6 @@ public class QuestionScore {
     public void setScore(double score) {
         this.score = score;
     }
-
     public double getScore() {
         return score;
     }
@@ -60,7 +58,6 @@ public class QuestionScore {
     public Question getQuestion() {
         return question;
     }
-
     public void setQuestion(Question question) {
         this.question = question;
     }
@@ -68,7 +65,6 @@ public class QuestionScore {
     public StepScore getStepScore() {
         return stepScore;
     }
-
     public void setStepScore(StepScore stepScore) {
         this.stepScore = stepScore;
     }

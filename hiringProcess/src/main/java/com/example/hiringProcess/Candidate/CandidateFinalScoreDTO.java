@@ -5,16 +5,16 @@ public class CandidateFinalScoreDTO {
     private final String firstName;
     private final String lastName;
     private final String status;
-    private final Integer avgScore;  // 0–100 (rounded), μπορεί να είναι null
-    private final long ratedSkills;  // πόσα scores δεν είναι null
-    private final long totalSkills;  // πόσες εγγραφές skill_scores
+    private final Integer avgScore;
+    private final long ratedSkills;
+    private final long totalSkills;
 
     public CandidateFinalScoreDTO(
             int candidateId,
             String firstName,
             String lastName,
             String status,
-            Double avgScoreRaw,   // από AVG(...)
+            Double avgScoreRaw,
             Long ratedSkills,
             Long totalSkills
     ) {
@@ -26,6 +26,8 @@ public class CandidateFinalScoreDTO {
         this.ratedSkills = ratedSkills == null ? 0L : ratedSkills;
         this.totalSkills = totalSkills == null ? 0L : totalSkills;
     }
+
+    // Getters
 
     public int getCandidateId() { return candidateId; }
     public String getFirstName() { return firstName; }
