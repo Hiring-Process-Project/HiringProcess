@@ -47,7 +47,6 @@ public class AnalyticsController {
         return service.getJobAdCandidates(jobAdId);
     }
 
-    // AnalyticsController.java
     @GetMapping("/candidate/{candidateId}/stats")
     public CandidateStatsDto candidateStats2(@PathVariable int candidateId) {
         return service.getCandidateStats(candidateId);

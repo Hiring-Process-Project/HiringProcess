@@ -584,19 +584,20 @@ INSERT INTO skill_score (candidate_id, question_id, skill_id, score) VALUES
 
 -- TOP-UP: συμπλήρωσε Ο,ΤΙ λείπει για Approved/Hired ώστε ΟΛΑ τα skills να είναι rated
 -- (Χωρίς διπλοεγγραφές: εισάγει μόνο όσα δεν υπάρχουν)
-INSERT INTO skill_score (candidate_id, question_id, skill_id, score, rated_at, rated_by, comment)
+INSERT INTO skill_score (candidate_id, question_id, skill_id, score, comment)
 SELECT
     c.id                                        AS candidate_id,
     q.id                                        AS question_id,
     qs.skill_id                                 AS skill_id,
-    CASE
-        WHEN c.status = 'Hired'    THEN 90 + MOD(q.id + c.id, 8)      -- 90–97
-        WHEN c.status = 'Approved' THEN 82 + MOD(q.id + c.id, 8)      -- 82–89
-        ELSE 0
-    END                                          AS score,
-    CURRENT_TIMESTAMP                            AS rated_at,
-    'seed'                                       AS rated_by,
-    NULL                                         AS comment
+    /* προαιρετικά CAST για να ταιριάζει με INTEGER */
+    CAST(
+        CASE
+            WHEN c.status = 'Hired'    THEN 90 + MOD(q.id + c.id, 8)   -- 90–97
+            WHEN c.status = 'Approved' THEN 82 + MOD(q.id + c.id, 8)   -- 82–89
+            ELSE 0
+        END
+    AS INT)                                     AS score,
+    NULL                                        AS comment
 FROM candidate c
 JOIN job_ad ja         ON c.job_ad_id = ja.id
 JOIN interview i       ON ja.interview_id = i.id

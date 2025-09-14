@@ -28,15 +28,12 @@ public class SkillScore {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Instant ratedAt;
-    private String ratedBy;
-
     // Σχέση SkillScore με Candidate
     @ManyToOne(optional = false) @JoinColumn(name = "candidate_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Candidate candidate;
 
-    // Σχέση SkillScore με Candidate
+    // Σχέση SkillScore με Question
     @ManyToOne(optional = false) @JoinColumn(name = "question_id")
     private Question question;
 
@@ -70,10 +67,4 @@ public class SkillScore {
 
     public String getComment() { return comment; }
     public void setComment(String comment) { this.comment = comment; }
-
-    public Instant getRatedAt() { return ratedAt; }
-    public void setRatedAt(Instant ratedAt) { this.ratedAt = ratedAt; }
-
-    public String getRatedBy() { return ratedBy; }
-    public void setRatedBy(String ratedBy) { this.ratedBy = ratedBy; }
 }

@@ -18,7 +18,6 @@ public interface SkillScoreMapper {
     @Mapping(target = "candidate", ignore = true)
     @Mapping(target = "question",  ignore = true)
     @Mapping(target = "skill",     ignore = true)
-    @Mapping(target = "ratedAt",   expression = "java(Instant.now())")
     SkillScore toNewEntity(SkillScoreUpsertRequestDTO dto);
 
     // Helper: πάρε ένα base DTO και γράψε το created flag
@@ -30,8 +29,6 @@ public interface SkillScoreMapper {
                 base.skillId(),
                 base.score(),
                 base.comment(),
-                base.ratedAt(),
-                base.ratedBy(),
                 created
         );
     }

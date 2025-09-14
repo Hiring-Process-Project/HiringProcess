@@ -5,6 +5,5 @@ public record SkillScoreUpsertRequestDTO(
         int questionId,
         int skillId,
         Integer score,
-        String comment,
-        String ratedBy
+        String comment
 ) {}

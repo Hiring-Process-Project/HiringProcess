@@ -1,7 +1,5 @@
 package com.example.hiringProcess.SkillScore;
 
-import java.time.Instant;
-
 public record SkillScoreResponseDTO(
         long id,
         int candidateId,
@@ -9,7 +7,5 @@ public record SkillScoreResponseDTO(
         int skillId,
         Integer score,
         String comment,
-        Instant ratedAt,
-        String ratedBy,
         boolean created
 ) {}

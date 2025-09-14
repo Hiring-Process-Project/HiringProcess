@@ -49,8 +49,6 @@ public class SkillScoreService {
             SkillScore existing = existingOpt.get();
             existing.setScore(dto.score());
             existing.setComment(dto.comment());
-            existing.setRatedBy(dto.ratedBy());
-            existing.setRatedAt(Instant.now());
             SkillScore saved = skillScoreRepository.save(existing);
             return mapper.withCreated(mapper.toResponseDTO(saved), false);
         }
