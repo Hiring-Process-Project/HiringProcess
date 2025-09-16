@@ -31,6 +31,8 @@ public class Candidate {
     private String cvPath;
     private String cvOriginalName;
     private String status;
+    @Lob
+    @Column
     private String comments;
 
     // Σχέση Candidate με JobAd

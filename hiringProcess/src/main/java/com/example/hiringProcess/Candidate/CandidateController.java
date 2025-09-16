@@ -557,6 +557,31 @@ public class CandidateController {
         }
     }
 
+    // Ενημερώνει το σχόλιο (comments) ενός υποψηφίου βάσει id
+//    @PatchMapping("/{id}/comments")
+//    public ResponseEntity<Void> saveCandidateComment(
+//            @PathVariable Integer id,
+//            @RequestBody CandidateCommentDTO dto) {
+//
+//        if (dto == null || dto.getComments() == null) {
+//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "comments is required");
+//        }
+//        candidateService.updateComments(id, dto.getComments());
+//        return ResponseEntity.noContent().build();
+//    }
+    @PatchMapping("/{id}/comments")
+    public ResponseEntity<Void> updateCandidateComments(
+            @PathVariable Integer id,
+            @RequestBody CandidateCommentDTO dto) {
+
+        if (dto == null || dto.getComments() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "comments are required");
+        }
+        candidateService.updateComments(id, dto.getComments());
+        return ResponseEntity.noContent().build();
+    }
+
+
     // Helper: επίλυση resource από classpath ή uploads/cv
     private Resource resolveResource(String path) {
         if (path == null || path.isBlank()) return null;
@@ -577,6 +602,7 @@ public class CandidateController {
         } catch (Exception ignored) { }
         return null;
     }
+
 
     // Helper: καθαρισμός filename
     private String sanitize(String s) {
