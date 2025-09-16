@@ -9,7 +9,7 @@ import org.mapstruct.factory.Mappers;
 
 @Mapper(
         componentModel = "spring",
-        unmappedTargetPolicy = ReportingPolicy.ERROR // αν θες αυστηρότητα
+        unmappedTargetPolicy = ReportingPolicy.ERROR
 )
 public interface CandidateMapper {
 
