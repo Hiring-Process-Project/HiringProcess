@@ -34,8 +34,11 @@ public class SkillScore {
     private Candidate candidate;
 
     // Σχέση SkillScore με Question
-    @ManyToOne(optional = false) @JoinColumn(name = "question_id")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "question_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)  // optional, βοηθά αν το DDL το υποστηρίζει
     private Question question;
+
 
     // Σχέση SkillScore με Skill
     @ManyToOne(optional = false) @JoinColumn(name = "skill_id")

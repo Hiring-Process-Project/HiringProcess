@@ -2,6 +2,7 @@ package com.example.hiringProcess.Question;
 
 import com.example.hiringProcess.QuestionScore.QuestionScore;
 import com.example.hiringProcess.Skill.Skill;
+import com.example.hiringProcess.SkillScore.SkillScore;
 import com.example.hiringProcess.Step.Step;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -41,6 +42,11 @@ public class Question {
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<QuestionScore> questionScore = new ArrayList<>();
+
+    @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<SkillScore> skillScores = new ArrayList<>();
+
 
 
 
