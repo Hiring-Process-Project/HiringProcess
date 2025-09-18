@@ -2,6 +2,7 @@ package com.example.hiringProcess.QuestionScore;
 
 import com.example.hiringProcess.Candidate.Candidate;
 import com.example.hiringProcess.Candidate.CandidateRepository;
+import com.example.hiringProcess.Question.Question;
 import com.example.hiringProcess.Question.QuestionRepository;
 import com.example.hiringProcess.SkillScore.SkillScoreRepository;
 import jakarta.transaction.Transactional;
@@ -58,6 +59,10 @@ public class QuestionScoreService {
             existing.setScore(updatedFields.getScore());
         }
         return existing;
+    }
+
+    public List<Question> getQuestionsByStep(Integer stepId) {
+        return questionRepository.findByStepIdOrderByPositionAsc(stepId);
     }
 
     @Transactional

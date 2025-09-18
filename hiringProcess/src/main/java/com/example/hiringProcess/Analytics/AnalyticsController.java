@@ -89,5 +89,14 @@ public class AnalyticsController {
         return service.getSkillStats(skillId);
     }
 
+    // AnalyticsController.java
+    @GetMapping("/jobad/{jobAdId}/question/{questionId}/skill/{skillId}")
+    public SkillStatsDto skillStatsForJobAdQuestion(
+            @PathVariable int jobAdId,
+            @PathVariable int questionId,
+            @PathVariable int skillId) {
+        return service.getSkillStatsForJobAdQuestion(jobAdId, questionId, skillId);
+    }
+
 
 }

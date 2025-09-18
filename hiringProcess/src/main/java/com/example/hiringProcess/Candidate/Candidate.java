@@ -5,6 +5,8 @@ import com.example.hiringProcess.JobAd.JobAd;
 import com.example.hiringProcess.SkillScore.SkillScore;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.util.ArrayList;
 import java.util.List;

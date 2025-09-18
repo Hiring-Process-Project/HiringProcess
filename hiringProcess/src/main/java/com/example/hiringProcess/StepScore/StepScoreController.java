@@ -1,12 +1,13 @@
 package com.example.hiringProcess.StepScore;
 
+import com.example.hiringProcess.Step.Step;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
 import java.util.List;
 
-@CrossOrigin(origins = {"http://localhost:3000","http://localhost:5173"})
+@CrossOrigin(origins = {"http://localhost:3000"})
 @RestController
 @RequestMapping("/api/v1/step-scores")
 
@@ -18,8 +19,30 @@ public class StepScoreController {
         this.service = service;
     }
 
-    // Επιστρέφει τα metrics (στατιστικά/αποτελέσματα) για έναν υποψήφιο,
-    // φιλτραρισμένα με βάση μια λίστα από stepIds
+    // Επιστρέφει ένα συγκεκριμένο Step με βάση το id
+    @GetMapping("/{id}")
+    public ResponseEntity<Step> getStepById(@PathVariable("id") Integer id) {
+        return service.getStepById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    // Επιστρέφει όλα τα Steps
+    @GetMapping
+    public ResponseEntity<List<Step>> getAllSteps() {
+        return ResponseEntity.ok(service.getAllSteps());
+    }
+
+    // Επιστρέφει όλα τα Steps που ανήκουν σε συγκεκριμένο InterviewReport
+    @GetMapping("/by-report")
+    public ResponseEntity<List<Step>> getStepsByInterviewReport(
+            @RequestParam Integer interviewReportId
+    ) {
+        List<Step> steps = service.getStepsByInterviewReportId(interviewReportId);
+        return ResponseEntity.ok(steps);
+    }
+
+    // Επιστρέφει τα metrics (στατιστικά/αποτελέσματα) για έναν υποψήφιο
     @GetMapping("/metrics")
     public ResponseEntity<List<StepMetricsItemDTO>> getMetricsByCandidate(
             @RequestParam Integer candidateId,
@@ -33,5 +56,4 @@ public class StepScoreController {
 
         return ResponseEntity.ok(service.getStepMetricsByCandidate(candidateId, sids));
     }
-
 }

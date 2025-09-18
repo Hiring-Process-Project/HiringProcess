@@ -1,7 +1,5 @@
 package com.example.hiringProcess.Candidate;
 
-// Candidates tab
-// get
 public class CandidateDTO {
     private final int id;
     private final String firstName;

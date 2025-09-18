@@ -75,4 +75,8 @@ public interface QuestionRepository extends JpaRepository<Question, Integer> {
        where q.step.id in :stepIds
     """)
     List<Object[]> listQuestionIdsByStepIds(@Param("stepIds") Collection<Integer> stepIds);
+
+
+    List<Question> findByStepIdOrderByPositionAsc(Integer stepId);
+
 }

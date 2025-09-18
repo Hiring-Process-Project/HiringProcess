@@ -78,4 +78,6 @@ public interface SkillScoreRepository extends JpaRepository<SkillScore, Long> {
             @Param("qids") Collection<Integer> qids
     );
 
+    List<SkillScore> findByQuestionId(int questionId);
+
 }

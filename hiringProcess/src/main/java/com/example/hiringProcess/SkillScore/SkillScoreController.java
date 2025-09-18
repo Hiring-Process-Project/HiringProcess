@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = {"http://localhost:3000","http://localhost:5173"})
+@CrossOrigin(origins = {"http://localhost:3000"})
 @RestController
 @RequestMapping("/api/v1/skill-scores")
 public class SkillScoreController {
@@ -43,13 +43,6 @@ public class SkillScoreController {
         return skillScoreService.listForCandidateQuestion(candidateId, questionId);
     }
 
-    // Διαγράφει skillScore με id εγγραφής skill_score
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable long id) {
-        skillScoreService.deleteById(id);
-        return ResponseEntity.noContent().build();
-    }
-
     // Διαγράφει βάσει tuple (candidate, question, skill)
     @DeleteMapping("/candidate/{candidateId}/question/{questionId}/skill/{skillId}")
     public ResponseEntity<Void> deleteTuple(
@@ -59,4 +52,17 @@ public class SkillScoreController {
         skillScoreService.deleteTuple(candidateId, questionId, skillId);
         return ResponseEntity.noContent().build();
     }
+
+    // Επιστρέφει όλα τα skill scores
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<SkillScoreResponseDTO> listAll() {
+        return skillScoreService.listAll();
+    }
+
+    // Επιστρέφει όλα τα skill scores για συγκεκριμένο question (όλων των υποψηφίων)
+    @GetMapping(value = "/question/{questionId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<SkillScoreResponseDTO> listForQuestion(@PathVariable int questionId) {
+        return skillScoreService.listForQuestion(questionId);
+    }
+
 }

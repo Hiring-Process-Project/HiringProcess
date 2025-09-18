@@ -1,7 +1,11 @@
 package com.example.hiringProcess.StepScore;
 
+import com.example.hiringProcess.InterviewReport.InterviewReportRepository;
 import com.example.hiringProcess.Question.QuestionRepository;
 import com.example.hiringProcess.SkillScore.SkillScoreRepository;
+import com.example.hiringProcess.Step.Step;
+import com.example.hiringProcess.Step.StepRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +20,26 @@ public class StepScoreService {
     public StepScoreService(QuestionRepository questionRepository,SkillScoreRepository skillScoreRepository) {
         this.questionRepository = questionRepository;
         this.skillScoreRepository = skillScoreRepository;
+    }
+    @Autowired
+    private InterviewReportRepository interviewReportRepository;
+
+    @Autowired
+    private StepRepository stepRepository;
+
+    public Optional<Step> getStepById(Integer id) {
+        return stepRepository.findById(id);
+    }
+
+    public List<Step> getAllSteps() {
+        return stepRepository.findAll(); // ή με sort αν θες π.χ. κατά interviewId
+    }
+
+    public List<Step> getStepsByInterviewReportId(Integer interviewReportId) {
+        var report = interviewReportRepository.findById(interviewReportId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid report ID: " + interviewReportId));
+
+        return stepRepository.findByInterviewIdOrderByPositionAsc(report.getInterview().getId());
     }
 
     // Υπολογίζει metrics (στατιστικά) για συγκεκριμένα βήματα (steps) ενός job ad για έναν υποψήφιο

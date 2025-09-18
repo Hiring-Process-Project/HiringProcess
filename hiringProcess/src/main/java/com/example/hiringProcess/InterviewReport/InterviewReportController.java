@@ -7,13 +7,13 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.util.List;
 
+@CrossOrigin(origins = {"http://localhost:3000"})
 @RestController
 @RequestMapping("/api/v1/interview-reports")
 public class InterviewReportController {
 
     private final InterviewReportService interviewReportService;
 
-    @Autowired
     public InterviewReportController(InterviewReportService interviewReportService) {
         this.interviewReportService = interviewReportService;
     }

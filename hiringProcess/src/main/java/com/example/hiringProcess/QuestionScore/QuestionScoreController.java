@@ -1,21 +1,20 @@
 package com.example.hiringProcess.QuestionScore;
 
+import com.example.hiringProcess.Question.Question;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 
-@CrossOrigin(origins = {"http://localhost:3000","http://localhost:5173"})
+@CrossOrigin(origins = {"http://localhost:3000"})
 @RestController
 @RequestMapping("/api/v1/question-scores")
 public class QuestionScoreController {
 
     private final QuestionScoreService questionScoreService;
 
-    @Autowired
     public QuestionScoreController(QuestionScoreService questionScoreService) {
         this.questionScoreService = questionScoreService;
     }
@@ -34,46 +33,12 @@ public class QuestionScoreController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // Δημιουργεί νέο QuestionScore
-    @PostMapping
-    public ResponseEntity<QuestionScore> create(@RequestBody QuestionScore questionScore) {
-        QuestionScore saved = questionScoreService.create(questionScore);
-        URI location = URI.create("/api/v1/question-scores/" + saved.getId());
-        return ResponseEntity.created(location).body(saved);
-    }
-
-    // Κάνει update σε υπάρχον QuestionScore
-    @PutMapping("/{id}")
-    public ResponseEntity<QuestionScore> update(
-            @PathVariable("id") Integer id,
-            @RequestBody QuestionScore updatedFields
+    // Επιστρέφει μια λίστα QuestionScore που αντιστοιχούν σε ένα step
+    @GetMapping("/by-step")
+    public ResponseEntity<List<Question>> getQuestionsByStep(
+            @RequestParam Integer stepId
     ) {
-        QuestionScore updated = questionScoreService.update(id, updatedFields);
-        return ResponseEntity.ok(updated);
-    }
-
-    // Διαγράφει QuestionScore με βάση το id
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable("id") Integer id) {
-        questionScoreService.delete(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    // Επιστρέφει metrics (σύνολο skills, rated skills, average score) για ερωτήσεις ενός interviewReport
-    @GetMapping("/metrics-by-report")
-    public ResponseEntity<List<QuestionMetricsItemDTO>> getMetricsByReport(
-            @RequestParam Integer interviewReportId,
-            @RequestParam String questionIds
-    ) {
-        List<Integer> qids = Arrays.stream(questionIds.split(","))
-                .map(String::trim)
-                .filter(s -> !s.isEmpty())
-                .map(Integer::valueOf)
-                .toList();
-
-        return ResponseEntity.ok(
-                questionScoreService.getQuestionMetricsByReport(interviewReportId, qids)
-        );
+        return ResponseEntity.ok(questionScoreService.getQuestionsByStep(stepId));
     }
 
     // Επιστρέφει metrics για ερωτήσεις συγκεκριμένου candidate (μέσω του interviewReport του)
@@ -92,4 +57,18 @@ public class QuestionScoreController {
                 questionScoreService.getQuestionMetricsByCandidate(candidateId, qids)
         );
     }
+    @GetMapping("/metrics-by-report")
+    public ResponseEntity<List<QuestionMetricsItemDTO>> getMetricsByReport(
+            @RequestParam Integer interviewReportId,
+            @RequestParam String questionIds
+    ) {
+        List<Integer> qids = Arrays.stream(questionIds.split(","))
+                .map(String::trim).filter(s -> !s.isEmpty())
+                .map(Integer::valueOf).toList();
+
+        return ResponseEntity.ok(
+                questionScoreService.getQuestionMetricsByReport(interviewReportId, qids)
+        );
+    }
+
 }

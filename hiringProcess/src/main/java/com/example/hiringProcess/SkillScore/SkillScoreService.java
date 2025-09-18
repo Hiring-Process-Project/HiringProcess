@@ -74,4 +74,19 @@ public class SkillScoreService {
     public void deleteTuple(int candidateId, int questionId, int skillId) {
         skillScoreRepository.deleteByCandidateIdAndQuestionIdAndSkillId(candidateId, questionId, skillId);
     }
+    /** Επιστρέφει ΟΛΑ τα skill scores (ως DTOs) */
+    public List<SkillScoreResponseDTO> listAll() {
+        return skillScoreRepository.findAll()
+                .stream()
+                .map(mapper::toResponseDTO)
+                .toList();
+    }
+
+    /** Επιστρέφει ΟΛΑ τα skill scores για συγκεκριμένο question (όλων των υποψηφίων) */
+    public List<SkillScoreResponseDTO> listForQuestion(int questionId) {
+        return skillScoreRepository.findByQuestionId(questionId)
+                .stream()
+                .map(mapper::toResponseDTO)
+                .toList();
+    }
 }
