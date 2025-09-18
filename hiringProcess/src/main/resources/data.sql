@@ -582,6 +582,27 @@ INSERT INTO skill_score (candidate_id, question_id, skill_id, score) VALUES
 -- Rejected 46: ένα ακόμη χαμηλό
 (46, 93, 27, 20);
 
+-- === EXTRA DEPARTMENTS (no job ads) ===
+INSERT INTO department (id, name, location, description, organisation_id) VALUES
+(7,  'Product',            'Athens',       'Product management & discovery',           3),
+(8,  'Quality Assurance',  'Thessaloniki', 'Manual & automated testing',               3),
+(9,  'IT Support',         'Athens',       'Helpdesk, device mgmt & internal tools',   3),
+(10, 'Security',           'Athens',       'AppSec, SecOps, compliance',               3),
+(11, 'Research',           'Patra',        'Applied research & prototyping',           3),
+(12, 'Marketing',          'Remote',       'Tech marketing & communications',          3);
+
+-- === EXTRA OCCUPATIONS (no job ads) ===
+INSERT INTO occupation (id, title, esco_id) VALUES
+(15, 'Product Manager',           'esco_9901'),
+(16, 'QA Engineer',               'esco_9902'),
+(17, 'UX/UI Designer',            'esco_9903'),
+(18, 'IT Support Specialist',     'esco_9904'),
+(19, 'Security Analyst',          'esco_9905'),
+(20, 'Cloud Architect',           'esco_9906'),
+(21, 'Database Administrator',    'esco_9907'),
+(22, 'Business Analyst',          'esco_9908');
+
+
 -- TOP-UP: συμπλήρωσε Ο,ΤΙ λείπει για Approved/Hired ώστε ΟΛΑ τα skills να είναι rated
 -- (Χωρίς διπλοεγγραφές: εισάγει μόνο όσα δεν υπάρχουν)
 INSERT INTO skill_score (candidate_id, question_id, skill_id, score, comment)
@@ -619,3 +640,21 @@ WHERE c.status IN ('Approved','Hired')
 ALTER SEQUENCE IF EXISTS candidate_sequence        RESTART WITH 1000;
 ALTER SEQUENCE IF EXISTS interview_report_sequence RESTART WITH 1000;
 
+-- === Minimal fixes (append after your INSERTs) ===
+
+-- 1) JobAds με candidates σε "Pending" -> "Published" για συνέπεια
+UPDATE job_ad SET status = 'Published' WHERE id IN (18, 20, 22, 24);
+
+-- 2) Unique email για τη Maria (SRE Hired, id=48)
+UPDATE candidate
+SET email = 'maria.p.sre@example.com'
+WHERE id = 48;
+
+-- 3) Ρεαλιστικά comments για Hired υποψηφίους (χωρίς «περίεργες» παρατηρήσεις)
+UPDATE candidate
+SET comments = 'Strong SRE fundamentals; incident response under pressure; ownership mindset'
+WHERE id = 48;  -- SRE (JobAd 23)
+
+UPDATE candidate
+SET comments = 'Published papers; solid DL implementations; reproducible experiments'
+WHERE id = 47;  -- AI Research (JobAd 25)
