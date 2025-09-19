@@ -2,14 +2,7 @@ package com.example.hiringProcess.Analytics;
 
 import java.util.List;
 
-/**
- * Στατιστικά δεξιότητας.
- * - avgSkillScore: μέσος όρος σε κλίμακα 0..10 (το UI μπορεί να τον πολλαπλασιάζει *10 για 0–100)
- * - passRate: ποσοστό (%) υποψηφίων με μέσο όρο >= 5.0
- * - passCount: πόσοι πέρασαν (avg >= 5.0) στο εκάστοτε context
- * - totalCount: πόσοι υποψήφιοι συμμετέχουν (έχουν τουλάχιστον ένα σχετικό skill_score)
- * - distribution: κατανομή 0–100 σε 10άδες (buckets)
- */
+
 public class SkillStatsDto {
 
     /** Μέση βαθμολογία δεξιότητας (0..10). */

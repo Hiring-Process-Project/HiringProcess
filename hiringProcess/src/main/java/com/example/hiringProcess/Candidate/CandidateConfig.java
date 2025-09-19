@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Configuration;
 public class CandidateConfig {
     @Bean(name = "candidateCommandLineRunner")
     CommandLineRunner commandLineRunner(CandidateRepository repository){
-        System.out.println("HIIIIIIIIIIIIIIII");
         return args -> {
             System.out.println("Saving candidates...");
             System.out.println("Candidates saved.");

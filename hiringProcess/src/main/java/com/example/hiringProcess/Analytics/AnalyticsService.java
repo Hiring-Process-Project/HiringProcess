@@ -127,54 +127,6 @@ public class AnalyticsService {
 
     /* ---------------------- Occupation scope --------------------- */
 
-//    public OccupationStatsDto getOccupationStats(int deptId, int occId) {
-//        long total    = repo.countTotalCandidatesByDeptOcc(deptId, occId);
-//        long approved = repo.countCandidatesByStatusDeptOcc(deptId, occId, "Approved");
-//        long rejected = repo.countCandidatesByStatusDeptOcc(deptId, occId, "Rejected");
-//        long hires = repo.countCandidatesByStatusDeptOcc(deptId, occId, "Hired");
-//
-//        double approvalRate  = percent(approved, total);
-//        double rejectionRate = percent(rejected, total);
-//        double hireRate      = percent(hires, total);
-//
-//        double candPerJobAd  = repo.avgCandidatesPerJobAdDeptOcc(deptId, occId);
-//
-//        List<Double> scores = repo.candidateAvgScoresByDeptOcc(deptId, occId);
-//        long[] buckets = new long[10];
-//        for (Double s : scores) {
-//            if (s == null) continue;
-//            double v = Math.max(0.0, Math.min(10.0, s));
-//            int idx = (int)Math.floor(v);
-//            if (idx < 0) idx = 0; if (idx > 9) idx = 9;
-//            buckets[idx]++;
-//        }
-//        List<ScoreBucketDto> dist = new ArrayList<>(10);
-//        for (int i = 0; i < 10; i++) {
-//            int from = i * 10;
-//            int to   = (i == 9) ? 100 : (i * 10 + 9);
-//            dist.add(new ScoreBucketDto(from, to, buckets[i]));
-//        }
-//
-//        // συνολικοί υποψήφιοι για το συγκεκριμένο dept+occ
-//        long totalCandidates = total; // το 'total' το έχεις ήδη παραπάνω
-//
-//        // ranking: Job Ad Difficulty (lower = harder)
-//        List<JobAdAvgDto> jobAdDiff = repo.jobAdDifficultyByDeptOcc(deptId, occId);
-//
-//
-//        // Προσθέτουμε το hireRate στο DTO
-//        return new OccupationStatsDto(
-//                approvalRate,
-//                rejectionRate,
-//                hireRate,
-//                hires,
-//                round1(candPerJobAd),
-//                dist,
-//                totalCandidates,
-//                jobAdDiff
-//        );
-//
-//    }
 public OccupationStatsDto getOccupationStats(int deptId, int occId) {
     long total    = repo.countTotalCandidatesByDeptOcc(deptId, occId);
     long approved = repo.countCandidatesByStatusDeptOcc(deptId, occId, "Approved");
@@ -217,7 +169,6 @@ public OccupationStatsDto getOccupationStats(int deptId, int occId) {
             jobAdDiff
     );
 }
-
 
     /* ------------------------ Job Ad scope ------------------------ */
 
@@ -280,7 +231,6 @@ public OccupationStatsDto getOccupationStats(int deptId, int occId) {
                 complete
         );
     }
-
 
     /* ------------------------ Candidate scope ------------------------ */
 
@@ -365,16 +315,16 @@ public OccupationStatsDto getOccupationStats(int deptId, int occId) {
         List<Double> avgs = repo.candidateQuestionAverages(jobAdId, questionId); // 0–100
         long total = avgs.size();
         long passes = avgs.stream()
-                .filter(a -> a != null && a >= 50.0)   // ✅ pass threshold 50 σε κλίμακα 0–100
+                .filter(a -> a != null && a >= 50.0)
                 .count();
         double passRate = percent(passes, total);
 
-        long[] buckets = new long[10];                 // 0–9, 10–19, ..., 90–100
+        long[] buckets = new long[10];
         for (Double a : avgs) {
             if (a == null) continue;
-            double v = Math.max(0.0, Math.min(100.0, a));      // ✅ clamp 0–100
-            int idx = (int) Math.floor(v / 10.0);              // ✅ 0..9
-            if (idx > 9) idx = 9;                              // 100 → 9
+            double v = Math.max(0.0, Math.min(100.0, a));
+            int idx = (int) Math.floor(v / 10.0);
+            if (idx > 9) idx = 9;
             if (idx < 0) idx = 0;
             buckets[idx]++;
         }
@@ -396,7 +346,6 @@ public OccupationStatsDto getOccupationStats(int deptId, int occId) {
         );
     }
 
-
     public java.util.List<QuestionLiteDto> getQuestionsForJobAdStep(int jobAdId, int stepId) {
         return repo.questionsForJobAdStep(jobAdId, stepId);
     }
@@ -413,7 +362,7 @@ public OccupationStatsDto getOccupationStats(int deptId, int occId) {
 
         // 2) Candidate averages για pass rate + histogram
         var avgs = repo.candidateSkillAverages(skillId); // 0..10, μπορεί να έχει null
-        long total  = avgs.stream().filter(a -> a != null).count();                // <-- φιλτράρουμε nulls
+        long total  = avgs.stream().filter(a -> a != null).count();
         long passes = avgs.stream().filter(a -> a != null && a >= 5.0).count();
         double passRate = percent(passes, total);
 

@@ -79,4 +79,7 @@ public interface QuestionRepository extends JpaRepository<Question, Integer> {
 
     List<Question> findByStepIdOrderByPositionAsc(Integer stepId);
 
+    List<Question> findByStep_Interview_Id(Integer interviewId);
+
+
 }

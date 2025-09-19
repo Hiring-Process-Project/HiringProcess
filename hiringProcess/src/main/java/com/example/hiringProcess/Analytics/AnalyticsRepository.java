@@ -50,44 +50,6 @@ public class AnalyticsRepository {
         return n == null ? 0L : n;
     }
 
-    /* === Mappers === */
-//    // Επιστρέφει τα καλύτερα N skills του οργανισμού
-//    public List<SkillAvgDto> topSkillsByOrg(int orgId, int limit) {
-//        String sql = """
-//    SELECT s.title AS skill, AVG(ss.score) AS avg_score
-//    FROM skill_score ss
-//    JOIN candidate c           ON c.id = ss.candidate_id
-//    JOIN job_ad ja             ON ja.id = c.job_ad_id
-//    JOIN jobad_department jd   ON jd.jobad_id = ja.id
-//    JOIN department d          ON d.id = jd.department_id
-//    JOIN skill s               ON s.id = ss.skill_id
-//    WHERE d.organisation_id = :orgId
-//    GROUP BY s.title
-//    HAVING COUNT(ss.score) > 0
-//    ORDER BY avg_score DESC
-//    LIMIT :limit
-//  """;
-//        return jdbc.query(sql, Map.of("orgId", orgId, "limit", limit), AnalyticsMapper.SKILL_AVG);
-//    }
-//
-//    // Επιστρέφει τα χειρότερα N skills του οργανισμού
-//    public List<SkillAvgDto> weakestSkillsByOrg(int orgId, int limit) {
-//        String sql = """
-//    SELECT s.title AS skill, AVG(ss.score) AS avg_score
-//    FROM skill_score ss
-//    JOIN candidate c           ON c.id = ss.candidate_id
-//    JOIN job_ad ja             ON ja.id = c.job_ad_id
-//    JOIN jobad_department jd   ON jd.jobad_id = ja.id
-//    JOIN department d          ON d.id = jd.department_id
-//    JOIN skill s               ON s.id = ss.skill_id
-//    WHERE d.organisation_id = :orgId
-//    GROUP BY s.title
-//    HAVING COUNT(ss.score) > 0
-//    ORDER BY avg_score ASC
-//    LIMIT :limit
-//  """;
-//        return jdbc.query(sql, Map.of("orgId", orgId, "limit", limit), AnalyticsMapper.SKILL_AVG);
-//    }
     // Top (ίσο βάρος ανά candidate)
     public List<SkillAvgDto> topSkillsByOrg(int orgId, int limit) {
         String sql = """
@@ -144,8 +106,6 @@ public class AnalyticsRepository {
         return jdbc.query(sql, Map.of("orgId", orgId, "limit", limit), AnalyticsMapper.SKILL_AVG);
     }
 
-
-    // Προσθήκη: μέσοι όροι υποψηφίων (0..10) για ΟΛΟ τον οργανισμό
     // Μέσοι όροι υποψηφίων (skills only) για ΟΛΟ τον οργανισμό, σε κλίμακα 0–10
     public List<Double> candidateAvgScoresByOrg(int orgId) {
         String sql = """
@@ -165,7 +125,6 @@ public class AnalyticsRepository {
     """;
         return jdbc.query(sql, Map.of("orgId", orgId), (rs, i) -> rs.getDouble("avg10"));
     }
-
 
     // Μέσος αριθμός υποψηφίων ανά Job Ad για έναν οργανισμό
     public double avgCandidatesPerJobAdOrg(int orgId) {
@@ -230,9 +189,6 @@ public class AnalyticsRepository {
     }
 
     // Επιστρέφει histogram κατανομής βαθμών (buckets 0–9) ανά department (0–100 ranges)
-    // NEW: μέσοι όροι βαθμών (0–10) για όλα τα candidates ενός department
-    // Μέσοι όροι βαθμών (skills only) για όλα τα candidates ενός department
-// σε κλίμακα 0–10 (για να ταιριάζει με τα υπόλοιπα dept/organization).
     public List<Double> candidateAvgScoresByDept(int deptId) {
         String sql = """
     WITH scale AS (
@@ -253,9 +209,6 @@ public class AnalyticsRepository {
 
 
     // Υπολογίζει για το συγκεκριμένο department τον μέσο όρο σκορ ανά occupation,
-// ΒΑΣΙΣΜΕΝΟ ΑΠΟΚΛΕΙΣΤΙΚΑ στα skills:
-// 1) per-JobAd avg από skill_score για τις ερωτήσεις του JobAd (0–100)
-// 2) μέσος όρος των JobAd averages ανά occupation
     public List<OccupationAvgDto> occupationDifficultyByDept(int deptId) {
         String sql = """
     WITH scale AS (
@@ -308,7 +261,6 @@ public class AnalyticsRepository {
         );
     }
 
-
     /* ======================  OCCUPATION (within Dept)  ====================== */
 
     // Μετρά όλους τους υποψήφιους για το συγκεκριμένο department -> occupation
@@ -354,8 +306,6 @@ public class AnalyticsRepository {
         return v == null ? 0.0 : v;
     }
 
-    // Υπολογίζει τον Μ.Ο. τελικού score υποψηφίου σε ΚΛΙΜΑΚΑ 0–10 για dept+occupation
-    // Μ.Ο. τελικού score υποψηφίου σε ΚΛΙΜΑΚΑ 0–100 για dept+occupation
     // Μ.Ο. τελικού score υποψηφίου σε ΚΛΙΜΑΚΑ 0–100 για dept+occupation (skills only)
     public List<Double> candidateAvgScoresByDeptOcc(int deptId, int occId) {
         String sql = """
@@ -380,11 +330,7 @@ public class AnalyticsRepository {
                 (rs, i) -> rs.getDouble("avg100"));
     }
 
-
-    // Eπιστρέφει για το συγκεκριμενο occupation λίστα με τον μέσο (κανονικοποιημένο σε 0–10)
-    // βαθμό υποψηφίων ανά αγγελία, ταξινομημένη αυξάνουσα.
     // Λίστα με Μ.Ο. (0–100) υποψηφίων ανά αγγελία, ταξινομημένη αυξ.
-    // Λίστα με Μ.Ο. (0–100) υποψηφίων ανά αγγελία, ταξινομημένη αυξ., μόνο από skill_score
     public List<JobAdAvgDto> jobAdDifficultyByDeptOcc(int deptId, int occId) {
         String sql = """
     WITH scale AS (
@@ -412,7 +358,6 @@ public class AnalyticsRepository {
         return jdbc.query(sql, Map.of("deptId", deptId, "occId", occId), AnalyticsMapper.JOBAD_AVG);
     }
 
-
     /* ======================  JOB AD  ====================== */
 
     // Μετρά όλους τους υποψήφιους για το συγκεκριμένο job ad
@@ -437,31 +382,6 @@ public class AnalyticsRepository {
         Long n = jdbc.queryForObject(sql, Map.of("jobAdId", jobAdId, "status", status), Long.class);
         return n == null ? 0L : n;
     }
-
-
-//    public List<Double> candidateAvgScoresByJobAd(int jobAdId) {
-//        String sql = """
-//    WITH scale AS (
-//      -- Αν το skill_score είναι ήδη 0..100 -> 1.0, αλλιώς (0..10) -> 10.0
-//      SELECT CASE WHEN (SELECT COALESCE(MAX(score),0) FROM skill_score) > 10
-//                  THEN 1.0 ELSE 10.0 END AS ssf
-//    ),
-//    s AS (
-//      -- Μέσος όρος skill_score ανά υποψήφιο, scaled σε 0..100
-//      SELECT c.id AS cid, AVG(ss.score) * (SELECT ssf FROM scale) AS avg100
-//      FROM candidate c
-//      LEFT JOIN skill_score ss ON ss.candidate_id = c.id
-//      WHERE c.job_ad_id = :jobAdId
-//      GROUP BY c.id
-//    )
-//    SELECT s.avg100
-//    FROM candidate c
-//    LEFT JOIN s ON s.cid = c.id
-//    WHERE c.job_ad_id = :jobAdId
-//      AND s.avg100 IS NOT NULL
-//    """;
-//        return jdbc.query(sql, Map.of("jobAdId", jobAdId), (rs, i) -> rs.getDouble("avg100"));
-//    }
 
     // 1) Skills-only per candidate average (0–100)
     public List<Double> candidateAvgScoresByJobAd(int jobAdId) {
@@ -505,7 +425,6 @@ public class AnalyticsRepository {
         return scoreDistributionFromScores(s);
     }
 
-
     // Υπολογίζει τον μέσο βαθμό ανά step της αγγελίας (χαμηλότερο = δυσκολότερο)
     public List<StepAvgDto> stepDifficultyByJobAd(int jobAdId) {
         String sql = """
@@ -540,8 +459,6 @@ public class AnalyticsRepository {
         """;
         return jdbc.query(sql, Map.of("jobAdId", jobAdId), AnalyticsMapper.STEP_AVG);
     }
-
-
 
     // Υπολογίζει τον μέσο βαθμό ανά question της αγγελίας (χαμηλότερο = δυσκολότερο)
     public List<QuestionAvgDto> questionDifficultyByJobAd(int jobAdId) {
@@ -609,8 +526,6 @@ public class AnalyticsRepository {
         return jdbc.query(sql, Map.of("jobAdId", jobAdId), AnalyticsMapper.SKILL_AVG);
     }
 
-
-
     /* ======================  CANDIDATE  ====================== */
 
     // Επιστρέφει το συνολικό score ενός υποψηφίου
@@ -652,7 +567,6 @@ public class AnalyticsRepository {
         return jdbc.query(sql, Map.of("candId", candidateId), AnalyticsMapper.QUESTION_SCORE);
     }
 
-
     // Επιστρέφει μέσο όρο βαθμολογίας ανά step για τον υποψήφιο
     public List<StepAvgDto> candidateStepScores(int candidateId) {
         String sql = """
@@ -682,7 +596,6 @@ public class AnalyticsRepository {
         return jdbc.query(sql, Map.of("candId", candidateId), AnalyticsMapper.STEP_AVG);
     }
 
-
     // Επιστρέφει μέσο όρο βαθμολογίας ανά skill του υποψηφίου
     public List<SkillAvgDto> candidateSkillScores(int candidateId) {
         String sql = """
@@ -699,7 +612,6 @@ public class AnalyticsRepository {
     """;
         return jdbc.query(sql, Map.of("candId", candidateId), AnalyticsMapper.SKILL_AVG);
     }
-
 
     // Επιστρέφει τα N ισχυρότερα skills του υποψηφίου
     public List<SkillAvgDto> topSkillsForCandidate(int candidateId, int limit) {
@@ -779,7 +691,6 @@ public class AnalyticsRepository {
         return jdbc.query(sql, Map.of("jobAdId", jobAdId), AnalyticsMapper.STEP_LITE);
     }
 
-
     // Επιστρέφει τον μέσο όρο όλων των scores του συγκεκριμένου step, για το συγκεκριμένο job ad
     public Double avgStepScoreForJobAdStep(int jobAdId, int stepId) {
         String sql = """
@@ -809,9 +720,7 @@ public class AnalyticsRepository {
         return v == null ? 0.0 : v;
     }
 
-    // Επιστρέφει τον μέσο όρο (για το συγκεκριμένο step) ανά υποψήφιο του job ad – για pass rate & histogram.
     // Επιστρέφει τον μέσο όρο (για το συγκεκριμένο step) ανά υποψήφιο του job ad – 0–100
-    // Για το step, φέρε τον Μ.Ο. (0–100) ανά υποψήφιο ΜΟΝΟ αν έχει τουλάχιστον ένα skill_score εκεί.
     public List<Double> candidateStepAverages(int jobAdId, int stepId) {
         String sql = """
         WITH scale AS (
@@ -840,9 +749,6 @@ public class AnalyticsRepository {
                 (rs, i) -> rs.getDouble("avg100"));
     }
 
-
-
-    // Κατάταξη των questions του step (ευκολότερη -> δυσκολότερη)
     // Κατάταξη των questions του step (ευκολότερη -> δυσκολότερη) σε 0–100
     public List<QuestionAvgDto> questionRankingByStep(int jobAdId, int stepId) {
         String sql = """
@@ -868,9 +774,6 @@ public class AnalyticsRepository {
         return jdbc.query(sql, Map.of("jobAdId", jobAdId, "stepId", stepId), AnalyticsMapper.QUESTION_AVG);
     }
 
-
-
-    // Κατάταξη των skills του step (ευκολότερη -> δυσκολότερη)
     // Κατάταξη των skills του step (ευκολότερη -> δυσκολότερη) σε 0–100
     public List<SkillAvgDto> skillRankingByStep(int jobAdId, int stepId) {
         String sql = """
@@ -999,7 +902,6 @@ public class AnalyticsRepository {
         return v == null ? 0.0 : v;
     }
 
-
     /* ======================  QUESTIONS  ====================== */
 
     // Επιστρέφει το μέσο score της συγκεκριμένης ερώτησης στο context ενός job ad (0–100),
@@ -1027,7 +929,6 @@ public class AnalyticsRepository {
         return v == null ? 0.0 : v;
     }
 
-
     //Επιστρέφει τον μέσο όρο της ερώτησης ανά υποψήφιο (0–100)
     public List<Double> candidateQuestionAverages(int jobAdId, int questionId) {
         String sql = """
@@ -1053,7 +954,6 @@ public class AnalyticsRepository {
                 (rs, i) -> rs.getDouble("avg100"));
     }
 
-
     // Επιστρέφει Μ.Ο. ανά skill για την ερώτηση (0–100) σε αυτό το job ad.
     public List<SkillAvgDto> skillAveragesForQuestion(int jobAdId, int questionId) {
         String sql = """
@@ -1076,7 +976,6 @@ public class AnalyticsRepository {
     """;
         return jdbc.query(sql, Map.of("jobAdId", jobAdId, "qid", questionId), AnalyticsMapper.SKILL_AVG);
     }
-
 
     // Buckets κατανομής 0–9,10–19,...,90–100 (τελευταίος inclusive στο 100) για τη συγκεκριμένη ερώτηση.
     public List<ScoreBucketDto> questionScoreDistribution(int jobAdId, int questionId) {
@@ -1117,7 +1016,6 @@ public class AnalyticsRepository {
                 (rs, i) -> new ScoreBucketDto(rs.getInt("from"), rs.getInt("to"), rs.getLong("count")));
     }
 
-
     // Πόσοι υποψήφιοι έχουν score ≥ 50% στη συγκεκριμένη ερώτηση (μόνο από skill_score).
     public long questionPassCount(int jobAdId, int questionId) {
         String sql = """
@@ -1143,9 +1041,7 @@ public class AnalyticsRepository {
         return v == null ? 0L : v;
     }
 
-
     // Ποσοστό υποψηφίων με score ≥ 50% στη συγκεκριμένη ερώτηση (0–100).
-
     public double questionPassRate(int jobAdId, int questionId) {
         String sql = """
     WITH scale AS (
@@ -1289,7 +1185,6 @@ public class AnalyticsRepository {
     }
 
     // Avg score για συγκεκριμένο skill ΜΕΣΑ σε (jobAd, question)
-// ΕΠΙΣΤΡΕΦΕΙ 0–10 (για να ταιριάζει με το σημερινό service/UI που μετά το κάνει *10 για εμφάνιση 0–100)
     public Double avgScoreForSkillInJobAdQuestion(int jobAdId, int questionId, int skillId) {
         String sql = """
         SELECT COALESCE(AVG(ss.score)/10.0, 0.0) AS avg10

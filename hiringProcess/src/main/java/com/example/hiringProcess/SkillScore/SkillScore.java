@@ -44,7 +44,7 @@ public class SkillScore {
     private Skill skill;
 
     // Κλίμακα 0..100
-    @Column(nullable = false)
+    @Column(nullable = true)
     private Integer score;
 
     // Σχόλιο για αυτό το skill πάνω σε αυτή την ερώτηση για τον συγκεκριμένο υποψήφιο

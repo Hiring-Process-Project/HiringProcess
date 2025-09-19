@@ -3,7 +3,7 @@ package com.example.hiringProcess.Candidate;
 import com.example.hiringProcess.SkillScore.SkillScoreResponseDTO;
 import com.example.hiringProcess.SkillScore.SkillScoreService;
 import com.example.hiringProcess.SkillScore.SkillScoreUpsertRequestDTO;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.hiringProcess.JobAd.JobAdRepository;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -14,10 +14,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-
-import com.example.hiringProcess.JobAd.JobAd;
-import com.example.hiringProcess.JobAd.JobAdRepository;
-import com.example.hiringProcess.InterviewReport.InterviewReport;
 
 import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
@@ -166,39 +162,21 @@ public class CandidateController {
             @RequestParam("jobAdId") Integer jobAdId,
             @RequestBody Candidate body) {
 
-        if (body == null
-                || body.getFirstName() == null || body.getFirstName().isBlank()
-                || body.getLastName()  == null || body.getLastName().isBlank()
-                || body.getEmail()     == null || body.getEmail().isBlank()
+        if (body == null || body.getFirstName() == null || body.getFirstName().isBlank()
+                || body.getLastName() == null || body.getLastName().isBlank()
+                || body.getEmail() == null || body.getEmail().isBlank()
                 || jobAdId == null) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
                     "firstName, lastName, email και jobAdId είναι υποχρεωτικά");
         }
 
-        JobAd jobAd = jobAdRepository.findById(jobAdId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "JobAd " + jobAdId + " not found"));
-
-        body.setJobAd(jobAd);
-
-        if (body.getStatus() == null || body.getStatus().isBlank()) {
-            body.setStatus("Pending");
-        }
-        if (body.getComments() == null) {
-            body.setComments("");
-        }
-
-        InterviewReport newIr = new InterviewReport();
-        newIr.setInterview(jobAd.getInterview());
-        body.setInterviewReport(newIr);
-
-        candidateService.addNewCandidate(body);
-
+        Candidate saved = candidateService.createCandidateWithSkeleton(jobAdId, body);
         return ResponseEntity
-                .created(URI.create("/api/v1/candidates/" + body.getId()))
-                .body(body);
+                .created(URI.create("/api/v1/candidates/" + saved.getId()))
+                .body(saved);
     }
+
 
     // Επιστρέφει τα τελικά σκορ υποψηφίων για συγκεκριμένο Job Ad (φθίνουσα)
     @GetMapping("/jobad/{jobAdId}/final-scores")

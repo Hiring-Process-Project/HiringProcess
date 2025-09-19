@@ -13,17 +13,15 @@ import java.util.Optional;
 
 public interface SkillScoreRepository extends JpaRepository<SkillScore, Long> {
 
+    // idempotent lookup (ίδια τριάδα)
     Optional<SkillScore> findByCandidateAndQuestionAndSkill(
             Candidate candidate, Question question, Skill skill
     );
 
+    // λίστες για panel
     List<SkillScore> findByCandidateIdAndQuestionId(int candidateId, int questionId);
 
     Optional<SkillScore> findByCandidateIdAndQuestionIdAndSkillId(
-            int candidateId, int questionId, int skillId
-    );
-
-    List<SkillScore> findAllByCandidateIdAndQuestionIdAndSkillId(
             int candidateId, int questionId, int skillId
     );
 
@@ -31,8 +29,7 @@ public interface SkillScoreRepository extends JpaRepository<SkillScore, Long> {
             int candidateId, int questionId, int skillId
     );
 
-    // Aggregations
-
+    // Aggregations που χρησιμοποιεί το UI για ποσοστά/μέσους
     @Query("""
        select ss.question.id as questionId,
               avg(ss.score)   as avgScore,
@@ -66,18 +63,17 @@ public interface SkillScoreRepository extends JpaRepository<SkillScore, Long> {
     );
 
     @Query("""
-   SELECT ss.question.id, COUNT(ss.score), AVG(ss.score)
-   FROM SkillScore ss
-   WHERE ss.candidate.id = :candidateId
-     AND ss.question.id IN :qids
-     AND ss.score IS NOT NULL
-   GROUP BY ss.question.id
-""")
+       select ss.question.id, count(ss.score), avg(ss.score)
+       from SkillScore ss
+       where ss.candidate.id = :candidateId
+         and ss.question.id in :qids
+         and ss.score is not null
+       group by ss.question.id
+    """)
     List<Object[]> aggregateByCandidateAndQuestionIdsRaw(
             @Param("candidateId") Integer candidateId,
             @Param("qids") Collection<Integer> qids
     );
 
     List<SkillScore> findByQuestionId(int questionId);
-
 }

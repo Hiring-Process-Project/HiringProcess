@@ -5,8 +5,6 @@ import com.example.hiringProcess.JobAd.JobAd;
 import com.example.hiringProcess.SkillScore.SkillScore;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,8 +31,8 @@ public class Candidate {
     private String cvPath;
     private String cvOriginalName;
     private String status;
-    @Lob
-    @Column
+
+    @Column(name = "comments", columnDefinition = "text")
     private String comments;
 
     // Σχέση Candidate με JobAd

@@ -1,7 +1,5 @@
 package com.example.hiringProcess.Candidate;
 
-// Result tab
-// PATCH + GET
 public class CandidateCommentDTO {
     private int candidateId;   // σε ποιον υποψήφιο μπαίνει το σχόλιο
     private String comments;   // το σχόλιο

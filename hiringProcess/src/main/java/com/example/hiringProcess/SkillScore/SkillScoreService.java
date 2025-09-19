@@ -1,12 +1,14 @@
 package com.example.hiringProcess.SkillScore;
 
+import com.example.hiringProcess.Candidate.Candidate;
 import com.example.hiringProcess.Candidate.CandidateRepository;
+import com.example.hiringProcess.Question.Question;
 import com.example.hiringProcess.Question.QuestionRepository;
+import com.example.hiringProcess.Skill.Skill;
 import com.example.hiringProcess.Skill.SkillRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -30,7 +32,7 @@ public class SkillScoreService {
         this.mapper = mapper;
     }
 
-    // LIST για συγκεκριμένο candidate+question
+    /** Λίστα scores για συγκεκριμένο candidate+question (για το δεξί panel) */
     public List<SkillScoreResponseDTO> listForCandidateQuestion(int candidateId, int questionId) {
         return skillScoreRepository
                 .findByCandidateIdAndQuestionId(candidateId, questionId)
@@ -39,29 +41,46 @@ public class SkillScoreService {
                 .toList();
     }
 
-    // UPSERT
+    /** Δημιουργεί ή ενημερώνει ένα SkillScore (idempotent) */
     @Transactional
     public SkillScoreResponseDTO upsert(SkillScoreUpsertRequestDTO dto) {
-        var existingOpt = skillScoreRepository
-                .findByCandidateIdAndQuestionIdAndSkillId(dto.candidateId(), dto.questionId(), dto.skillId());
+        // Φέρνουμε managed entities (θα ρίξει εξαίρεση αν κάτι δεν υπάρχει)
+        Candidate cand   = candidateRepository.findById(dto.candidateId())
+                .orElseThrow(() -> new IllegalStateException("Candidate not found: " + dto.candidateId()));
+        Question question = questionRepository.findById(dto.questionId())
+                .orElseThrow(() -> new IllegalStateException("Question not found: " + dto.questionId()));
+        Skill skill       = skillRepository.findById(dto.skillId())
+                .orElseThrow(() -> new IllegalStateException("Skill not found: " + dto.skillId()));
 
-        if (existingOpt.isPresent()) {
-            SkillScore existing = existingOpt.get();
-            existing.setScore(dto.score());
-            existing.setComment(dto.comment());
-            SkillScore saved = skillScoreRepository.save(existing);
-            return mapper.withCreated(mapper.toResponseDTO(saved), false);
+        // Προστασία: το skill πρέπει να ανήκει στη συγκεκριμένη question
+        if (question.getSkills() == null || !question.getSkills().contains(skill)) {
+            throw new IllegalStateException(
+                    "Skill " + dto.skillId() + " does not belong to Question " + dto.questionId());
         }
 
-        SkillScore entity = mapper.toNewEntity(dto);
-        entity.setCandidate(candidateRepository.getReferenceById(dto.candidateId()));
-        entity.setQuestion(questionRepository.getReferenceById(dto.questionId()));
-        entity.setSkill(skillRepository.getReferenceById(dto.skillId()));
-        SkillScore saved = skillScoreRepository.save(entity);
-        return mapper.withCreated(mapper.toResponseDTO(saved), true);
+        // Βρες υπάρχον ή φτιάξε νέο
+        SkillScore score = skillScoreRepository
+                .findByCandidateAndQuestionAndSkill(cand, question, skill)
+                .orElseGet(() -> {
+                    SkillScore s = new SkillScore();
+                    s.setCandidate(cand);
+                    s.setQuestion(question);
+                    s.setSkill(skill);
+                    // αρχικές τιμές
+                    s.setScore(null);
+                    s.setComment("");
+                    return s;
+                });
+
+        // Ενημέρωση τιμών
+        score.setScore(dto.score());
+        score.setComment(dto.comment());
+
+        SkillScore saved = skillScoreRepository.save(score);
+        return mapper.withCreated(mapper.toResponseDTO(saved), score.getId() == null);
     }
 
-    // DELETE by id
+    /** Διαγραφή με id */
     @Transactional
     public void deleteById(long id) {
         if (skillScoreRepository.existsById(id)) {
@@ -69,12 +88,13 @@ public class SkillScoreService {
         }
     }
 
-    // DELETE tuple (candidate, question, skill)
+    /** Διαγραφή για συγκεκριμένη τριάδα (candidate, question, skill) */
     @Transactional
     public void deleteTuple(int candidateId, int questionId, int skillId) {
         skillScoreRepository.deleteByCandidateIdAndQuestionIdAndSkillId(candidateId, questionId, skillId);
     }
-    /** Επιστρέφει ΟΛΑ τα skill scores (ως DTOs) */
+
+    /** Όλα τα skill scores (admin/debug) */
     public List<SkillScoreResponseDTO> listAll() {
         return skillScoreRepository.findAll()
                 .stream()
@@ -82,7 +102,7 @@ public class SkillScoreService {
                 .toList();
     }
 
-    /** Επιστρέφει ΟΛΑ τα skill scores για συγκεκριμένο question (όλων των υποψηφίων) */
+    /** Όλα τα skill scores για συγκεκριμένη ερώτηση (όλων των υποψηφίων) */
     public List<SkillScoreResponseDTO> listForQuestion(int questionId) {
         return skillScoreRepository.findByQuestionId(questionId)
                 .stream()
