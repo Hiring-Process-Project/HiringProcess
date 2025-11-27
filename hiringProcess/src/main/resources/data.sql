@@ -1,5 +1,14 @@
 -- === ORGANISATION ===
-INSERT INTO organisation (id, name, description) VALUES (3, 'TechCorp', 'A global tech company');
+INSERT INTO organisation(id, name, description)VALUES
+(3, 'TechCorp', 'A global tech company'),
+(4, 'HealthPlus', 'Healthcare software, EMR systems and analytics'),
+(5, 'EduPro', 'Education technology, LMS platforms and digital classrooms'),
+(6, 'FinoraBank', 'Digital-first bank with fintech services'),
+(7, 'AeroSpaceX', 'Aerospace engineering, avionics and R&D'),
+(8, 'GreenVolt', 'Renewable energy solutions and smart grid infrastructure'),
+(9, 'MarketFlow', 'E-commerce automation, demand prediction and logistics AI'),
+(10, 'CyberShield', 'Cybersecurity, threat detection and SOC operations');
+
 
 -- === DEPARTMENT ===
 INSERT INTO department (id, name, location, description, organisation_id) VALUES
@@ -9,7 +18,7 @@ INSERT INTO department (id, name, location, description, organisation_id) VALUES
 
 -- === OCCUPATION ===
 INSERT INTO occupation (id, title, esco_id) VALUES
-(6, 'Software Engineer', 'esco_1234'),
+(6, 'Applications programmers', 'esco_1234'),
 (7, 'HR Specialist', 'esco_5678'),
 (8, 'Data Analyst', 'esco_9012'),
 (9, 'Frontend Developer', 'esco_3456'),
