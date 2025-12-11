@@ -3,7 +3,6 @@ package com.example.hiringProcess.Step;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-@Data
 public class StepQuestionsDTO {
     private int id;
     private String title;
